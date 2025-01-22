@@ -1,141 +1,97 @@
 import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
-import razorpay from 'razorpay'
+import razorpay from "razorpay";
 
-// Global Variable
-const currency = 'inr'
-const deliveryCharge = 10
+// Global Variables
+const currency = "inr";
+const deliveryCharge = 10;
 
-// // Razorpay Initialize
-// const razorpayInstance = new razorpay({
-//     key_id: process.env.RAZORPAY_KEY_ID,
-//     key_secret: process.env.RAZORPAY_SECRET_KEY,
-// })
+// Razorpay Initialization (if required in future)
+let razorpayInstance;
+if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_SECRET_KEY) {
+  razorpayInstance = new razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_SECRET_KEY,
+  });
+}
 
 // Placing Order Using COD Method
 const placeOrder = async (req, res) => {
-    try {
-        const {userId, amount,duration, items, address} = req.body;
+  try {
+    const { userId, amount, items, address } = req.body;
 
-        const orderData = {
-            userId, address, amount,duration, items, paymentMethod:"COD", payment: false, date: Date.now()
-        }
-         
-        const newOrder = new orderModel(orderData)
-        await newOrder.save()
-
-        await userModel.findByIdAndUpdate(userId,{cartData:{}})
-
-        res.json({success:true, message: "Order Placed Successfully"})
-
-    } catch (error) {
-        console.log(error)
-        res.json({success:false, message: error.message})
-                
+    // Ensure required fields are present
+    if (!userId || !amount || !items || !address) {
+      return res.json({ success: false, message: "All fields are required." });
     }
-}
 
-// Placing Order Using Razorpay Method
-// const placeOrderRazorpay = async (req, res) => {
-//     try {
-//         const {userId, items, amount, address} = req.body
+    const orderData = {
+      userId,
+      address,
+      amount,
+      items,
+      paymentMethod: "COD",
+      payment: false,
+      date: Date.now(),
+    };
 
-//         const orderData = {
-//             userId,
-//             items,
-//             address,
-//             amount,
-//             paymentMethod:"Razorpay",
-//             payment: false,
-//             date: Date.now()
-//         }
+    // Save the order
+    const newOrder = new orderModel(orderData);
+    await newOrder.save();
 
-//         const newOrder = new orderModel(orderData)
-//         await newOrder.save()
+    // Clear user's cart
+    await userModel.findByIdAndUpdate(userId, { cartData: {} });
 
-//         const options = {
-//             amount: amount * 100,
-//             currency: currency.toUpperCase(),
-//             reciept: newOrder._id.toString()
-//         }
+    res.json({ success: true, message: "Order Placed Successfully" });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
 
-//         await razorpayInstance.orders.create(options, (error, order)=> {
-//             if (error) {
-//                 console.log(error)
-//                 return res.json({success:false, message:error})
-//             }
-//             res.json({success:true, order})
-//         })
-//     } catch (error) {
-//         console.log(error)
-//         res.json({success:false, message:error.message})
-        
-//     }
-// }
-
-// const verifyRazorpay = async (req, res) => {
-//     try {
-//         const {userId, razorpay_order_id} = req.body
-
-//         const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id)
-//         if (orderInfo.status === 'paid') {
-//             console.log(orderInfo);
-//             await orderModel.findByIdAndUpdate(orderInfo.receipt,{payment:true});
-//             await userModel.findByIdAndUpdate(userId, {cartData:{}})
-//             res.json({success:true, message: "Payment Successful"})
-//         } else {
-//             res.json({success:false, message: "Payment Failed"})
-//         }
-        
-//     } catch (error) {
-//         console.log(error)
-//         res.json({success:false, message:error.message})
-        
-//     }
-    
-
-    
-// }
-
-// Orders Data for Admin panel 
+// Orders Data for Admin Panel
 const allOrders = async (req, res) => {
-    try {
-        const orders = await orderModel.find({})
-        res.json({success: true, orders})
-    } catch (error) {
-        console.log(error)
-        res.json({success: false, message: error.message})
-        
-    }
-}
+  try {
+    const orders = await orderModel.find({});
+    res.json({ success: true, orders });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
 
-// User Order Data for FrontEnd
+// User Order Data for Frontend
 const userOrder = async (req, res) => {
-    try {
-        const {userId} = req.body
-        const orders = await orderModel.find({userId})
-        res.json({success:true, orders})
+  try {
+    const { userId } = req.body;
 
-    } catch (error) {
-        console.log(error)
-        res.json({success:false, message: error.message})
-        
+    if (!userId) {
+      return res.json({ success: false, message: "User ID is required." });
     }
-}
 
-// Update Order Status from Admin Panel 
+    const orders = await orderModel.find({ userId });
+    res.json({ success: true, orders });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// Update Order Status from Admin Panel
 const updateStatus = async (req, res) => {
+  try {
+    const { orderId, status } = req.body;
 
-    try {
-        const {orderId, status} = req.body
-
-        await orderModel.findByIdAndUpdate(orderId, { status })
-        res.json({success: true, message: 'Status Updated'})
-    } catch (error) {
-        console.log(error)
-        res.json({success: false, message: error.message})
-        
+    if (!orderId || !status) {
+      return res.json({ success: false, message: "Order ID and status are required." });
     }
-}
 
-export {placeOrder,  allOrders, updateStatus, userOrder}
+    await orderModel.findByIdAndUpdate(orderId, { status });
+    res.json({ success: true, message: "Status Updated" });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export { placeOrder, allOrders, updateStatus, userOrder };
