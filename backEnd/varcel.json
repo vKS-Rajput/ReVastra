@@ -6,8 +6,6 @@
             "use": "@vercel/node",
             "config": {
                 "includeFiles": [
-                    "config/**",
-                    "routes/**",
                     "dist/**"
                 ]
             }
@@ -15,7 +13,7 @@
     ],
     "routes": [
         {
-            "src": "/api/(.*)",
+            "src": "/(.*)",
             "dest": "server.js"
         }
     ]
