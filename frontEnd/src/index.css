@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Charmonman:wght@400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+a.active hr{
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .animate-fadeIn {
+    animation: fadeIn 1s ease-in-out forwards;
+  }
+  
+  button:hover {
+    background-color: #E63946;
+    transform: translateY(-3px);
+  }
+  
+  .charmonman-regular {
+    font-family: "Charmonman", cursive;
+    font-weight: 400;
+    font-style: normal;
+  }
+  
+  .charmonman-bold {
+    font-family: "Charmonman", cursive;
+    font-weight: 700;
+    font-style: normal;
+  }
+
+  .proceed-to-checkout-btn {
+    background-color: #E63946; /* Vibrant red color */
+    color: white; /* Text color */
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    width: 100%; /* Full width */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.proceed-to-checkout-btn:hover {
+    background-color: #D62839; /* Slightly darker shade for hover effect */
+}
+
+
