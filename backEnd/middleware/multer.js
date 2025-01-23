@@ -1,22 +1,18 @@
 import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
-import fs from "fs";
 
 // Get the current directory (__dirname equivalent in ES Modules)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Ensure the upload directory exists
-const uploadDir = path.join(__dirname, "../uploads");
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true }); // Create directory if it doesn't exist
-}
+// Use temporary directory for uploads in serverless environments
+const uploadDir = "/tmp";
 
 // Configure storage
 const storage = multer.diskStorage({
     destination: function (req, file, callback) {
-        // Provide the upload directory
+        // Provide the temporary directory
         callback(null, uploadDir);
     },
     filename: function (req, file, callback) {
