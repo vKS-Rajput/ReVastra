@@ -105,20 +105,22 @@ const Cart = () => {
       </div>
 
       {/* Cart Total and Checkout */}
-      <div className="flex justify-center my-20">
-        <div className="w-full sm:w-[700px] bg-white shadow-lg rounded-lg p-8">
-          <CartTotal />
+      {cartData.length > 0 && (
+        <div className="flex justify-center my-20">
+          <div className="w-full sm:w-[700px] bg-white shadow-lg rounded-lg p-8">
+            <CartTotal />
 
-          <div className="w-full text-center mt-8">
-            <button
-              onClick={() => navigate("/placeorder")}
-              className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold text-lg rounded-full px-10 py-4 shadow-md hover:shadow-lg transition-all duration-300"
-            >
-              PROCEED TO CHECKOUT
-            </button>
+            <div className="w-full text-center mt-8">
+              <button
+                onClick={() => navigate("/placeorder")}
+                className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold text-lg rounded-full px-10 py-4 shadow-md hover:shadow-lg transition-all duration-300"
+              >
+                PROCEED TO CHECKOUT
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
