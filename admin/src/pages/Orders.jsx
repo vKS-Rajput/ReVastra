@@ -117,10 +117,11 @@ const Orders = ({ token }) => {
                     {item.name} ({item.size})
                   </p>
                 ))}
-                <p className='mt-3 mb-2 font-medium'>{order.address.fullName}</p>
+                <p className='mt-3 mb-2 font-medium'>Name: {order.address.fullName}</p>
                 <div>
-                  <p>{order.address.hostel + ","}</p>
-                  <p>{order.address.block + ", " + order.address.room}</p>
+                  <p> Hostel: {order.address.hostel + ","}</p>
+                  <p> Block: {order.address.block}</p>
+                  <p>Room: {order.address.room}</p>
                 </div>
                 <p className="mt-2 text-gray-800 text-md font-medium">{order.address.phone}</p>
               </div>
