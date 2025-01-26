@@ -1,20 +1,29 @@
-import React, { useContext, useState } from 'react';
-import Title from '../components/Title';
-import CartTotal from '../components/CartTotal';
-import { assets } from '../assets/assets';
-import { ShopContext } from '../context/ShopContext';
-import axios from 'axios';
-import { toast } from 'react-toastify';
+import React, { useContext, useState } from "react";
+import Title from "../components/Title";
+import CartTotal from "../components/CartTotal";
+import { assets } from "../assets/assets";
+import { ShopContext } from "../context/ShopContext";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const PlaceOrder = () => {
-  const [method, setMethod] = useState('cod');
-  const { navigate, backEndURL, token, cartItems, setCartItems, getCartAmount, delivery_fee, products } = useContext(ShopContext);
+  const [method, setMethod] = useState("cod");
+  const {
+    navigate,
+    backEndURL,
+    token,
+    cartItems,
+    setCartItems,
+    getCartAmount,
+    delivery_fee,
+    products,
+  } = useContext(ShopContext);
   const [formData, setFormData] = useState({
-    fullName: '',
-    hostel: '',
-    block: '',
-    room: '',
-    phone: '',
+    fullName: "",
+    hostel: "",
+    block: "",
+    room: "",
+    phone: "",
   });
 
   const onChangeHandler = (event) => {
@@ -30,7 +39,9 @@ const PlaceOrder = () => {
       for (const items in cartItems) {
         for (const item in cartItems[items]) {
           if (cartItems[items][item] > 0) {
-            const itemInfo = structuredClone(products.find((product) => product._id === items));
+            const itemInfo = structuredClone(
+              products.find((product) => product._id === items)
+            );
             if (itemInfo) {
               itemInfo.size = item;
               itemInfo.quantity = cartItems[items][item];
@@ -47,17 +58,25 @@ const PlaceOrder = () => {
       };
 
       switch (method) {
-        case 'cod':
-          const response = await axios.post(backEndURL + '/api/order/place', orderData, { headers: { token } });
+        case "cod":
+          const response = await axios.post(
+            backEndURL + "/api/order/place",
+            orderData,
+            { headers: { token } }
+          );
           if (response.data.success) {
-            navigate('/orders');
+            navigate("/orders");
           } else {
             toast.error(response.data.message);
           }
           break;
 
-        case 'razorpay':
-          const responseRazorpay = await axios.post(backEndURL + '/api/order/razorpay', orderData, { headers: { token } });
+        case "razorpay":
+          const responseRazorpay = await axios.post(
+            backEndURL + "/api/order/razorpay",
+            orderData,
+            { headers: { token } }
+          );
           if (responseRazorpay.data.success) {
             initPay(responseRazorpay.data.order);
           }
@@ -77,19 +96,19 @@ const PlaceOrder = () => {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
       amount: order.amount,
       currency: order.currency,
-      name: 'Order Payment',
-      description: 'Order Payment',
+      name: "Order Payment",
+      description: "Order Payment",
       order_id: order.id,
       receipt: order.receipt,
       handler: async (response) => {
         try {
           const { data } = await axios.post(
-            backEndURL + '/api/order/verifyRazorpay',
+            backEndURL + "/api/order/verifyRazorpay",
             response,
             { headers: { token } }
           );
           if (data.success) {
-            navigate('/orders');
+            navigate("/orders");
             setCartItems({});
           }
         } catch (error) {
@@ -117,7 +136,7 @@ const PlaceOrder = () => {
             value={formData.fullName}
             onChange={onChangeHandler}
             className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946]"
-            placeholder="First Name"
+            placeholder="Full Name"
           />
           <input
             required
@@ -158,25 +177,37 @@ const PlaceOrder = () => {
         <Title text1="Payment" text2="Method" />
         <div className="flex flex-col sm:flex-row gap-4 mt-4">
           <div
-            onClick={() => setMethod('razorpay')}
+            onClick={() => setMethod("razorpay")}
             className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer shadow-sm transition-transform transform hover:scale-105 ${
-              method === 'razorpay' ? 'border-[#E63946] bg-blue-50' : 'border-gray-300'
+              method === "razorpay"
+                ? "border-[#E63946] bg-blue-50"
+                : "border-gray-300"
             }`}
           >
-            <span className={`w-4 h-4 border rounded-full flex items-center justify-center ${
-              method === 'razorpay' ? 'bg-[#E63946]' : ''
-            }`}></span>
-            <img className="h-6" src={assets.razorpay_logo} alt="Razorpay" />
+            <span
+              className={`w-4 h-4 border rounded-full flex items-center justify-center ${
+                method === "razorpay" ? "bg-[#E63946]" : ""
+              }`}
+            ></span>
+            <img
+              className="h-6"
+              src={assets.razorpay_logo}
+              alt="Razorpay"
+            />
           </div>
           <div
-            onClick={() => setMethod('cod')}
+            onClick={() => setMethod("cod")}
             className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer shadow-sm transition-transform transform hover:scale-105 ${
-              method === 'cod' ? 'border-[#E63946] bg-blue-50' : 'border-gray-300'
+              method === "cod"
+                ? "border-[#E63946] bg-blue-50"
+                : "border-gray-300"
             }`}
           >
-            <span className={`w-4 h-4 border rounded-full flex items-center justify-center ${
-              method === 'cod' ? 'bg-[#E63946]' : ''
-            }`}></span>
+            <span
+              className={`w-4 h-4 border rounded-full flex items-center justify-center ${
+                method === "cod" ? "bg-[#E63946]" : ""
+              }`}
+            ></span>
             <p className="text-sm font-medium">Cash on Delivery</p>
           </div>
         </div>
@@ -191,6 +222,14 @@ const PlaceOrder = () => {
         >
           Place Order
         </button>
+      </div>
+
+      {/* Note Section */}
+      <div className="text-center mt-6 text-gray-600 text-sm">
+        <p>
+          <strong>Note:</strong> There will be no delivery outside the campus. Please try to order 
+          inside the college campus for now. Our delivery area will extend very soon!
+        </p>
       </div>
     </form>
   );
