@@ -136,7 +136,7 @@ const PlaceOrder = () => {
             name="email"
             value={formData.email}
             onChange={onChangeHandler}
-            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] col-span-2"
+            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] col-span-1 sm:col-span-2"
             placeholder="Email Address"
           />
           <input
@@ -144,7 +144,7 @@ const PlaceOrder = () => {
             name="street"
             value={formData.street}
             onChange={onChangeHandler}
-            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] col-span-2"
+            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] col-span-1 sm:col-span-2"
             placeholder="Street Address"
           />
           <input
@@ -183,7 +183,7 @@ const PlaceOrder = () => {
             name="phone"
             value={formData.phone}
             onChange={onChangeHandler}
-            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] col-span-2"
+            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] col-span-1 sm:col-span-2"
             placeholder="Phone Number"
           />
         </div>
