@@ -123,7 +123,7 @@ const ShopContextProvider = (props) => {
         return totalAmount;
     }
 
-    const delivery_fee = (getCartAmount*0.2);
+    const delivery_fee = (totalAmount*0.2);
 
     // Fetch products from the backend
     const getProductData = async () => {
