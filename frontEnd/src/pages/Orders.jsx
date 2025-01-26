@@ -124,13 +124,12 @@ const Orders = () => {
               <div className="mt-4 flex flex-col sm:flex-row justify-between items-center">
                 <div className="flex items-center gap-2">
                   <p
-                    className={`min-w-2 h-2 rounded-full ${
-                      item.status === 'Delivered'
+                    className={`min-w-2 h-2 rounded-full ${item.status === 'Delivered'
                         ? 'bg-green-500'
                         : item.status === 'Pending'
-                        ? 'bg-yellow-500'
-                        : 'bg-red-500'
-                    }`}
+                          ? 'bg-yellow-500'
+                          : 'bg-red-500'
+                      }`}
                   />
                   <p className="text-sm font-medium text-gray-700">{item.status}</p>
                 </div>
@@ -145,12 +144,15 @@ const Orders = () => {
           );
         })}
       </div>
-      <div className="mt-8 text-center text-sm text-gray-600">
-        <p>
-          <strong>Note:</strong> The time displayed in the timer may not be completely accurate.
-          The final return date will be calculated after the delivery date.
-        </p>
+      <div className="mt-8 text-center">
+        <div className="inline-block bg-yellow-100 border-l-4 border-red-500 p-4 rounded-md shadow-md">
+          <p className="text-sm text-red-800 font-medium">
+            <strong className="block text-red-900">Important Note:</strong>
+            The time displayed in the timer may not be completely accurate. The final return date will be calculated after the delivery date.
+          </p>
+        </div>
       </div>
+
     </div>
   );
 };

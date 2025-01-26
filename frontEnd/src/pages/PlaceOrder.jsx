@@ -178,16 +178,14 @@ const PlaceOrder = () => {
         <div className="flex flex-col sm:flex-row gap-4 mt-4">
           <div
             onClick={() => setMethod("razorpay")}
-            className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer shadow-sm transition-transform transform hover:scale-105 ${
-              method === "razorpay"
+            className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer shadow-sm transition-transform transform hover:scale-105 ${method === "razorpay"
                 ? "border-[#E63946] bg-blue-50"
                 : "border-gray-300"
-            }`}
+              }`}
           >
             <span
-              className={`w-4 h-4 border rounded-full flex items-center justify-center ${
-                method === "razorpay" ? "bg-[#E63946]" : ""
-              }`}
+              className={`w-4 h-4 border rounded-full flex items-center justify-center ${method === "razorpay" ? "bg-[#E63946]" : ""
+                }`}
             ></span>
             <img
               className="h-6"
@@ -197,16 +195,14 @@ const PlaceOrder = () => {
           </div>
           <div
             onClick={() => setMethod("cod")}
-            className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer shadow-sm transition-transform transform hover:scale-105 ${
-              method === "cod"
+            className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer shadow-sm transition-transform transform hover:scale-105 ${method === "cod"
                 ? "border-[#E63946] bg-blue-50"
                 : "border-gray-300"
-            }`}
+              }`}
           >
             <span
-              className={`w-4 h-4 border rounded-full flex items-center justify-center ${
-                method === "cod" ? "bg-[#E63946]" : ""
-              }`}
+              className={`w-4 h-4 border rounded-full flex items-center justify-center ${method === "cod" ? "bg-[#E63946]" : ""
+                }`}
             ></span>
             <p className="text-sm font-medium">Cash on Delivery</p>
           </div>
@@ -225,12 +221,15 @@ const PlaceOrder = () => {
       </div>
 
       {/* Note Section */}
-      <div className="text-center mt-6 text-gray-600 text-sm">
-        <p>
-          <strong>Note:</strong> There will be no delivery outside the campus. Please try to order 
-          inside the college campus for now. Our delivery area will extend very soon!
-        </p>
+      <div className="mt-6 text-center">
+        <div className="inline-block bg-blue-50 border-l-4 border-red-500 p-4 rounded-md shadow-md">
+          <p className="text-sm text-red-800 font-medium">
+            <strong className="block text-red-900">Important Note:</strong>
+            There will be no delivery outside the campus. Please try to order inside the college campus for now. Our delivery area will extend very soon!
+          </p>
+        </div>
       </div>
+
     </form>
   );
 };
