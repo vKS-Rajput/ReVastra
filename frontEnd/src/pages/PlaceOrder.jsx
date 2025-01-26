@@ -11,7 +11,9 @@ const PlaceOrder = () => {
   const { navigate, backEndURL, token, cartItems, setCartItems, getCartAmount, delivery_fee, products } = useContext(ShopContext);
   const [formData, setFormData] = useState({
     firstName: '',
+    lastName: '',
     email: '',
+    street: '',
     city: '',
     state: '',
     zipcode: '',
@@ -121,7 +123,14 @@ const PlaceOrder = () => {
             className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946]"
             placeholder="First Name"
           />
-          
+          <input
+            required
+            name="lastName"
+            value={formData.lastName}
+            onChange={onChangeHandler}
+            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946]"
+            placeholder="Last Name"
+          />
           <input
             required
             name="email"
@@ -130,7 +139,14 @@ const PlaceOrder = () => {
             className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] col-span-2"
             placeholder="Email Address"
           />
-          
+          <input
+            required
+            name="street"
+            value={formData.street}
+            onChange={onChangeHandler}
+            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] col-span-2"
+            placeholder="Street Address"
+          />
           <input
             required
             name="city"
