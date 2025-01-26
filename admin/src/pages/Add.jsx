@@ -4,7 +4,7 @@ import axios from "axios";
 import { backEndURL } from "../App";
 import { toast } from "react-toastify";
 
-const Add = ({token}) => {
+const Add = ({ token }) => {
   const [image1, setImage1] = useState(false);
   const [image2, setImage2] = useState(false);
   const [image3, setImage3] = useState(false);
@@ -48,7 +48,7 @@ const Add = ({token}) => {
       formData.append("description", description);
       formData.append("price", price);
       formData.append("category", category);
-      formData.append("rental_price", rental_price)
+      formData.append("rental_price", rental_price);
       formData.append("subCategory", subCategory);
       formData.append("sizes", JSON.stringify(sizes));
       if (image1) formData.append("image1", image1);
@@ -56,19 +56,18 @@ const Add = ({token}) => {
       if (image3) formData.append("image3", image3);
       if (image4) formData.append("image4", image4);
 
-      const response = await axios.post( backEndURL + "/api/product/add", formData, {headers:{token}});
+      const response = await axios.post(backEndURL + "/api/product/add", formData, { headers: { token } });
 
       if (response.data.success) {
-        toast.success(response.data.success)
-        setName('');
-        setDescription('');
+        toast.success(response.data.success);
+        setName("");
+        setDescription("");
         setImage1(false);
         setImage2(false);
         setImage3(false);
         setImage4(false);
-        setPrice('');
-        setRentalPrice('');
-        
+        setPrice("");
+        setRentalPrice("");
       } else {
         toast.error(response.data.message);
       }
@@ -81,12 +80,12 @@ const Add = ({token}) => {
   return (
     <form
       onSubmit={onSubmitHandler}
-      className="flex flex-col w-full items-center gap-6 p-6 bg-white shadow-xl rounded-lg max-w-4xl mx-auto hover:shadow-2xl transition-shadow duration-300"
+      className="flex flex-col w-full items-center gap-6 p-4 bg-white shadow-xl rounded-lg max-w-4xl mx-auto hover:shadow-2xl transition-shadow duration-300"
     >
       {/* Section: Image Upload */}
       <div className="w-full">
         <p className="text-lg font-bold mb-4">Upload Product Images</p>
-        <div className="flex justify-center gap-6">
+        <div className="flex flex-wrap justify-center gap-4">
           {[setImage1, setImage2, setImage3, setImage4].map((setImage, index) => (
             <label
               key={index}
@@ -112,7 +111,7 @@ const Add = ({token}) => {
       {/* Section: Product Details */}
       <div className="w-full">
         <p className="text-lg font-bold mb-4">Product Details</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <input
             onChange={(e) => setName(e.target.value)}
             value={name}
@@ -166,7 +165,7 @@ const Add = ({token}) => {
       {/* Section: Sizes */}
       <div className="w-full">
         <p className="text-lg font-bold mb-4">Available Sizes</p>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-4">
           {["S", "M", "L", "XL", "XXL"].map((size) => (
             <div
               key={size}
@@ -206,7 +205,7 @@ const Add = ({token}) => {
       <div className="flex justify-center w-full">
         <button
           type="submit"
-          className="w-64 py-3 mt-6 bg-[#E63946] text-white font-bold rounded-md hover:bg-[#D7263D] transition-colors duration-300"
+          className="w-full sm:w-64 py-3 mt-6 bg-[#E63946] text-white font-bold rounded-md hover:bg-[#D7263D] transition-colors duration-300"
         >
           Add Product
         </button>

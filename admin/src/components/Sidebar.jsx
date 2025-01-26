@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 
 const Sidebar = () => {
   return (
-    <aside className="w-[240px] bg-gray-200 text-black min-h-screen shadow-md">
+    <aside className="w-full sm:w-[240px] bg-gray-200 text-black min-h-screen shadow-md flex flex-col">
       {/* Sidebar Header */}
       <div className="py-6 text-center border-b border-gray-700">
         <h2 className="text-2xl font-bold text-black">Admin</h2>
@@ -32,7 +32,7 @@ const Sidebar = () => {
       </nav>
 
       {/* Footer */}
-      <div className="absolute bottom-4 text-center text-sm text-[#E63946] w-full">
+      <div className="mt-auto py-4 text-center text-sm text-[#E63946] w-full">
         © 2025 Admin Panel
       </div>
     </aside>
