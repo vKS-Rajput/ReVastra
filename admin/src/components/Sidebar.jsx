@@ -30,11 +30,6 @@ const Sidebar = () => {
           Orders
         </NavLink>
       </nav>
-
-      {/* Footer */}
-      <div className="mt-auto py-4 text-center text-sm text-[#E63946] w-full">
-        © 2025 Admin Panel
-      </div>
     </aside>
   );
 };

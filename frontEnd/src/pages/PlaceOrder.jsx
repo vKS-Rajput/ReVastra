@@ -10,14 +10,10 @@ const PlaceOrder = () => {
   const [method, setMethod] = useState('cod');
   const { navigate, backEndURL, token, cartItems, setCartItems, getCartAmount, delivery_fee, products } = useContext(ShopContext);
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    street: '',
-    city: '',
-    state: '',
-    zipcode: '',
-    country: '',
+    fullName: '',
+    hostel: '',
+    block: '',
+    room: '',
     phone: '',
   });
 
@@ -117,73 +113,41 @@ const PlaceOrder = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
           <input
             required
-            name="firstName"
-            value={formData.firstName}
+            name="fullName"
+            value={formData.fullName}
             onChange={onChangeHandler}
             className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946]"
             placeholder="First Name"
           />
           <input
             required
-            name="lastName"
-            value={formData.lastName}
+            name="hostel"
+            value={formData.hostel}
             onChange={onChangeHandler}
-            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946]"
-            placeholder="Last Name"
+            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] col-span-2"
+            placeholder="Hostel Type"
           />
           <input
             required
-            name="email"
-            value={formData.email}
-            onChange={onChangeHandler}
-            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] col-span-1 sm:col-span-2"
-            placeholder="Email Address"
-          />
-          <input
-            required
-            name="street"
-            value={formData.street}
-            onChange={onChangeHandler}
-            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] col-span-1 sm:col-span-2"
-            placeholder="Street Address"
-          />
-          <input
-            required
-            name="city"
-            value={formData.city}
+            name="block"
+            value={formData.block}
             onChange={onChangeHandler}
             className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946]"
-            placeholder="City"
+            placeholder="Block"
           />
           <input
-            name="state"
-            value={formData.state}
+            name="room"
+            value={formData.room}
             onChange={onChangeHandler}
             className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946]"
-            placeholder="State"
-          />
-          <input
-            required
-            name="zipcode"
-            value={formData.zipcode}
-            onChange={onChangeHandler}
-            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946]"
-            placeholder="Zip Code"
-          />
-          <input
-            required
-            name="country"
-            value={formData.country}
-            onChange={onChangeHandler}
-            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946]"
-            placeholder="Country"
+            placeholder="Room No."
           />
           <input
             required
             name="phone"
             value={formData.phone}
             onChange={onChangeHandler}
-            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] col-span-1 sm:col-span-2"
+            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] col-span-2"
             placeholder="Phone Number"
           />
         </div>
