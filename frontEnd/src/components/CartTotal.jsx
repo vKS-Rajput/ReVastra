@@ -23,7 +23,7 @@ const CartTotal = () => {
         {/* Shipping Fee */}
         <div className="flex justify-between items-center border-b pb-2">
           <p className="text-gray-600 font-medium">Shipping Fee</p>
-          <p className="font-semibold text-gray-800">{currency} {delivery_fee = getCartAmount*0.02}</p>
+          <p className="font-semibold text-gray-800">{currency} {delivery_fee}</p>
         </div>
 
         {/* Total */}
