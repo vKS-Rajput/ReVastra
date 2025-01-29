@@ -71,6 +71,8 @@ const List = ({ token }) => {
             />
             <p className="font-medium text-gray-800">{item.name}</p>
             <p className="text-gray-600">{item.category}</p>
+            <p className="text-gray-500">{item.location}</p>
+            <p className="text-gray-500">{item.phone}</p>
             <p className="text-gray-800 font-semibold">
               {currency}
               {item.rental_price}

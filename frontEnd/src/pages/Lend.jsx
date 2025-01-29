@@ -5,7 +5,8 @@ import { backEndURL } from '../App';
 import { assets } from '../../../admin/src/assets/assets';
 
 const Lend = ({ token }) => {
-  const [images, setImages] = useState([false, false, false, false]);
+  const [images, setImages] = useState([null, null, null, null]);
+  const [imagePreviews, setImagePreviews] = useState([null, null, null, null]);
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -15,23 +16,32 @@ const Lend = ({ token }) => {
   const [bestSeller, setBestSeller] = useState(false);
   const [sizes, setSizes] = useState([]);
   const [rental_price, setRentalPrice] = useState("");
+  const [location, setLocation] = useState("");
+  const [phone, setPhone] = useState("");
 
   useEffect(() => {
     return () => {
-      images.forEach(image => image && URL.revokeObjectURL(image));
+      imagePreviews.forEach((preview) => preview && URL.revokeObjectURL(preview));
     };
-  }, [images]);
+  }, [imagePreviews]);
 
   const onImageChange = (index, file) => {
+    if (!file) return;
+
     const newImages = [...images];
+    const newPreviews = [...imagePreviews];
+
     newImages[index] = file;
+    newPreviews[index] = URL.createObjectURL(file);
+
     setImages(newImages);
+    setImagePreviews(newPreviews);
   };
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
 
-    if (images.every(image => !image)) {
+    if (images.every((image) => !image)) {
       toast.error("Please upload at least one image.");
       return;
     }
@@ -51,26 +61,34 @@ const Lend = ({ token }) => {
       formData.append("rental_price", rental_price);
       formData.append("subCategory", subCategory);
       formData.append("sizes", JSON.stringify(sizes));
+      formData.append("location", location);
+      formData.append("phone", phone);
 
       images.forEach((image, index) => {
         if (image) formData.append(`image${index + 1}`, image);
       });
 
-      const response = await axios.post(backEndURL + "/api/product/lend", formData, { headers: { token } });
+      const response = await axios.post(`${backEndURL}/api/product/lend`, formData, 
+      );
 
       if (response.data.success) {
-        toast.success(response.data.success);
+        toast.success(response.data.message);
         setName('');
         setDescription('');
-        setImages([false, false, false, false]);
+        setImages([null, null, null, null]);
+        setImagePreviews([null, null, null, null]);
         setPrice('');
+        setLocation('');
+        setPhone('');
         setRentalPrice('');
+        setSizes([]);
+        setBestSeller(false);
       } else {
         toast.error(response.data.message);
       }
     } catch (error) {
       console.error("Error occurred:", error);
-      toast.error(error.response?.data?.message || error.message);
+      toast.error(error.response?.data?.message || "Something went wrong!");
     }
   };
 
@@ -91,7 +109,7 @@ const Lend = ({ token }) => {
             >
               <img
                 className="w-24 h-24 object-cover rounded-md"
-                src={!image ? assets.upload_area : URL.createObjectURL(image)}
+                src={imagePreviews[index] || assets.upload_area}
                 alt="Upload Preview"
               />
               <input
@@ -129,10 +147,27 @@ const Lend = ({ token }) => {
             onChange={(e) => setRentalPrice(e.target.value)}
             value={rental_price}
             className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
-            type="text"
+            type="number"
             placeholder="Rental Price"
             required
           />
+          <input
+            onChange={(e) => setLocation(e.target.value)}
+            value={location}
+            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
+            type="text"
+            placeholder="Pickup Location"
+            required
+          />
+          <input
+            onChange={(e) => setPhone(e.target.value)}
+            value={phone}
+            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
+            type="number"
+            placeholder="Your Contact Number"
+            required
+          />
+
           <select
             onChange={(e) => setCategory(e.target.value)}
             className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
@@ -157,6 +192,7 @@ const Lend = ({ token }) => {
           placeholder="Write Product Description"
           required
         />
+
       </div>
 
       {/* Section: Sizes */}
@@ -168,16 +204,11 @@ const Lend = ({ token }) => {
               key={size}
               onClick={() =>
                 setSizes((prev) =>
-                  prev.includes(size)
-                    ? prev.filter((item) => item !== size)
-                    : [...prev, size]
+                  prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]
                 )
               }
-              className={`${
-                sizes.includes(size)
-                  ? "bg-[#E63946] text-white"
-                  : "bg-gray-200"
-              } px-4 py-2 cursor-pointer rounded-md hover:bg-[#E63946] hover:text-white transition-colors duration-300`}
+              className={`px-4 py-2 cursor-pointer rounded-md transition-colors duration-300 ${sizes.includes(size) ? "bg-[#E63946] text-white" : "bg-gray-200"
+                }`}
             >
               {size}
             </div>
@@ -199,14 +230,9 @@ const Lend = ({ token }) => {
       </div>
 
       {/* Submit Button */}
-      <div className="flex justify-center w-full">
-        <button
-          type="submit"
-          className="w-64 py-3 mt-6 bg-[#E63946] text-white font-bold rounded-md hover:bg-[#D7263D] transition-colors duration-300"
-        >
-          Add Product
-        </button>
-      </div>
+      <button type="submit" className="w-64 py-3 mt-6 bg-[#E63946] text-white font-bold rounded-md hover:bg-[#D7263D] transition-colors duration-300">
+        Add Product
+      </button>
     </form>
   );
 };
