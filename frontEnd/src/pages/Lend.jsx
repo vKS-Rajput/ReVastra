@@ -17,7 +17,7 @@ const Lend = ({ token }) => {
   const [sizes, setSizes] = useState([]);
   const [rental_price, setRentalPrice] = useState("");
   const [location, setLocation] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phoneNo, setPhoneNo] = useState("");
 
   useEffect(() => {
     return () => {
@@ -62,14 +62,15 @@ const Lend = ({ token }) => {
       formData.append("subCategory", subCategory);
       formData.append("sizes", JSON.stringify(sizes));
       formData.append("location", location);
-      formData.append("phone", phone);
+      formData.append("phone", phoneNo);
 
       images.forEach((image, index) => {
         if (image) formData.append(`image${index + 1}`, image);
       });
 
-      const response = await axios.post(`${backEndURL}/api/product/lend`, formData, 
-      );
+      const response = await axios.post(`${backEndURL}/api/product/lend`, formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       if (response.data.success) {
         toast.success(response.data.message);
@@ -79,7 +80,7 @@ const Lend = ({ token }) => {
         setImagePreviews([null, null, null, null]);
         setPrice('');
         setLocation('');
-        setPhone('');
+        setPhoneNo('');
         setRentalPrice('');
         setSizes([]);
         setBestSeller(false);
@@ -160,8 +161,8 @@ const Lend = ({ token }) => {
             required
           />
           <input
-            onChange={(e) => setPhone(e.target.value)}
-            value={phone}
+            onChange={(e) => setPhoneNo(e.target.value)}
+            value={phoneNo}
             className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
             type="number"
             placeholder="Your Contact Number"
