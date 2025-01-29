@@ -6,7 +6,7 @@ const addProduct = async (req, res) => {
         const { name, price, description, rental_price, category, subCategory, sizes, bestSeller, phoneNo, location } = req.body;
 
         // Validate required fields
-        if (!name || !description || !price || !category || !sizes || !rental_price || !phoneNo || !location) {
+        if (!name || !description || !price || !category || !sizes || !rental_price) {
             return res.status(400).json({ success: false, message: "All required fields must be provided." });
         }
 
