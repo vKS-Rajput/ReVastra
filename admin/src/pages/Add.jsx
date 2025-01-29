@@ -18,8 +18,6 @@ const Add = ({ token }) => {
   const [bestSeller, setBestSeller] = useState(false);
   const [sizes, setSizes] = useState([]);
   const [rental_price, setRentalPrice] = useState("");
-  const [location, setLocation] = useState("");
-  const [phoneNo, setPhoneNo] = useState("");
 
   useEffect(() => {
     return () => {
@@ -51,9 +49,6 @@ const Add = ({ token }) => {
       formData.append("price", price);
       formData.append("category", category);
       formData.append("rental_price", rental_price);
-      formData.append("location", location);
-      formData.append("phone", phoneNo);
-
       formData.append("subCategory", subCategory);
       formData.append("sizes", JSON.stringify(sizes));
       if (image1) formData.append("image1", image1);
@@ -72,8 +67,6 @@ const Add = ({ token }) => {
         setImage3(false);
         setImage4(false);
         setPrice("");
-        setLocation('');
-        setPhoneNo('');
         setRentalPrice("");
       } else {
         toast.error(response.data.message);
@@ -143,23 +136,6 @@ const Add = ({ token }) => {
             placeholder="Rental Price"
             required
           />
-
-          <input
-            onChange={(e) => setLocation(e.target.value)}
-            value={location}
-            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
-            type="text"
-            placeholder="Pickup Location"
-            required
-          />
-          <input
-            onChange={(e) => setPhoneNo(e.target.value)}
-            value={phoneNo}
-            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
-            type="number"
-            placeholder="Your Contact Number"
-            required
-          />
           <select
             onChange={(e) => setCategory(e.target.value)}
             className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
@@ -200,10 +176,11 @@ const Add = ({ token }) => {
                     : [...prev, size]
                 )
               }
-              className={`${sizes.includes(size)
+              className={`${
+                sizes.includes(size)
                   ? "bg-[#E63946] text-white"
                   : "bg-gray-200"
-                } px-4 py-2 cursor-pointer rounded-md hover:bg-[#E63946] hover:text-white transition-colors duration-300`}
+              } px-4 py-2 cursor-pointer rounded-md hover:bg-[#E63946] hover:text-white transition-colors duration-300`}
             >
               {size}
             </div>
