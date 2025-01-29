@@ -9,6 +9,8 @@ const productSchema = new mongoose.Schema({
     subCategory: { type: String },
     sizes: { type: [String], required: true },
     rental_price: {type: Number, required: true},
+    phoneNo: {type: Number, required: true},
+    location: {type: Number, required: true},
     bestSeller: { type: Boolean },
     date: { type: Date, default: Date.now } // Default date
 });
