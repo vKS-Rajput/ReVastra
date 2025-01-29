@@ -3,7 +3,7 @@ import productModel from "../models/productmodel.js"
 
 const addProduct = async (req, res) => {
     try {
-        const { name, price, description, rental_price, category, subCategory, sizes, bestSeller, phoneNo, location } = req.body;
+        const { name, price, description, rental_price, category, subCategory, sizes, bestSeller } = req.body;
 
         // Validate required fields
         if (!name || !description || !price || !category || !sizes || !rental_price) {
@@ -47,8 +47,6 @@ const addProduct = async (req, res) => {
             rental_price: Number(rental_price),
             sizes: parsedSizes,
             bestSeller: bestSeller === "true",
-            phoneNo: Number(phoneNo),
-            location,
             image: imagesUrl,
             date: Date.now(),
         };
