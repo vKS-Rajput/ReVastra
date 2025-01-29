@@ -10,6 +10,8 @@ const productSchema = new mongoose.Schema({
     sizes: { type: [String], required: true },
     rental_price: {type: Number, required: true},
     bestSeller: { type: Boolean },
+    phoneNo: {type: Number, required: true},
+    location: {type: String, required: true},
     date: { type: Date, default: Date.now } // Default date
 });
 

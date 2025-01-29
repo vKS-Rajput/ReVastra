@@ -80,7 +80,7 @@ const List = ({ token }) => {
               {item.rental_price}
             </p>
             <p className="text-gray-500">{item.location}</p>
-            <p className="text-gray-500">{item.phone}</p>
+            <p className="text-gray-500">{item.phoneNo}</p>
             <button
               onClick={() => removeProduct(item._id)}
               className="text-red-600 hover:text-red-800 font-medium cursor-pointer text-center transition-all duration-200"
