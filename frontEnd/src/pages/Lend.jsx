@@ -68,9 +68,7 @@ const Lend = ({ token }) => {
         if (image) formData.append(`image${index + 1}`, image);
       });
 
-      const response = await axios.post(`${backEndURL}/api/product/lend`, formData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.post(`${backEndURL}/api/product/lend`, formData);
 
       if (response.data.success) {
         toast.success(response.data.message);
