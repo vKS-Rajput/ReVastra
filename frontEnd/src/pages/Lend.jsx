@@ -15,6 +15,8 @@ const Lend = ({ token }) => {
   const [bestSeller, setBestSeller] = useState(false);
   const [sizes, setSizes] = useState([]);
   const [rental_price, setRentalPrice] = useState("");
+  const [pickuplocation, setPickupLocation] = useState("");
+  const [contactno, setContactNo] = useState("");
 
   useEffect(() => {
     return () => {
@@ -51,12 +53,14 @@ const Lend = ({ token }) => {
       formData.append("rental_price", rental_price);
       formData.append("subCategory", subCategory);
       formData.append("sizes", JSON.stringify(sizes));
+      formData.append("pickuplocation", pickuplocation);
+      formData.append("contactno", contactno);
 
       images.forEach((image, index) => {
         if (image) formData.append(`image${index + 1}`, image);
       });
 
-      const response = await axios.post(backEndURL + "/api/product/lend", formData, { headers: { token } });
+      const response = await axios.post(backEndURL + "/api/product/lend", formData);
 
       if (response.data.success) {
         toast.success(response.data.success);
@@ -65,6 +69,8 @@ const Lend = ({ token }) => {
         setImages([false, false, false, false]);
         setPrice('');
         setRentalPrice('');
+        setContactNo('');
+        setPickupLocation('');
       } else {
         toast.error(response.data.message);
       }
@@ -131,6 +137,22 @@ const Lend = ({ token }) => {
             className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
             type="text"
             placeholder="Rental Price"
+            required
+          />
+          <input
+            onChange={(e) => setPickupLocation(e.target.value)}
+            value={pickuplocation}
+            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
+            type="text"
+            placeholder="Pickup Location"
+            required
+          />
+          <input
+            onChange={(e) => setContactNo(e.target.value)}
+            value={contactno}
+            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
+            type="text"
+            placeholder="Contact Number..."
             required
           />
           <select
