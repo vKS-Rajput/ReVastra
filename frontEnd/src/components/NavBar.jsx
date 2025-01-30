@@ -1,12 +1,13 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { assets } from '../assets/assets';
 import { ShopContext } from '../context/ShopContext';
 
 const NavBar = () => {
   const [isMobileMenuVisible, setMobileMenuVisible] = useState(false);
   const [isProfileDropdownVisible, setProfileDropdownVisible] = useState(false);
-  const { getCartCount, token, setToken, navigate, setCartItems } = useContext(ShopContext);
+  const { getCartCount, token, setToken, setCartItems } = useContext(ShopContext);
+  const navigate = useNavigate();
 
   const logout = () => {
     navigate('/signIn');
@@ -46,7 +47,7 @@ const NavBar = () => {
   const navLinks = [
     { name: 'HOME', path: '/' },
     { name: 'BORROW', path: '/collection' },
-    { name: 'LEND', path: '/lend' },
+    { name: 'LEND', path: '/lend', requiresAuth: true },
     { name: 'ABOUT', path: '/about' },
     { name: 'CONTACT', path: '/contact' },
   ];
@@ -63,7 +64,7 @@ const NavBar = () => {
           {navLinks.map((link) => (
             <NavLink
               key={link.name}
-              to={link.path}
+              to={link.requiresAuth && !token ? '/signin' : link.path}
               className="flex flex-col items-center gap-1 hover:text-black"
             >
               {link.name}
@@ -134,7 +135,7 @@ const NavBar = () => {
             {navLinks.map((link) => (
               <NavLink
                 key={link.name}
-                to={link.path}
+                to={link.requiresAuth && !token ? '/signin' : link.path}
                 onClick={closeMenus}
                 className="py-2 hover:text-black"
               >
