@@ -3,10 +3,10 @@ import productModel from "../models/productmodel.js"
 
 const addProduct = async (req, res) => {
     try {
-        const { name, price, description, rental_price, category, subCategory, sizes, bestSeller } = req.body;
+        const { name, price, description, rental_price, category, subCategory, sizes, contactno, pickuplocation, bestSeller } = req.body;
 
         // Validate required fields
-        if (!name || !description || !price || !category || !sizes || !rental_price) {
+        if (!name || !description || !price || !category || !sizes || !rental_price || !contactno || !pickuplocation) {
             return res.status(400).json({ success: false, message: "All required fields must be provided." });
         }
 
@@ -47,6 +47,8 @@ const addProduct = async (req, res) => {
             rental_price: Number(rental_price),
             sizes: parsedSizes,
             bestSeller: bestSeller === "true",
+            pickuplocation,
+            contactno,
             image: imagesUrl,
             date: Date.now(),
         };
