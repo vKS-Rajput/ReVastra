@@ -18,6 +18,8 @@ const Add = ({ token }) => {
   const [bestSeller, setBestSeller] = useState(false);
   const [sizes, setSizes] = useState([]);
   const [rental_price, setRentalPrice] = useState("");
+  const [pickuplocation, setPickupLocation] = useState("");
+  const [contactno, setContactNo] = useState("");
 
   useEffect(() => {
     return () => {
@@ -51,6 +53,8 @@ const Add = ({ token }) => {
       formData.append("rental_price", rental_price);
       formData.append("subCategory", subCategory);
       formData.append("sizes", JSON.stringify(sizes));
+      formData.append("pickuplocation", pickuplocation);
+      formData.append("contactno", contactno);
       if (image1) formData.append("image1", image1);
       if (image2) formData.append("image2", image2);
       if (image3) formData.append("image3", image3);
@@ -68,6 +72,8 @@ const Add = ({ token }) => {
         setImage4(false);
         setPrice("");
         setRentalPrice("");
+        setPickupLocation("");
+        setContactNo("");
       } else {
         toast.error(response.data.message);
       }
@@ -136,6 +142,23 @@ const Add = ({ token }) => {
             placeholder="Rental Price"
             required
           />
+
+          <input
+            onChange={(e) => setPickupLocation(e.target.value)}
+            value={pickuplocation}
+            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
+            type="text"
+            placeholder="Pickup Location"
+            required
+          />
+          <input
+            onChange={(e) => setContactNo(e.target.value)}
+            value={contactno}
+            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
+            type="text"
+            placeholder="Contact Number..."
+            required
+          />
           <select
             onChange={(e) => setCategory(e.target.value)}
             className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
@@ -176,11 +199,10 @@ const Add = ({ token }) => {
                     : [...prev, size]
                 )
               }
-              className={`${
-                sizes.includes(size)
+              className={`${sizes.includes(size)
                   ? "bg-[#E63946] text-white"
                   : "bg-gray-200"
-              } px-4 py-2 cursor-pointer rounded-md hover:bg-[#E63946] hover:text-white transition-colors duration-300`}
+                } px-4 py-2 cursor-pointer rounded-md hover:bg-[#E63946] hover:text-white transition-colors duration-300`}
             >
               {size}
             </div>
