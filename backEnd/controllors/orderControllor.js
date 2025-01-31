@@ -39,6 +39,11 @@ const placeOrder = async (req, res) => {
     const newOrder = new orderModel(orderData);
     await newOrder.save();
 
+    // Mark ordered products as unavailable
+    for (const item of items) {
+      await productModel.findByIdAndUpdate(item.productId, { isAvailable: false });
+    }
+
     // Clear user's cart
     await userModel.findByIdAndUpdate(userId, { cartData: {} });
 
