@@ -1,19 +1,20 @@
 import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
+import productModel from "../models/productModel.js";
 import razorpay from "razorpay";
 
 // Global Variables
 const currency = "inr";
 const deliveryCharge = 10;
 
-// Razorpay Initialization (if required in future)
-let razorpayInstance;
-if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_SECRET_KEY) {
-  razorpayInstance = new razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_SECRET_KEY,
-  });
-}
+// // Razorpay Initialization (if required in future)
+// let razorpayInstance;
+// if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_SECRET_KEY) {
+//   razorpayInstance = new razorpay({
+//     key_id: process.env.RAZORPAY_KEY_ID,
+//     key_secret: process.env.RAZORPAY_SECRET_KEY,
+//   });
+// }
 
 // Placing Order Using COD Method
 const placeOrder = async (req, res) => {
@@ -38,6 +39,11 @@ const placeOrder = async (req, res) => {
     // Save the order
     const newOrder = new orderModel(orderData);
     await newOrder.save();
+
+    // Mark ordered products as unavailable
+    for (const item of items) {
+      await productModel.findByIdAndUpdate(item.productId, { isAvailable: false });
+    }
 
     // Clear user's cart
     await userModel.findByIdAndUpdate(userId, { cartData: {} });
