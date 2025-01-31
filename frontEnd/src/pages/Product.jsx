@@ -119,7 +119,10 @@ const Product = () => {
               <li>Affordable rental options with flexible durations.</li>
               <li>Customer satisfaction guaranteed with excellent reviews.</li>
             </ul>
-            <p className="mt-4 text-gray-600">Our products are carefully curated to meet your needs and deliver the best value for your money. Experience the perfect blend of style and functionality with every purchase.</p>
+            <p className="mt-4 text-gray-600">
+              Our products are carefully curated to meet your needs and deliver the best value for your money.
+              Experience the perfect blend of style and functionality with every purchase.
+            </p>
           </div>
         </div>
       </div>
