@@ -96,7 +96,7 @@ const ShopContextProvider = (props) => {
         if (token) {
             try {
 
-                await axios.post(backEndURL + '/api/cart/update', { itemId, size, quantity }, { headers: { token } })
+                await axios.post(backEndURL + '/api/cart/update', { itemId, size, quantity },  )
 
             } catch (error) {
                 console.log(error)
@@ -148,9 +148,8 @@ const ShopContextProvider = (props) => {
     const getUserCart = async () => {
         if (token) {
             try {
-                const response = await axios.get(`${backEndURL}/api/cart/get`, {
-                    headers: { token },
-                });
+                const response = await axios.get(`${backEndURL}/api/cart/get`, 
+                );
                 if (response.data.success) {
                     setCartItems(response.data.cartData);
                 } else {
