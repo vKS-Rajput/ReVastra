@@ -49,7 +49,6 @@ const ShopContextProvider = (props) => {
                 const response = await axios.post(
                     `${backEndURL}/api/cart/add`,
                     { itemId, size },
-                    { headers: { token } }
                 );
                 console.log(response.data);
                 
