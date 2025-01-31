@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 const Product = () => {
   const { productId } = useParams();
   const { products, currency, addToCart } = useContext(ShopContext);
-  const [productData, setProductData] = useState(false);
+  const [productData, setProductData] = useState(null);
   const [image, setImage] = useState('');
   const [size, setSize] = useState('');
 
@@ -25,39 +25,21 @@ const Product = () => {
 
   // Handle add to cart
   const handleAddToCart = async () => {
-    if (size) {
-      try {
-        await addToCart(productData._id, size);
-        toast.success(`${productData.name} added to cart!`, {
-          position: 'top-right',
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-      } catch (error) {
-        toast.error('Failed to add item to cart. Please try again.', {
-          position: 'top-right',
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-      }
-    } else {
-      toast.error('Please select a size before adding to cart.', {
-        position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
+    if (!size) {
+      toast.error('Please select a size before adding to cart.');
+      return;
+    }
+
+    if (productData && !productData.isAvailable) {
+      toast.error('This product is out of stock!');
+      return;
+    }
+
+    try {
+      await addToCart(productData._id, size);
+      toast.success(`${productData.name} added to cart!`);
+    } catch (error) {
+      toast.error('Failed to add item to cart. Please try again.');
     }
   };
 
@@ -123,8 +105,9 @@ const Product = () => {
           <button
             onClick={handleAddToCart}
             className="px-6 py-3 mt-4 bg-[#E63946] text-white rounded-lg shadow-md hover:bg-[#e5533f] transition duration-300"
+            disabled={!size || !productData.isAvailable}
           >
-            Add to Cart
+            {productData.isAvailable ? 'Add to Cart' : 'Out of Stock'}
           </button>
 
           {/* Enhanced Description Section */}
@@ -140,24 +123,6 @@ const Product = () => {
           </div>
         </div>
       </div>
-
-      {/* Reviews Section
-      <div className="mt-20">
-        <h2 className="text-2xl font-semibold mb-5">Reviews</h2>
-        <div className="px-6 py-6 bg-gray-50 rounded-lg shadow-md text-gray-600 text-sm">
-          <p>There are no reviews yet.</p>
-        </div>
-        <div className="mt-6">
-          <textarea
-            className="w-full p-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 text-gray-600"
-            rows="4"
-            placeholder="Write your review here..."
-          ></textarea>
-          <button className="mt-4 px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-600">
-            Post Review
-          </button>
-        </div>
-      </div> */}
     </div>
   ) : (
     <div>Loading...</div>
