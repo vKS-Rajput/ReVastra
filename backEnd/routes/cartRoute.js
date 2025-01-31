@@ -5,12 +5,12 @@ import authUser from "../middleware/userAuth.js"
 const cartRouter = express.Router()
  
 // Get user cart (Fetch)
-cartRouter.post('/get', getUserCart)
+cartRouter.post('/get', authUser, getUserCart)
  
 // Add item to cart
-cartRouter.post('/add', addToCart)
+cartRouter.post('/add', authUser, addToCart)
  
 // Update cart item
-cartRouter.post('/update', updateCart)
+cartRouter.post('/update', authUser, updateCart)
 
 export default cartRouter

@@ -62,7 +62,7 @@ const PlaceOrder = () => {
           const response = await axios.post(
             backEndURL + "/api/order/place",
             orderData,
-            
+            { headers: { token } }
           );
           if (response.data.success) {
             navigate("/orders");

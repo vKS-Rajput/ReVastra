@@ -21,7 +21,7 @@ const placeOrder = async (req, res) => {
     const { userId, amount, items, address } = req.body;
 
     // Ensure required fields are present
-    if ( !amount || !items || !address) {
+    if (!userId || !amount || !items || !address) {
       return res.json({ success: false, message: "All fields are required." });
     }
 
