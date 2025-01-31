@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 import { type } from 'os'
 
 const orderSchema = new mongoose.Schema({
-    userId: {type: String, required: true},
+    userId: {type: String, required: false},
     items: {type: Array, required: true},
     amount: {type: Number, required: true},
     address: {type: Object, required: true},
