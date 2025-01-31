@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 
 const Product = () => {
   const { productId } = useParams();
-  const { products, currency, addToCart } = useContext(ShopContext);
+  const { products, currency, addToCart, isProductAvailable } = useContext(ShopContext);
   const [productData, setProductData] = useState(null);
   const [image, setImage] = useState('');
   const [size, setSize] = useState('');
@@ -30,7 +30,7 @@ const Product = () => {
       return;
     }
 
-    if (productData && !productData.isAvailable) {
+    if (productData && !isProductAvailable(productData._id, size)) {
       toast.error('This product is out of stock!');
       return;
     }
@@ -105,9 +105,9 @@ const Product = () => {
           <button
             onClick={handleAddToCart}
             className="px-6 py-3 mt-4 bg-[#E63946] text-white rounded-lg shadow-md hover:bg-[#e5533f] transition duration-300"
-            disabled={!size || !productData.isAvailable}
+            disabled={!size || !isProductAvailable(productData._id, size)}
           >
-            {productData.isAvailable ? 'Add to Cart' : 'Out of Stock'}
+            {isProductAvailable(productData._id, size) ? 'Add to Cart' : 'Out of Stock'}
           </button>
 
           {/* Enhanced Description Section */}
