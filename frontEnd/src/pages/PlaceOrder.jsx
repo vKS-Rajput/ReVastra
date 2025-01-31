@@ -62,7 +62,6 @@ const PlaceOrder = () => {
           const response = await axios.post(
             backEndURL + "/api/order/place",
             orderData,
-            { headers: { token } }
           );
           if (response.data.success) {
             navigate("/orders");
@@ -105,7 +104,6 @@ const PlaceOrder = () => {
           const { data } = await axios.post(
             backEndURL + "/api/order/verifyRazorpay",
             response,
-            { headers: { token } }
           );
           if (data.success) {
             navigate("/orders");
