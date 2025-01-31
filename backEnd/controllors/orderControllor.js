@@ -7,13 +7,13 @@ const currency = "inr";
 const deliveryCharge = 10;
 
 // Razorpay Initialization (if required in future)
-let razorpayInstance;
-if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_SECRET_KEY) {
-  razorpayInstance = new razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_SECRET_KEY,
-  });
-}
+// let razorpayInstance;
+// if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_SECRET_KEY) {
+//   razorpayInstance = new razorpay({
+//     key_id: process.env.RAZORPAY_KEY_ID,
+//     key_secret: process.env.RAZORPAY_SECRET_KEY,
+//   });
+// }
 
 // Placing Order Using COD Method
 const placeOrder = async (req, res) => {
