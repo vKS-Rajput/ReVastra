@@ -18,6 +18,7 @@ const ShopContextProvider = (props) => {
     const [cartItems, setCartItems] = useState({});
     const navigate = useNavigate();
 
+
     // Function to add an item to the cart
     const addToCart = async (itemId, size) => {
         if (!size) {
@@ -51,9 +52,6 @@ const ShopContextProvider = (props) => {
                     { headers: { token } }
                 );
                 console.log(response.data);
-
-                // Optionally, handle product stock update here if needed
-                // (check if stock is updated dynamically after cart update)
                 
             } catch (error) {
                 console.error("API Error:", error);
@@ -172,20 +170,6 @@ const ShopContextProvider = (props) => {
         }
     };
 
-    // Check if the product is in stock (could also be based on actual product quantity)
-    const isProductAvailable = (productId, size) => {
-        // Check if product is in cart (avoid adding more items than available)
-        const cartProduct = cartItems[productId] && cartItems[productId][size];
-        const product = products.find((product) => product._id === productId);
-
-        // If the cart quantity exceeds product stock, return false (out of stock)
-        if (product && cartProduct && cartProduct >= product.stock) {
-            return false;
-        }
-
-        return true;
-    };
-
     // Initial product fetch
     useEffect(() => {
         getProductData();
@@ -219,7 +203,6 @@ const ShopContextProvider = (props) => {
             setToken,
             token,
             navigate,
-            isProductAvailable, // Add function to check availability
         }),
     );
 
