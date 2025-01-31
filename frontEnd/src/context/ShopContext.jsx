@@ -8,11 +8,11 @@ export const ShopContext = createContext();
 const ShopContextProvider = (props) => {
     const currency = "₹";
     const delivery_fee = 10;
-    const backEndURL = import.meta.env.VITE_BACKEND_URL;
+    const backEndURL = import.meta.env.VITE_BACKEND_URL
 
     // State management
-    const [token, setToken] = useState("");
-    const [search, setSearch] = useState("");
+    const [token, setToken] = useState('');
+    const [search, setSearch] = useState('');
     const [products, setProducts] = useState([]);
     const [showSearch, setShowSearch] = useState(true);
     const [cartItems, setCartItems] = useState({});
@@ -46,12 +46,7 @@ const ShopContextProvider = (props) => {
 
         if (token) {
             try {
-                const response = await axios.post(
-                    `${backEndURL}/api/cart/add`,
-                    { itemId, size },
-                    { headers: { token } }
-                );
-                console.log(response.data);
+                await axios.post(backEndURL + '/api/cart/add', { itemId, size }, { headers: { token } })
                 
             } catch (error) {
                 console.error("API Error:", error);
@@ -127,7 +122,7 @@ const ShopContextProvider = (props) => {
     // Fetch products from the backend
     const getProductData = async () => {
         try {
-            const response = await axios.get(`${backEndURL}/api/product/list`);
+            const response = await axios.get(`${backEndURL}/api/product/list`)
             if (response.data.success) {
                 setProducts(response.data.products);
             } else {
@@ -149,9 +144,7 @@ const ShopContextProvider = (props) => {
     const getUserCart = async () => {
         if (token) {
             try {
-                const response = await axios.get(`${backEndURL}/api/cart/get`, {
-                    headers: { token },
-                });
+                const response = await axios.post(backEndURL + '/api/cart/get',{},{headers:{token}})
                 if (response.data.success) {
                     setCartItems(response.data.cartData);
                 } else {
@@ -177,16 +170,16 @@ const ShopContextProvider = (props) => {
 
     // Token retrieval from localStorage
     useEffect(() => {
-        const storedToken = localStorage.getItem("token");
+        const storedToken = localStorage.getItem("token")
         if (!token && storedToken) {
-            setToken(storedToken);
-            getUserCart(storedToken);
+            setToken(storedToken)
+            getUserCart(storedToken)
         }
-    }, [token]);
+    }, [token])
 
     // Memoized value for the context
-    const value = useMemo(
-        () => ({
+    const value = 
+        {
             products,
             currency,
             delivery_fee,
@@ -203,8 +196,8 @@ const ShopContextProvider = (props) => {
             setToken,
             token,
             navigate,
-        }),
-    );
+        }
+    ;
 
     return <ShopContext.Provider value={value}>{props.children}</ShopContext.Provider>;
 };
