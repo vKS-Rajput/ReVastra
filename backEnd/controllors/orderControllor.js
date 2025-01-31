@@ -1,6 +1,5 @@
 import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
-import productModel from "../models/productModel.js";  // Ensure product model is imported
 import razorpay from "razorpay";
 
 // Global Variables
@@ -24,14 +23,6 @@ const placeOrder = async (req, res) => {
     // Ensure required fields are present
     if (!userId || !amount || !items || !address) {
       return res.json({ success: false, message: "All fields are required." });
-    }
-
-    // Validate product availability before placing the order
-    for (const item of items) {
-      const product = await productModel.findById(item.productId);
-      if (!product || !product.isAvailable) {
-        return res.json({ success: false, message: `Product ${product.name} is out of stock.` });
-      }
     }
 
     const orderData = {
