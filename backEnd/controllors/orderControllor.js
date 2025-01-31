@@ -1,13 +1,12 @@
 import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
-import productModel from "../models/productModel.js"; // Assuming productModel exists
 import razorpay from "razorpay";
 
 // Global Variables
 const currency = "inr";
 const deliveryCharge = 10;
 
-// // Razorpay Initialization (if required in future)
+// Razorpay Initialization (if required in future)
 // let razorpayInstance;
 // if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_SECRET_KEY) {
 //   razorpayInstance = new razorpay({
@@ -26,21 +25,6 @@ const placeOrder = async (req, res) => {
       return res.json({ success: false, message: "All fields are required." });
     }
 
-    // Check availability of each product in the order
-    for (const item of items) {
-      const product = await productModel.findById(item.productId);
-
-      if (!product) {
-        return res.json({ success: false, message: `Product with ID ${item.productId} does not exist.` });
-      }
-
-      // Check if the product is available
-      if (!product.isAvailable) {
-        return res.json({ success: false, message: `Product ${product.name} is out of stock.` });
-      }
-    }
-
-    // Create order data
     const orderData = {
       userId,
       address,
@@ -116,3 +100,4 @@ const updateStatus = async (req, res) => {
 };
 
 export { placeOrder, allOrders, updateStatus, userOrder };
+
