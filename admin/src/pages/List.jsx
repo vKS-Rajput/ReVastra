@@ -71,7 +71,7 @@ const List = ({ token }) => {
     <>
       <h1 className="text-2xl font-bold mb-4 text-center text-gray-800">All Products</h1>
       <div className="flex flex-col gap-4">
-        
+
         {/* ------- Table Header (Desktop) ---------- */}
         <div className="hidden md:grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr] items-center py-3 px-4 border bg-blue-100 text-sm rounded-lg shadow-md">
           <b className="text-gray-700">Image</b>
@@ -112,15 +112,15 @@ const List = ({ token }) => {
               {item.rental_price}
             </p>
 
-            {/* ---- Status Dropdown ---- */}
             <select
               className="border rounded-md py-1 px-2 text-sm bg-gray-100 cursor-pointer"
-              value={item.status}
+              value={item.status || 'available'} // Set default value if undefined
               onChange={(e) => updateProductStatus(item._id, e.target.value)}
             >
               <option value="available">Available</option>
               <option value="out_of_stock">Out of Stock</option>
             </select>
+
 
             {/* ---- Remove Button ---- */}
             <button
