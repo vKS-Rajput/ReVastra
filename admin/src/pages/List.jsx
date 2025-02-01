@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 const List = ({ token }) => {
   const [list, setList] = useState([]);
 
+  // Fetch all products
   const fetchList = async () => {
     try {
       const response = await axios.get(backEndURL + '/api/product/list');
@@ -20,6 +21,7 @@ const List = ({ token }) => {
     }
   };
 
+  // Remove product function
   const removeProduct = async (id) => {
     try {
       const response = await axios.post(
@@ -40,6 +42,27 @@ const List = ({ token }) => {
     }
   };
 
+  // Update Product Status
+  const updateProductStatus = async (id, status) => {
+    try {
+      const response = await axios.put(
+        backEndURL + `/api/product/update-status/${id}`,
+        { status },
+        { headers: { token } }
+      );
+
+      if (response.data.success) {
+        toast.success(`Product status updated to "${status}"`);
+        fetchList(); // Refresh product list
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error('Failed to update status');
+    }
+  };
+
   useEffect(() => {
     fetchList();
   }, []);
@@ -50,11 +73,12 @@ const List = ({ token }) => {
       <div className="flex flex-col gap-4">
         
         {/* ------- Table Header (Desktop) ---------- */}
-        <div className="hidden md:grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr] items-center py-3 px-4 border bg-blue-100 text-sm rounded-lg shadow-md">
+        <div className="hidden md:grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr] items-center py-3 px-4 border bg-blue-100 text-sm rounded-lg shadow-md">
           <b className="text-gray-700">Image</b>
           <b className="text-gray-700">Details</b>
           <b className="text-gray-700">Category</b>
           <b className="text-gray-700">Price</b>
+          <b className="text-gray-700">Status</b>
           <b className="text-gray-700 text-center">Action</b>
         </div>
 
@@ -62,7 +86,7 @@ const List = ({ token }) => {
         {list.map((item, index) => (
           <div
             key={index}
-            className="grid grid-cols-[1fr_2fr_1fr] md:grid-cols-[1fr_2fr_1fr_1fr_1fr] items-center gap-4 py-3 px-4 border bg-white hover:bg-gray-50 text-sm rounded-lg shadow-sm transition-all duration-200"
+            className="grid grid-cols-[1fr_2fr_1fr] md:grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr] items-center gap-4 py-3 px-4 border bg-white hover:bg-gray-50 text-sm rounded-lg shadow-sm transition-all duration-200"
           >
             {/* ---- Image ---- */}
             <img
@@ -87,6 +111,16 @@ const List = ({ token }) => {
               {currency}
               {item.rental_price}
             </p>
+
+            {/* ---- Status Dropdown ---- */}
+            <select
+              className="border rounded-md py-1 px-2 text-sm bg-gray-100 cursor-pointer"
+              value={item.status}
+              onChange={(e) => updateProductStatus(item._id, e.target.value)}
+            >
+              <option value="available">Available</option>
+              <option value="out_of_stock">Out of Stock</option>
+            </select>
 
             {/* ---- Remove Button ---- */}
             <button

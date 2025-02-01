@@ -49,6 +49,7 @@ const addProduct = async (req, res) => {
             contactno,
             image: imagesUrl,
             date: Date.now(),
+            status: "available", // ✅ Default status when adding a product
         };
 
         const product = new productModel(productData);
@@ -99,4 +100,29 @@ const singleProduct = async (req, res) => {
     }
 };
 
-export { addProduct, listProduct, removeProduct, singleProduct };
+// ✅ New function to update product status
+const updateProductStatus = async (req, res) => {
+    try {
+        const { status } = req.body;
+        if (!["available", "out_of_stock"].includes(status)) {
+            return res.status(400).json({ success: false, message: "Invalid status value" });
+        }
+
+        const product = await productModel.findByIdAndUpdate(
+            req.params.id,
+            { status },
+            { new: true }
+        );
+
+        if (!product) {
+            return res.status(404).json({ success: false, message: "Product not found" });
+        }
+
+        res.json({ success: true, message: "Product status updated", product });
+    } catch (error) {
+        console.error("Error updating product status:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+export { addProduct, listProduct, removeProduct, singleProduct, updateProductStatus };

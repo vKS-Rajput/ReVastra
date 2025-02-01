@@ -8,11 +8,12 @@ const productSchema = new mongoose.Schema({
     category: { type: String, required: true },
     subCategory: { type: String },
     sizes: { type: [String], required: true },
-    rental_price: {type: Number, required: true},
+    rental_price: { type: Number, required: true },
     bestSeller: { type: Boolean },
-    pickuplocation: { type: String, required: true }, // ✅ Added field
+    pickuplocation: { type: String, required: true },
     contactno: { type: String, required: true },
-    date: { type: Date, default: Date.now } // Default date
+    date: { type: Date, default: Date.now },
+    status: { type: String, enum: ["available", "out_of_stock"], default: "available" } // ✅ Added status field
 });
 
 const productModel = mongoose.models.product || mongoose.model("product", productSchema);

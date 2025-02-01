@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 const Product = () => {
   const { productId } = useParams();
   const { products, currency, addToCart } = useContext(ShopContext);
-  const [productData, setProductData] = useState(false);
+  const [productData, setProductData] = useState(null);
   const [image, setImage] = useState('');
   const [size, setSize] = useState('');
 
@@ -28,36 +28,12 @@ const Product = () => {
     if (size) {
       try {
         await addToCart(productData._id, size);
-        toast.success(`${productData.name} added to cart!`, {
-          position: 'top-right',
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
+        toast.success(`${productData.name} added to cart!`);
       } catch (error) {
-        toast.error('Failed to add item to cart. Please try again.', {
-          position: 'top-right',
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
+        toast.error('Failed to add item to cart. Please try again.');
       }
     } else {
-      toast.error('Please select a size before adding to cart.', {
-        position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
+      toast.error('Please select a size before adding to cart.');
     }
   };
 
@@ -72,25 +48,25 @@ const Product = () => {
                 onClick={() => setImage(item)}
                 src={item}
                 key={index}
-                className={`w-[18%] sm:w-full sm:mb-3 flex-shrink-0 cursor-pointer transition-transform hover:scale-105 duration-300 ${
-                  image === item ? 'border-2 border-gray-400' : ''
-                }`}
+                className={`w-[18%] sm:w-full sm:mb-3 flex-shrink-0 cursor-pointer transition-transform hover:scale-105 duration-300 ${image === item ? 'border-2 border-gray-400' : ''}`}
                 alt={`Product ${index}`}
               />
             ))}
           </div>
           <div className="w-full sm:w-[80%]">
-            <img
-              className="w-full h-auto rounded-lg shadow-lg transition-transform duration-300 hover:scale-105"
-              src={image}
-              alt="Selected product"
-            />
+            <img className="w-full h-auto rounded-lg shadow-lg transition-transform duration-300 hover:scale-105" src={image} alt="Selected product" />
           </div>
         </div>
 
         {/* Product Info */}
         <div className="flex-1">
           <h1 className="font-bold text-3xl mt-2 text-gray-800">{productData.name}</h1>
+          
+          {/* Availability Status */}
+          <p className={`mt-2 font-medium text-lg ${productData.status === 'available' ? 'text-green-600' : 'text-red-600'}`}>
+            {productData.status === 'available' ? '✔ Available' : '✖ Out of Stock'}
+          </p>
+
           <div className="mt-5">
             <p className="text-lg text-gray-400 line-through">Original: {currency}{productData.price}</p>
             <p className="text-4xl font-semibold text-[#ff6347] mt-2">
@@ -107,9 +83,7 @@ const Product = () => {
             <div className="flex gap-2">
               {productData.sizes.map((item, index) => (
                 <button
-                  className={`border py-2 px-4 text-sm rounded-md transition-colors duration-300 ${
-                    item === size ? 'bg-gray-900 text-white' : 'bg-gray-100 hover:bg-gray-200'
-                  }`}
+                  className={`border py-2 px-4 text-sm rounded-md transition-colors duration-300 ${item === size ? 'bg-gray-900 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
                   key={index}
                   onClick={() => setSize(item)}
                 >
@@ -122,42 +96,13 @@ const Product = () => {
           {/* Add to Cart */}
           <button
             onClick={handleAddToCart}
-            className="px-6 py-3 mt-4 bg-[#E63946] text-white rounded-lg shadow-md hover:bg-[#e5533f] transition duration-300"
+            disabled={productData.status !== 'available'}
+            className={`px-6 py-3 mt-4 rounded-lg shadow-md transition duration-300 ${productData.status === 'available' ? 'bg-[#E63946] text-white hover:bg-[#e5533f]' : 'bg-gray-400 text-gray-700 cursor-not-allowed'}`}
           >
-            Add to Cart
+            {productData.status === 'available' ? 'Add to Cart' : 'Out of Stock'}
           </button>
-
-          {/* Enhanced Description Section */}
-          <div className="mt-10 bg-gray-100 p-6 rounded-lg shadow-lg transition-transform duration-300 hover:scale-105">
-            <h2 className="text-xl font-bold mb-4 text-gray-800">Why Choose This Product?</h2>
-            <ul className="list-disc pl-5 text-gray-700">
-              <li>High-quality materials for maximum durability.</li>
-              <li>Stylish and versatile design to suit any occasion.</li>
-              <li>Affordable rental options with flexible durations.</li>
-              <li>Customer satisfaction guaranteed with excellent reviews.</li>
-            </ul>
-            <p className="mt-4 text-gray-600">Our products are carefully curated to meet your needs and deliver the best value for your money. Experience the perfect blend of style and functionality with every purchase.</p>
-          </div>
         </div>
       </div>
-
-      {/* Reviews Section
-      <div className="mt-20">
-        <h2 className="text-2xl font-semibold mb-5">Reviews</h2>
-        <div className="px-6 py-6 bg-gray-50 rounded-lg shadow-md text-gray-600 text-sm">
-          <p>There are no reviews yet.</p>
-        </div>
-        <div className="mt-6">
-          <textarea
-            className="w-full p-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 text-gray-600"
-            rows="4"
-            placeholder="Write your review here..."
-          ></textarea>
-          <button className="mt-4 px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-600">
-            Post Review
-          </button>
-        </div>
-      </div> */}
     </div>
   ) : (
     <div>Loading...</div>
