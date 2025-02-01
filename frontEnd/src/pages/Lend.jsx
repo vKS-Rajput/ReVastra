@@ -32,20 +32,20 @@ const Lend = ({ token }) => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
-
+  
     if (images.every(image => !image)) {
       toast.error("Please upload at least one image.");
       return;
     }
-
+  
     if (sizes.length === 0) {
       toast.error("Please select at least one size.");
       return;
     }
-
+  
     try {
       const formData = new FormData();
-
+  
       formData.append("name", name);
       formData.append("description", description);
       formData.append("price", price);
@@ -55,15 +55,17 @@ const Lend = ({ token }) => {
       formData.append("sizes", JSON.stringify(sizes));
       formData.append("pickuplocation", pickuplocation);
       formData.append("contactno", contactno);
-
+  
       images.forEach((image, index) => {
         if (image) formData.append(`image${index + 1}`, image);
       });
-
+  
       const response = await axios.post(backEndURL + "/api/product/lend", formData);
-
+  
       if (response.data.success) {
-        toast.success(response.data.success);
+        toast.success("✅ Product uploaded successfully!");
+  
+        // Reset the form fields
         setName('');
         setDescription('');
         setImages([false, false, false, false]);
@@ -71,14 +73,16 @@ const Lend = ({ token }) => {
         setRentalPrice('');
         setContactNo('');
         setPickupLocation('');
+        setSizes([]);
       } else {
         toast.error(response.data.message);
       }
     } catch (error) {
       console.error("Error occurred:", error);
-      toast.error(error.response?.data?.message || error.message);
+      toast.error(error.response?.data?.message || "Failed to upload product.");
     }
   };
+  
 
   return (
     <form
