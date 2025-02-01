@@ -91,6 +91,14 @@ const Orders = ({ token }) => {
     }
   };
 
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast.success('Product ID copied to clipboard!');
+    }).catch(() => {
+      toast.error('Failed to copy product ID.');
+    });
+  };
+
   useEffect(() => {
     fetchAllOrders();
   }, [token]);
@@ -113,9 +121,15 @@ const Orders = ({ token }) => {
               <div>
                 <h4 className="text-lg font-semibold text-gray-800 mb-3">Order Details</h4>
                 {order.items.map((item, itemIndex) => (
-                  <p key={itemIndex} className="text-sm text-gray-600">
-                    {item.name} ({item.size})
-                  </p>
+                  <div key={itemIndex} className="flex justify-between text-sm text-gray-600">
+                    <p>{item.name} ({item.size})</p>
+                    <button
+                      onClick={() => copyToClipboard(item._id)}
+                      className="text-blue-500 text-xs"
+                    >
+                      Copy ID
+                    </button>
+                  </div>
                 ))}
                 <p className='mt-3 mb-2 font-medium'>Name: {order.address.fullName}</p>
                 <div>

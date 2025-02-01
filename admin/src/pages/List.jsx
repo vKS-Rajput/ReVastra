@@ -5,6 +5,8 @@ import { toast } from 'react-toastify';
 
 const List = ({ token }) => {
   const [list, setList] = useState([]);
+  const [filteredList, setFilteredList] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Fetch all products
   const fetchList = async () => {
@@ -12,6 +14,7 @@ const List = ({ token }) => {
       const response = await axios.get(backEndURL + '/api/product/list');
       if (response.data.success) {
         setList(response.data.products.reverse());
+        setFilteredList(response.data.products.reverse()); // Initialize filtered list
       } else {
         toast.error(response.data.message);
       }
@@ -63,6 +66,19 @@ const List = ({ token }) => {
     }
   };
 
+  // Handle search
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+    if (e.target.value === '') {
+      setFilteredList(list);
+    } else {
+      const filtered = list.filter(item =>
+        item._id.toLowerCase().includes(e.target.value.toLowerCase())
+      );
+      setFilteredList(filtered);
+    }
+  };
+
   useEffect(() => {
     fetchList();
   }, []);
@@ -70,10 +86,22 @@ const List = ({ token }) => {
   return (
     <>
       <h1 className="text-2xl font-bold mb-4 text-center text-gray-800">All Products</h1>
-      <div className="flex flex-col gap-4">
 
+      {/* Search Input */}
+      <div className="mb-4 text-center">
+        <input
+          type="text"
+          placeholder="Search by Product ID"
+          value={searchQuery}
+          onChange={handleSearch}
+          className="p-2 border rounded-md w-60"
+        />
+      </div>
+
+      <div className="flex flex-col gap-4">
         {/* ------- Table Header (Desktop) ---------- */}
         <div className="hidden md:grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr] items-center py-3 px-4 border bg-blue-100 text-sm rounded-lg shadow-md">
+          <b className="text-gray-700">ID</b>
           <b className="text-gray-700">Image</b>
           <b className="text-gray-700">Details</b>
           <b className="text-gray-700">Category</b>
@@ -83,11 +111,14 @@ const List = ({ token }) => {
         </div>
 
         {/* ------ Product List ------ */}
-        {list.map((item, index) => (
+        {filteredList.map((item, index) => (
           <div
             key={index}
             className="grid grid-cols-[1fr_2fr_1fr] md:grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr] items-center gap-4 py-3 px-4 border bg-white hover:bg-gray-50 text-sm rounded-lg shadow-sm transition-all duration-200"
           >
+            {/* ---- Product ID ---- */}
+            <p className="text-gray-600">{item._id}</p>
+
             {/* ---- Image ---- */}
             <img
               className="w-16 h-16 object-cover rounded-md border"
@@ -120,7 +151,6 @@ const List = ({ token }) => {
               <option value="available">Available</option>
               <option value="out_of_stock">Out of Stock</option>
             </select>
-
 
             {/* ---- Remove Button ---- */}
             <button
