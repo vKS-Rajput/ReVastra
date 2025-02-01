@@ -101,7 +101,6 @@ const List = ({ token }) => {
       <div className="flex flex-col gap-4">
         {/* ------- Table Header (Desktop) ---------- */}
         <div className="hidden md:grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr] items-center py-3 px-4 border bg-blue-100 text-sm rounded-lg shadow-md">
-          <b className="text-gray-700">ID</b>
           <b className="text-gray-700">Image</b>
           <b className="text-gray-700">Details</b>
           <b className="text-gray-700">Category</b>
@@ -116,8 +115,7 @@ const List = ({ token }) => {
             key={index}
             className="grid grid-cols-[1fr_2fr_1fr] md:grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr] items-center gap-4 py-3 px-4 border bg-white hover:bg-gray-50 text-sm rounded-lg shadow-sm transition-all duration-200"
           >
-            {/* ---- Product ID ---- */}
-            <p className="text-gray-600">{item._id}</p>
+           
 
             {/* ---- Image ---- */}
             <img
@@ -132,6 +130,8 @@ const List = ({ token }) => {
               <p className="text-gray-600">📍 {item.pickuplocation}</p>
               <p className="text-gray-600">📞 {item.contactno}</p>
               <p className="text-gray-600">👕 Sizes: {item.sizes?.join(', ') || 'N/A'}</p>
+               {/* ---- Product ID ---- */}
+            <p className="text-gray-600">ID: {item._id}</p>
             </div>
 
             {/* ---- Category ---- */}
