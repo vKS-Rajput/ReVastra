@@ -131,7 +131,7 @@ const List = ({ token }) => {
               <p className="text-gray-600">📞 {item.contactno}</p>
               <p className="text-gray-600">👕 Sizes: {item.sizes?.join(', ') || 'N/A'}</p>
                {/* ---- Product ID ---- */}
-            <p className="text-gray-600">ID: {item._id}</p>
+            <p className="text-red-600">ID: {item._id}</p>
             </div>
 
             {/* ---- Category ---- */}
