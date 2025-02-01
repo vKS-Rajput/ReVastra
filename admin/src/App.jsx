@@ -12,26 +12,34 @@ export const backEndURL = import.meta.env.VITE_BACKEND_URL
 export const currency = '₹'
 
 const App = () => {
-  const [token, setToken] = useState(localStorage.getItem('token')?localStorage.getItem('token'):''); // State to handle login token
+  const [token, setToken] = useState(localStorage.getItem('token') ? localStorage.getItem('token') : ''); // State to handle login token
 
-  useEffect(()=>{
-    localStorage.setItem('token',token)
-  },[token])
+  useEffect(() => {
+    localStorage.setItem('token', token)
+  }, [token])
 
   return (
     <div className="bg-gray-200 min-h-screen flex flex-col text-black">
-      <ToastContainer/>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={true}
+        closeOnClick
+        pauseOnHover
+        draggable
+        theme="light"
+      />
       {/* If token is empty, show Login */}
       {token === '' ? (
-        <Login setToken={setToken}/>
+        <Login setToken={setToken} />
       ) : (
         <>
           {/* Navbar */}
-          <Navbar setToken={setToken}/>
+          <Navbar setToken={setToken} />
 
           {/* Main Layout */}
           <div className="flex flex-1">
-            {/* Sidebar */} 
+            {/* Sidebar */}
             <Sidebar />
 
             {/* Content Area */}
