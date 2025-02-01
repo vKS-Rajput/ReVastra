@@ -125,10 +125,11 @@ const Orders = ({ token }) => {
                     <p>{item.name} ({item.size})</p>
                     <button
                       onClick={() => copyToClipboard(item._id)}
-                      className="text-blue-500 text-xs"
+                      className="flex items-center gap-1 bg-gradient-to-r from-red-500 to-red-700 text-white text-xs px-3 py-1 rounded-lg shadow-md hover:from-red-600 hover:to-red-800 hover:scale-105 active:scale-95 transition-all duration-300"
                     >
-                      Copy ID
+                      📋 Copy ID
                     </button>
+
                   </div>
                 ))}
                 <p className='mt-3 mb-2 font-medium'>Name: {order.address.fullName}</p>
