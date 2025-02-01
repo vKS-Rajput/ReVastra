@@ -55,7 +55,7 @@ const List = ({ token }) => {
       );
 
       if (response.data.success) {
-        toast(`Product status updated to "${status}"`);
+        toast.success(`Product status updated to "${status}"`);
         fetchList(); // Refresh product list
       } else {
         toast.error(response.data.message);

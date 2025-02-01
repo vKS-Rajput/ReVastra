@@ -93,7 +93,7 @@ const Orders = ({ token }) => {
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text).then(() => {
-      toast('Product ID copied to clipboard!');
+      toast.success('Product ID copied to clipboard!');
     }).catch(() => {
       toast.error('Failed to copy product ID.');
     });
