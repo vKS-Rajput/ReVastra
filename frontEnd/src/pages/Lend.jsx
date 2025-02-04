@@ -5,11 +5,7 @@ import { backEndURL } from '../App';
 import { assets } from '../../../admin/src/assets/assets';
 
 const Lend = ({ token }) => {
-  const [image1, setImage1] = useState(false);
-  const [image2, setImage2] = useState(false);
-  const [image3, setImage3] = useState(false);
-  const [image4, setImage4] = useState(false);
-
+  const [images, setImages] = useState([false, false, false, false]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -20,32 +16,38 @@ const Lend = ({ token }) => {
   const [rental_price, setRentalPrice] = useState("");
   const [pickuplocation, setPickupLocation] = useState("");
   const [contactno, setContactNo] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     return () => {
-      image1 && URL.revokeObjectURL(image1);
-      image2 && URL.revokeObjectURL(image2);
-      image3 && URL.revokeObjectURL(image3);
-      image4 && URL.revokeObjectURL(image4);
+      images.forEach(image => image && URL.revokeObjectURL(image));
     };
-  }, [image1, image2, image3, image4]);
+  }, [images]);
+
+  const onImageChange = (index, file) => {
+    const newImages = [...images];
+    newImages[index] = file;
+    setImages(newImages);
+  };
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
-
-    if (!image1 && !image2 && !image3 && !image4) {
+    setLoading(true);
+    
+    if (images.every(image => !image)) {
       toast.error("Please upload at least one image.");
+      setLoading(false);
       return;
     }
-
+    
     if (sizes.length === 0) {
       toast.error("Please select at least one size.");
+      setLoading(false);
       return;
     }
-
+    
     try {
       const formData = new FormData();
-
       formData.append("name", name);
       formData.append("description", description);
       formData.append("price", price);
@@ -55,185 +57,182 @@ const Lend = ({ token }) => {
       formData.append("sizes", JSON.stringify(sizes));
       formData.append("pickuplocation", pickuplocation);
       formData.append("contactno", contactno);
-      if (image1) formData.append("image1", image1);
-      if (image2) formData.append("image2", image2);
-      if (image3) formData.append("image3", image3);
-      if (image4) formData.append("image4", image4);
+      images.forEach((image, index) => {
+        if (image) formData.append(`image${index + 1}`, image);
+      });
 
-      const response = await axios.post(backEndURL + "/api/product/add", formData, { headers: { token } });
-
+      const response = await axios.post(backEndURL + "/api/product/lend", formData);
+      
       if (response.data.success) {
-        toast.success(response.data.success);
-        setName("");
-        setDescription("");
-        setImage1(false);
-        setImage2(false);
-        setImage3(false);
-        setImage4(false);
-        setPrice("");
-        setRentalPrice("");
-        setPickupLocation("");
-        setContactNo("");
+        toast.success("✅ Product uploaded successfully!");
+        setName('');
+        setDescription('');
+        setImages([false, false, false, false]);
+        setPrice('');
+        setRentalPrice('');
+        setContactNo('');
+        setPickupLocation('');
+        setSizes([]);
       } else {
         toast.error(response.data.message);
       }
     } catch (error) {
-      console.error("Error occurred:", error);
-      toast.error(error.response?.data?.message || error.message);
+      toast.error(error.response?.data?.message || "Failed to upload product.");
     }
+    setLoading(false);
   };
 
   return (
-    <form
-      onSubmit={onSubmitHandler}
-      className="flex flex-col w-full items-center gap-6 p-4 bg-white shadow-xl rounded-lg max-w-4xl mx-auto hover:shadow-2xl transition-shadow duration-300"
-    >
-      {/* Section: Image Upload */}
-      <div className="w-full">
-        <p className="text-lg font-bold mb-4">Upload Product Images</p>
-        <div className="flex flex-wrap justify-center gap-4">
-          {[setImage1, setImage2, setImage3, setImage4].map((setImage, index) => (
-            <label
-              key={index}
-              htmlFor={`image${index + 1}`}
-              className="border-dashed border-2 border-gray-300 p-4 rounded-lg cursor-pointer hover:border-[#E63946] transition-colors duration-300"
+      <form
+        onSubmit={onSubmitHandler}
+        className="flex flex-col w-full items-center gap-6 p-4 bg-white shadow-xl rounded-lg max-w-4xl mx-auto hover:shadow-2xl transition-shadow duration-300"
+      >
+        {/* Section: Image Upload */}
+        <div className="w-full">
+          <p className="text-lg font-bold mb-4">Upload Product Images</p>
+          <div className="flex flex-wrap justify-center gap-4">
+            {[setImage1, setImage2, setImage3, setImage4].map((setImage, index) => (
+              <label
+                key={index}
+                htmlFor={`image${index + 1}`}
+                className="border-dashed border-2 border-gray-300 p-4 rounded-lg cursor-pointer hover:border-[#E63946] transition-colors duration-300"
+              >
+                <img
+                  className="w-24 h-24 object-cover rounded-md"
+                  src={!eval(`image${index + 1}`) ? assets.upload_area : URL.createObjectURL(eval(`image${index + 1}`))}
+                  alt="Upload Preview"
+                />
+                <input
+                  onChange={(e) => setImage(e.target.files[0])}
+                  type="file"
+                  id={`image${index + 1}`}
+                  hidden
+                />
+              </label>
+            ))}
+          </div>
+        </div>
+  
+        {/* Section: Product Details */}
+        <div className="w-full">
+          <p className="text-lg font-bold mb-4">Product Details</p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <input
+              onChange={(e) => setName(e.target.value)}
+              value={name}
+              className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
+              type="text"
+              placeholder="Product Name"
+              required
+            />
+            <input
+              onChange={(e) => setPrice(e.target.value)}
+              value={price}
+              className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
+              type="number"
+              placeholder="Price (e.g., 250)"
+              required
+            />
+            <input
+              onChange={(e) => setRentalPrice(e.target.value)}
+              value={rental_price}
+              className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
+              type="text"
+              placeholder="Rental Price"
+              required
+            />
+  
+            <input
+              onChange={(e) => setPickupLocation(e.target.value)}
+              value={pickuplocation}
+              className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
+              type="text"
+              placeholder="Pickup Location"
+              required
+            />
+            <input
+              onChange={(e) => setContactNo(e.target.value)}
+              value={contactno}
+              className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
+              type="text"
+              placeholder="Contact Number..."
+              required
+            />
+            <select
+              onChange={(e) => setCategory(e.target.value)}
+              className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
+              required
             >
-              <img
-                className="w-24 h-24 object-cover rounded-md"
-                src={!eval(`image${index + 1}`) ? assets.upload_area : URL.createObjectURL(eval(`image${index + 1}`))}
-                alt="Upload Preview"
-              />
-              <input
-                onChange={(e) => setImage(e.target.files[0])}
-                type="file"
-                id={`image${index + 1}`}
-                hidden
-              />
-            </label>
-          ))}
-        </div>
-      </div>
-
-      {/* Section: Product Details */}
-      <div className="w-full">
-        <p className="text-lg font-bold mb-4">Product Details</p>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <input
-            onChange={(e) => setName(e.target.value)}
-            value={name}
-            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
-            type="text"
-            placeholder="Product Name"
-            required
-          />
-          <input
-            onChange={(e) => setPrice(e.target.value)}
-            value={price}
-            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
-            type="number"
-            placeholder="Price (e.g., 250)"
-            required
-          />
-          <input
-            onChange={(e) => setRentalPrice(e.target.value)}
-            value={rental_price}
-            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
-            type="text"
-            placeholder="Rental Price"
-            required
-          />
-
-          <input
-            onChange={(e) => setPickupLocation(e.target.value)}
-            value={pickuplocation}
-            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
-            type="text"
-            placeholder="Pickup Location"
-            required
-          />
-          <input
-            onChange={(e) => setContactNo(e.target.value)}
-            value={contactno}
-            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
-            type="text"
-            placeholder="Contact Number..."
-            required
-          />
-          <select
-            onChange={(e) => setCategory(e.target.value)}
-            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
-            required
-          >
-            <option value="Men">Men</option>
-            <option value="Women">Women</option>
-          </select>
-          <select
-            onChange={(e) => setSubCategory(e.target.value)}
-            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
-            required
-          >
-            <option value="Topwear">Top Wear</option>
-            <option value="Bottomwear">Bottom Wear</option>
-          </select>
-        </div>
-        <textarea
-          onChange={(e) => setDescription(e.target.value)}
-          value={description}
-          className="w-full px-4 py-2 mt-4 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
-          placeholder="Write Product Description"
-          required
-        />
-      </div>
-
-      {/* Section: Sizes */}
-      <div className="w-full">
-        <p className="text-lg font-bold mb-4">Available Sizes</p>
-        <div className="flex flex-wrap gap-4">
-          {["S", "M", "L", "XL", "XXL"].map((size) => (
-            <div
-              key={size}
-              onClick={() =>
-                setSizes((prev) =>
-                  prev.includes(size)
-                    ? prev.filter((item) => item !== size)
-                    : [...prev, size]
-                )
-              }
-              className={`${sizes.includes(size)
-                  ? "bg-[#E63946] text-white"
-                  : "bg-gray-200"
-                } px-4 py-2 cursor-pointer rounded-md hover:bg-[#E63946] hover:text-white transition-colors duration-300`}
+              <option value="Men">Men</option>
+              <option value="Women">Women</option>
+            </select>
+            <select
+              onChange={(e) => setSubCategory(e.target.value)}
+              className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
+              required
             >
-              {size}
-            </div>
-          ))}
+              <option value="Topwear">Top Wear</option>
+              <option value="Bottomwear">Bottom Wear</option>
+            </select>
+          </div>
+          <textarea
+            onChange={(e) => setDescription(e.target.value)}
+            value={description}
+            className="w-full px-4 py-2 mt-4 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
+            placeholder="Write Product Description"
+            required
+          />
         </div>
-      </div>
-
-      {/* Bestseller Checkbox */}
-      <div className="flex items-center gap-3 w-full">
-        <input
-          onChange={() => setBestSeller((prev) => !prev)}
-          checked={bestSeller}
-          type="checkbox"
-          id="bestseller"
-        />
-        <label className="cursor-pointer text-gray-700" htmlFor="bestseller">
-          Add to Best Sellers
-        </label>
-      </div>
-
-      {/* Submit Button */}
-      <div className="flex justify-center w-full">
-        <button
-          type="submit"
-          className="w-full sm:w-64 py-3 mt-6 bg-[#E63946] text-white font-bold rounded-md hover:bg-[#D7263D] transition-colors duration-300"
-        >
-          Add Product
-        </button>
-      </div>
-    </form>
-  );
+  
+        {/* Section: Sizes */}
+        <div className="w-full">
+          <p className="text-lg font-bold mb-4">Available Sizes</p>
+          <div className="flex flex-wrap gap-4">
+            {["S", "M", "L", "XL", "XXL"].map((size) => (
+              <div
+                key={size}
+                onClick={() =>
+                  setSizes((prev) =>
+                    prev.includes(size)
+                      ? prev.filter((item) => item !== size)
+                      : [...prev, size]
+                  )
+                }
+                className={`${sizes.includes(size)
+                    ? "bg-[#E63946] text-white"
+                    : "bg-gray-200"
+                  } px-4 py-2 cursor-pointer rounded-md hover:bg-[#E63946] hover:text-white transition-colors duration-300`}
+              >
+                {size}
+              </div>
+            ))}
+          </div>
+        </div>
+  
+        {/* Bestseller Checkbox */}
+        <div className="flex items-center gap-3 w-full">
+          <input
+            onChange={() => setBestSeller((prev) => !prev)}
+            checked={bestSeller}
+            type="checkbox"
+            id="bestseller"
+          />
+          <label className="cursor-pointer text-gray-700" htmlFor="bestseller">
+            Add to Best Sellers
+          </label>
+        </div>
+  
+        {/* Submit Button */}
+        <div className="flex justify-center w-full">
+          <button
+            type="submit"
+            className="w-full sm:w-64 py-3 mt-6 bg-[#E63946] text-white font-bold rounded-md hover:bg-[#D7263D] transition-colors duration-300"
+          >
+            Add Product
+          </button>
+        </div>
+      </form>
+    );
 };
 
 export default Lend;
