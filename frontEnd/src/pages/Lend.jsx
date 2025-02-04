@@ -1,11 +1,14 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from 'react';
 import { toast } from "react-toastify";
-import { backEndURL } from "../App";
+import axios from "axios";
+import { backEndURL } from '../App';
+import { assets } from '../../../admin/src/assets/assets';
 
-const Lend = ({ token, backEndURL }) => {
-  const [images, setImages] = useState([null, null, null, null]);
-  const [imageURLs, setImageURLs] = useState([null, null, null, null]);
+const Lend = ({ token }) => {
+  const [image1, setImage1] = useState(false);
+  const [image2, setImage2] = useState(false);
+  const [image3, setImage3] = useState(false);
+  const [image4, setImage4] = useState(false);
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -14,33 +17,23 @@ const Lend = ({ token, backEndURL }) => {
   const [subCategory, setSubCategory] = useState("Topwear");
   const [bestSeller, setBestSeller] = useState(false);
   const [sizes, setSizes] = useState([]);
-  const [rentalPrice, setRentalPrice] = useState("");
-  const [pickupLocation, setPickupLocation] = useState("");
-  const [contactNo, setContactNo] = useState("");
+  const [rental_price, setRentalPrice] = useState("");
+  const [pickuplocation, setPickupLocation] = useState("");
+  const [contactno, setContactNo] = useState("");
 
   useEffect(() => {
     return () => {
-      imageURLs.forEach((url) => url && URL.revokeObjectURL(url));
+      image1 && URL.revokeObjectURL(image1);
+      image2 && URL.revokeObjectURL(image2);
+      image3 && URL.revokeObjectURL(image3);
+      image4 && URL.revokeObjectURL(image4);
     };
-  }, [imageURLs]);
-
-  const onImageChange = (index, file) => {
-    if (file) {
-      const newImages = [...images];
-      const newImageURLs = [...imageURLs];
-
-      newImages[index] = file;
-      newImageURLs[index] = URL.createObjectURL(file);
-
-      setImages(newImages);
-      setImageURLs(newImageURLs);
-    }
-  };
+  }, [image1, image2, image3, image4]);
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
 
-    if (images.every((image) => !image)) {
+    if (!image1 && !image2 && !image3 && !image4) {
       toast.error("Please upload at least one image.");
       return;
     }
@@ -52,56 +45,54 @@ const Lend = ({ token, backEndURL }) => {
 
     try {
       const formData = new FormData();
+
       formData.append("name", name);
       formData.append("description", description);
       formData.append("price", price);
       formData.append("category", category);
-      formData.append("rental_price", rentalPrice);
+      formData.append("rental_price", rental_price);
       formData.append("subCategory", subCategory);
       formData.append("sizes", JSON.stringify(sizes));
-      formData.append("pickuplocation", pickupLocation);
-      formData.append("contactno", contactNo);
+      formData.append("pickuplocation", pickuplocation);
+      formData.append("contactno", contactno);
+      if (image1) formData.append("image1", image1);
+      if (image2) formData.append("image2", image2);
+      if (image3) formData.append("image3", image3);
+      if (image4) formData.append("image4", image4);
 
-      images.forEach((image, index) => {
-        if (image) formData.append(`image${index + 1}`, image);
-      });
-
-      const response = await axios.post(`${backEndURL}/api/product/lend`, formData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.post(backEndURL + "/api/product/add", formData, { headers: { token } });
 
       if (response.data.success) {
-        toast.success("✅ Product uploaded successfully!");
-
-        // Reset the form fields
+        toast.success(response.data.success);
         setName("");
         setDescription("");
-        setImages([null, null, null, null]);
-        setImageURLs([null, null, null, null]);
+        setImage1(false);
+        setImage2(false);
+        setImage3(false);
+        setImage4(false);
         setPrice("");
         setRentalPrice("");
-        setContactNo("");
         setPickupLocation("");
-        setSizes([]);
+        setContactNo("");
       } else {
         toast.error(response.data.message);
       }
     } catch (error) {
       console.error("Error occurred:", error);
-      toast.error(error.response?.data?.message || "Failed to upload product.");
+      toast.error(error.response?.data?.message || error.message);
     }
   };
 
   return (
     <form
       onSubmit={onSubmitHandler}
-      className="flex flex-col w-full items-center mt-20 gap-6 p-6 bg-white shadow-xl rounded-lg max-w-4xl mx-auto hover:shadow-2xl transition-shadow duration-300"
+      className="flex flex-col w-full items-center gap-6 p-4 bg-white shadow-xl rounded-lg max-w-4xl mx-auto hover:shadow-2xl transition-shadow duration-300"
     >
-      {/* Image Upload */}
+      {/* Section: Image Upload */}
       <div className="w-full">
         <p className="text-lg font-bold mb-4">Upload Product Images</p>
-        <div className="flex justify-center gap-6">
-          {images.map((_, index) => (
+        <div className="flex flex-wrap justify-center gap-4">
+          {[setImage1, setImage2, setImage3, setImage4].map((setImage, index) => (
             <label
               key={index}
               htmlFor={`image${index + 1}`}
@@ -109,11 +100,11 @@ const Lend = ({ token, backEndURL }) => {
             >
               <img
                 className="w-24 h-24 object-cover rounded-md"
-                src={imageURLs[index] || "/default-placeholder.png"}
+                src={!eval(`image${index + 1}`) ? assets.upload_area : URL.createObjectURL(eval(`image${index + 1}`))}
                 alt="Upload Preview"
               />
               <input
-                onChange={(e) => onImageChange(index, e.target.files[0])}
+                onChange={(e) => setImage(e.target.files[0])}
                 type="file"
                 id={`image${index + 1}`}
                 hidden
@@ -123,38 +114,95 @@ const Lend = ({ token, backEndURL }) => {
         </div>
       </div>
 
-      {/* Product Details */}
+      {/* Section: Product Details */}
       <div className="w-full">
         <p className="text-lg font-bold mb-4">Product Details</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <input onChange={(e) => setName(e.target.value)} value={name} className="input-style" type="text" placeholder="Product Name" required />
-          <input onChange={(e) => setPrice(e.target.value)} value={price} className="input-style" type="number" placeholder="Price (e.g., 250)" required />
-          <input onChange={(e) => setRentalPrice(e.target.value)} value={rentalPrice} className="input-style" type="text" placeholder="Rental Price" required />
-          <input onChange={(e) => setPickupLocation(e.target.value)} value={pickupLocation} className="input-style" type="text" placeholder="Pickup Location" required />
-          <input onChange={(e) => setContactNo(e.target.value)} value={contactNo} className="input-style" type="text" placeholder="Contact Number" required />
-          <select onChange={(e) => setCategory(e.target.value)} value={category} className="input-style" required>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <input
+            onChange={(e) => setName(e.target.value)}
+            value={name}
+            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
+            type="text"
+            placeholder="Product Name"
+            required
+          />
+          <input
+            onChange={(e) => setPrice(e.target.value)}
+            value={price}
+            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
+            type="number"
+            placeholder="Price (e.g., 250)"
+            required
+          />
+          <input
+            onChange={(e) => setRentalPrice(e.target.value)}
+            value={rental_price}
+            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
+            type="text"
+            placeholder="Rental Price"
+            required
+          />
+
+          <input
+            onChange={(e) => setPickupLocation(e.target.value)}
+            value={pickuplocation}
+            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
+            type="text"
+            placeholder="Pickup Location"
+            required
+          />
+          <input
+            onChange={(e) => setContactNo(e.target.value)}
+            value={contactno}
+            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
+            type="text"
+            placeholder="Contact Number..."
+            required
+          />
+          <select
+            onChange={(e) => setCategory(e.target.value)}
+            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
+            required
+          >
             <option value="Men">Men</option>
             <option value="Women">Women</option>
           </select>
-          <select onChange={(e) => setSubCategory(e.target.value)} value={subCategory} className="input-style" required>
+          <select
+            onChange={(e) => setSubCategory(e.target.value)}
+            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
+            required
+          >
             <option value="Topwear">Top Wear</option>
             <option value="Bottomwear">Bottom Wear</option>
           </select>
         </div>
-        <textarea onChange={(e) => setDescription(e.target.value)} value={description} className="w-full px-4 py-2 mt-4 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none" placeholder="Write Product Description" required />
+        <textarea
+          onChange={(e) => setDescription(e.target.value)}
+          value={description}
+          className="w-full px-4 py-2 mt-4 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
+          placeholder="Write Product Description"
+          required
+        />
       </div>
 
-      {/* Sizes */}
+      {/* Section: Sizes */}
       <div className="w-full">
         <p className="text-lg font-bold mb-4">Available Sizes</p>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-4">
           {["S", "M", "L", "XL", "XXL"].map((size) => (
             <div
               key={size}
               onClick={() =>
-                setSizes((prev) => (prev.includes(size) ? prev.filter((item) => item !== size) : [...prev, size]))
+                setSizes((prev) =>
+                  prev.includes(size)
+                    ? prev.filter((item) => item !== size)
+                    : [...prev, size]
+                )
               }
-              className={`size-button ${sizes.includes(size) ? "bg-[#E63946] text-white" : "bg-gray-200"}`}
+              className={`${sizes.includes(size)
+                  ? "bg-[#E63946] text-white"
+                  : "bg-gray-200"
+                } px-4 py-2 cursor-pointer rounded-md hover:bg-[#E63946] hover:text-white transition-colors duration-300`}
             >
               {size}
             </div>
@@ -162,14 +210,30 @@ const Lend = ({ token, backEndURL }) => {
         </div>
       </div>
 
-      {/* Bestseller */}
+      {/* Bestseller Checkbox */}
       <div className="flex items-center gap-3 w-full">
-        <input onChange={() => setBestSeller((prev) => !prev)} checked={bestSeller} type="checkbox" id="bestseller" />
-        <label className="cursor-pointer text-gray-700" htmlFor="bestseller">Add to Best Sellers</label>
+        <input
+          onChange={() => setBestSeller((prev) => !prev)}
+          checked={bestSeller}
+          type="checkbox"
+          id="bestseller"
+        />
+        <label className="cursor-pointer text-gray-700" htmlFor="bestseller">
+          Add to Best Sellers
+        </label>
       </div>
 
-      {/* Submit */}
-      <button type="submit" className="w-64 py-3 mt-6 bg-[#E63946] text-white font-bold rounded-md hover:bg-[#D7263D]">Add Product</button>
+      {/* Submit Button */}
+      <div className="flex justify-center w-full">
+        <button
+          type="submit"
+          className="w-full sm:w-64 py-3 mt-6 bg-[#E63946] text-white font-bold rounded-md hover:bg-[#D7263D] transition-colors duration-300"
+        >
+          Add Product
+        </button>
+      </div>
     </form>
   );
 };
+
+export default Lend;
