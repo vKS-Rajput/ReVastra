@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { backEndURL } from "../App";
 
 const Lend = ({ token, backEndURL }) => {
   const [images, setImages] = useState([null, null, null, null]);
