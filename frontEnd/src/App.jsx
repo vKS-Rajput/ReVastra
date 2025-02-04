@@ -15,6 +15,7 @@ import SearchBar from './components/SearchBar'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Lend from './pages/Lend'
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 
 export const backEndURL = import.meta.env.VITE_BACKEND_URL
@@ -46,6 +47,7 @@ const App = () => {
         <Route path='/signIn' element={<SignIn />} />
         <Route path='/placeorder' element={<PlaceOrder />} />
       </Routes>
+      <SpeedInsights />
 
       <Footer />
     </div>
