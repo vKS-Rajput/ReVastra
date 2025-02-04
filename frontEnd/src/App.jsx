@@ -47,9 +47,10 @@ const App = () => {
         <Route path='/signIn' element={<SignIn />} />
         <Route path='/placeorder' element={<PlaceOrder />} />
       </Routes>
-      <SpeedInsights />
+      
 
       <Footer />
+      <SpeedInsights />
     </div>
   )
 }
