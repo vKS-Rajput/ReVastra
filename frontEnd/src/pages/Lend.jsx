@@ -165,7 +165,7 @@ const Lend = ({ token }) => {
             required
           />
           {/* Rental Price Calculation */}
-          <div className="p-4 border rounded-lg bg-[#FFF3E0] text-gray-800 shadow-md w-full text-center">
+          <div className="p-4 border rounded-lg bg-gray-200 text-gray-800 shadow-md w-full text-center">
   <p className="text-lg font-semibold text-[#da4c58]">Rental Price Breakdown</p>
   <div className="flex justify-between items-center mt-2">
     <span className="text-md font-medium">Rental Price:</span>
