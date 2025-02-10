@@ -80,26 +80,32 @@ const List = ({ token }) => {
   };
 
   // Calculate rental price based on original price
-const calculateRentalPrice = (price) => {
-  if (!price) return 0;
-  return (parseFloat(price) * 0.2).toFixed(2); // 20% rental price
-};
+  const calculateRentalPrice = (price) => {
+    if (!price) return 0;
+    return (parseFloat(price) * 0.2).toFixed(2); // 20% rental price
+  };
 
-// Calculate charge based on rental price
-const calculateCharge = (price) => {
-  if (!price) return 0;
-  const rentalPrice = parseFloat(price) * 0.2; // Rental price is 20% of original price
-  let chargeRate = 0.02; // Default 2%
+  // Calculate charge based on rental price
+  const calculateCharge = (rentalPrice) => {
+    if (!rentalPrice) return 0;
+    rentalPrice = parseFloat(rentalPrice);
+    
+    let chargeRate = 0.02; // Default 2%
 
-  if (price > 200 && price <= 300) chargeRate = 0.05;
-  else if (price > 300 && price <= 400) chargeRate = 0.07;
-  else if (price > 400 && price <= 500) chargeRate = 0.1;
-  else if (price > 500 && price <= 800) chargeRate = 0.15;
+    if (rentalPrice > 200 && rentalPrice <= 300) chargeRate = 0.05;
+    else if (rentalPrice > 300 && rentalPrice <= 400) chargeRate = 0.07;
+    else if (rentalPrice > 400 && rentalPrice <= 500) chargeRate = 0.1;
+    else if (rentalPrice > 500) chargeRate = 0.15;
 
-  return (rentalPrice * chargeRate).toFixed(2);
-};
+    return (rentalPrice * chargeRate).toFixed(2);
+  };
 
-  
+  // Calculate estimated earnings (Rental Price - Charge)
+  const calculateEstimatedEarnings = (price) => {
+    const rentalPrice = calculateRentalPrice(price);
+    const charge = calculateCharge(rentalPrice);
+    return (rentalPrice - charge).toFixed(2);
+  };
 
   useEffect(() => {
     fetchList();
@@ -122,12 +128,14 @@ const calculateCharge = (price) => {
 
       <div className="flex flex-col gap-4">
         {/* Table Header */}
-        <div className="hidden md:grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr_1fr] items-center py-3 px-4 border bg-blue-100 text-sm rounded-lg shadow-md">
+        <div className="hidden md:grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr] items-center py-3 px-4 border bg-blue-100 text-sm rounded-lg shadow-md">
           <b className="text-gray-700">Image</b>
           <b className="text-gray-700">Details</b>
           <b className="text-gray-700">Category</b>
           <b className="text-gray-700">Price</b>
+          <b className="text-gray-700">Rental Price</b>
           <b className="text-gray-700">Charge</b>
+          <b className="text-gray-700">Est. Earnings</b>
           <b className="text-gray-700">Status</b>
           <b className="text-gray-700 text-center">Action</b>
         </div>
@@ -136,7 +144,7 @@ const calculateCharge = (price) => {
         {filteredList.map((item, index) => (
           <div
             key={index}
-            className="grid grid-cols-[1fr_2fr_1fr] md:grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr_1fr] items-center gap-4 py-3 px-4 border bg-white hover:bg-gray-50 text-sm rounded-lg shadow-sm transition-all duration-200"
+            className="grid grid-cols-[1fr_2fr_1fr] md:grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr] items-center gap-4 py-3 px-4 border bg-white hover:bg-gray-50 text-sm rounded-lg shadow-sm transition-all duration-200"
           >
             {/* Image */}
             <img className="w-16 h-16 object-cover rounded-md border" src={item.image[0]} alt={item.name} />
@@ -154,10 +162,16 @@ const calculateCharge = (price) => {
             <p className="text-gray-600">{item.category}</p>
 
             {/* Price */}
-            <p className="text-gray-800 font-semibold">{currency}{item.rental_price}</p>
+            <p className="text-gray-800 font-semibold">{currency}{item.price}</p>
+
+            {/* Rental Price */}
+            <p className="text-blue-600 font-semibold">{currency}{calculateRentalPrice(item.price)}</p>
 
             {/* Charge */}
-            <p className="text-green-600 font-semibold">{currency}{calculateCharge(item.rental_price)}</p>
+            <p className="text-green-600 font-semibold">{currency}{calculateCharge(calculateRentalPrice(item.price))}</p>
+
+            {/* Estimated Earnings */}
+            <p className="text-purple-600 font-semibold">{currency}{calculateEstimatedEarnings(item.price)}</p>
 
             {/* Status */}
             <select
