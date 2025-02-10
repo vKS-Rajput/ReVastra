@@ -35,12 +35,12 @@ const ShopContextProvider = (props) => {
                 cartData[itemId][size] += 1;
             }
             else {
-                cartData[itemId][size] = 1;
+                cartData[itemId][size] = 3;
             }
         }
         else {
             cartData[itemId] = {};
-            cartData[itemId][size] = 1;
+            cartData[itemId][size] = 3;
         }
         setCartItems(cartData);
 
@@ -65,7 +65,7 @@ const ShopContextProvider = (props) => {
 
     // Get total cart item count
     const getCartCount = () => {
-        let totalCount = 3;
+        let totalCount = 0;
         for (const items in cartItems) {
             for (const item in cartItems[items]) {
                 try {
