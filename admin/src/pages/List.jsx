@@ -132,10 +132,8 @@ const List = ({ token }) => {
           <b className="text-gray-700">Image</b>
           <b className="text-gray-700">Details</b>
           <b className="text-gray-700">Category</b>
-          <b className="text-gray-700">Price</b>
           <b className="text-gray-700">Rental Price</b>
           <b className="text-gray-700">Charge</b>
-          <b className="text-gray-700">Est. Earnings</b>
           <b className="text-gray-700">Status</b>
           <b className="text-gray-700 text-center">Action</b>
         </div>
@@ -161,17 +159,14 @@ const List = ({ token }) => {
             {/* Category */}
             <p className="text-gray-600">{item.category}</p>
 
-            {/* Price */}
-            <p className="text-gray-800 font-semibold">{currency}{item.price}</p>
-
+           
             {/* Rental Price */}
             <p className="text-blue-600 font-semibold">{currency}{calculateRentalPrice(item.price)}</p>
 
             {/* Charge */}
             <p className="text-green-600 font-semibold">{currency}{calculateCharge(calculateRentalPrice(item.price))}</p>
 
-            {/* Estimated Earnings */}
-            <p className="text-purple-600 font-semibold">{currency}{calculateEstimatedEarnings(item.price)}</p>
+          
 
             {/* Status */}
             <select
