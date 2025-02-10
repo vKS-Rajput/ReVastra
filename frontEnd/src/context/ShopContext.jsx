@@ -32,7 +32,7 @@ const ShopContextProvider = (props) => {
         let cartData = structuredClone(cartItems);
         if (cartData[itemId]) {
             if (cartData[itemId][size]) {
-                cartData[itemId][size] += 2;
+                cartData[itemId][size] += 1;
             }
             else {
                 cartData[itemId][size] = 1;
@@ -70,7 +70,7 @@ const ShopContextProvider = (props) => {
             for (const item in cartItems[items]) {
                 try {
                     if (cartItems[items][item] > 0) {
-                        totalCount += cartItems[items][item];
+                        totalCount += cartItems[items][item]+1;
                     }
                 } catch (error) {
 
