@@ -106,27 +106,18 @@ const ShopContextProvider = (props) => {
         let totalAmount = 0;
         for (const items in cartItems) {
             let itemInfo = products.find((product) => product._id === items);
-            for (const size in cartItems[items]) {
+            for (const item in cartItems[items]) {
                 try {
-                    let { quantity, days } = cartItems[items][size];
-                    
-                    if (quantity > 0 && itemInfo) {
-                        let basePrice = itemInfo.rental_price;
-                        
-                        // Apply the pricing rule: First 3 days same price, then extra per day
-                        let effectiveDays = days <= 3 ? basePrice : basePrice + (days - 3) * basePrice;
-    
-                        totalAmount += effectiveDays * quantity;
+                    if (cartItems[items][item] > 0) {
+                        totalAmount += itemInfo.rental_price * cartItems[items][item];
                     }
                 } catch (error) {
-                    console.error("Error calculating cart amount:", error);
+
                 }
             }
         }
         return totalAmount;
-    };
-    
-    
+    }
 
     // Fetch products from the backend
     const getProductData = async () => {
