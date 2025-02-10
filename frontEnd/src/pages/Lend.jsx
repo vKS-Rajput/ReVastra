@@ -121,12 +121,12 @@ const Lend = ({ token }) => {
       {/* Section: Image Upload */}
       <div className="w-full">
         <p className="text-lg font-bold mb-4">Upload Product Images</p>
-        <div className="flex justify-center gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {images.map((image, index) => (
             <label
               key={index}
               htmlFor={`image${index + 1}`}
-              className="border-dashed border-2 border-gray-300 p-4 rounded-lg cursor-pointer hover:border-[#E63946] transition-colors duration-300"
+              className="border-dashed border-2 border-gray-300 p-4 rounded-lg cursor-pointer hover:border-red-500 transition-colors duration-300 flex justify-center items-center"
             >
               <img
                 className="w-24 h-24 object-cover rounded-md"
