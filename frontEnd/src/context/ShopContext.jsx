@@ -30,21 +30,35 @@ const ShopContextProvider = (props) => {
         }
     
         let cartData = structuredClone(cartItems);
+        const itemInfo = products.find((product) => product._id === itemId);
+        if (!itemInfo) {
+            toast.error("⚠️ Product not found!");
+            return;
+        }
+    
+        const latestPrice = itemInfo.rental_price;
+    
         if (cartData[itemId]) {
             if (cartData[itemId][size]) {
-                cartData[itemId][size] += 1; // Increment if already exists
+                if (cartData[itemId][size].quantity < 3) {
+                    cartData[itemId][size].quantity += 1; // Fixed price for first 3
+                } else {
+                    cartData[itemId][size].quantity += 1;
+                    cartData[itemId][size].price = latestPrice; // Update price for additional quantity
+                }
             } else {
-                cartData[itemId][size] = 3; // Default quantity to 3
+                cartData[itemId][size] = { quantity: 3, price: latestPrice }; // Default to 3 with fixed price
             }
         } else {
             cartData[itemId] = {};
-            cartData[itemId][size] = 3; // Default quantity to 3
+            cartData[itemId][size] = { quantity: 3, price: latestPrice }; // Default to 3 with fixed price
         }
+    
         setCartItems(cartData);
     
         if (token) {
             try {
-                await axios.post(backEndURL + '/api/cart/add', { itemId, size, quantity: 3 }, { headers: { token } });
+                await axios.post(backEndURL + '/api/cart/add', { itemId, size, quantity: 3, price: latestPrice }, { headers: { token } });
             } catch (error) {
                 console.error("API Error:", error);
                 toast.error(
@@ -104,18 +118,25 @@ const ShopContextProvider = (props) => {
         let totalAmount = 0;
         for (const items in cartItems) {
             let itemInfo = products.find((product) => product._id === items);
-            for (const item in cartItems[items]) {
+            for (const size in cartItems[items]) {
                 try {
-                    if (cartItems[items][item] > 0) {
-                        totalAmount += itemInfo.rental_price * cartItems[items][item];
+                    const cartItem = cartItems[items][size];
+                    if (cartItem.quantity > 0) {
+                        if (cartItem.quantity <= 3) {
+                            totalAmount += cartItem.price * cartItem.quantity; // Fixed price for first 3
+                        } else {
+                            const latestPrice = itemInfo ? itemInfo.rental_price : cartItem.price;
+                            totalAmount += (cartItem.price * 3) + (latestPrice * (cartItem.quantity - 3)); // Updated price for extra quantity
+                        }
                     }
                 } catch (error) {
-
+                    console.error("Error calculating cart amount:", error);
                 }
             }
         }
         return totalAmount;
-    }
+    };
+    
 
     // Fetch products from the backend
     const getProductData = async () => {
