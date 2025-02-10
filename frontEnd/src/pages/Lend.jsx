@@ -177,8 +177,8 @@ const Lend = ({ token }) => {
   </div>
   <hr className="my-2 border-gray-300" />
   <div className="flex justify-between items-center text-lg font-bold">
-    <span className="text-gray-700">Total:</span>
-    <span className="text-[#1D3557]">₹{(parseFloat(rentalPrice) + parseFloat(charge)).toFixed(2)}</span>
+    <span className="text-gray-700">Esitmated Earning:</span>
+    <span className="text-[#1D3557]">₹{(parseFloat(rentalPrice) - parseFloat(charge)).toFixed(2)}</span>
   </div>
 </div>
 
