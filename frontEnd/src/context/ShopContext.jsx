@@ -70,7 +70,7 @@ const ShopContextProvider = (props) => {
             for (const item in cartItems[items]) {
                 try {
                     if (cartItems[items][item] > 0) {
-                        totalCount += cartItems[items][item]+1;
+                        totalCount += cartItems[items][item];
                     }
                 } catch (error) {
 
