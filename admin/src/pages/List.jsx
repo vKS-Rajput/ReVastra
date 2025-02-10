@@ -80,9 +80,9 @@ const List = ({ token }) => {
   };
 
   // Calculate charge based on rental price
-  const calculateCharge = (rentalPrice) => {
-    if (!rentalPrice) return 0;
-    const price = parseFloat(rentalPrice);
+  const calculateCharge = (rental_price) => {
+    if (!rental_price) return 0;
+    const price = parseFloat(rental_price);
     let chargeRate = 0.02; // Default 2%
 
     if (price > 1000 && price <= 1500) chargeRate = 0.05;
