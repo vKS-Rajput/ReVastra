@@ -24,44 +24,42 @@ const ShopContextProvider = (props) => {
         if (!size) {
             toast.error(
                 "⚠️ Please select a product size before adding to cart!",
-                toastConfig(5000) // 5 seconds duration for errors
+                toastConfig(5000)
             );
             return;
         }
-
+    
         let cartData = structuredClone(cartItems);
         if (cartData[itemId]) {
             if (cartData[itemId][size]) {
-                cartData[itemId][size] += 1;
+                cartData[itemId][size] += 1; // Increment if already exists
+            } else {
+                cartData[itemId][size] = 3; // Default quantity to 3
             }
-            else {
-                cartData[itemId][size] = 1;
-            }
-        }
-        else {
+        } else {
             cartData[itemId] = {};
-            cartData[itemId][size] = 1;
+            cartData[itemId][size] = 3; // Default quantity to 3
         }
         setCartItems(cartData);
-
+    
         if (token) {
             try {
-                await axios.post(backEndURL + '/api/cart/add', { itemId, size }, { headers: { token } })
-                
+                await axios.post(backEndURL + '/api/cart/add', { itemId, size, quantity: 3 }, { headers: { token } });
             } catch (error) {
                 console.error("API Error:", error);
                 toast.error(
                     error.response?.data?.message || "Failed to update cart!",
-                    toastConfig(4000) // 4 seconds duration for API errors
+                    toastConfig(4000)
                 );
             }
         } else {
             toast.error(
                 "⚠️ User is not authenticated. Please log in.",
-                toastConfig(5000) // 5 seconds duration for login errors
+                toastConfig(5000)
             );
         }
     };
+    
 
     // Get total cart item count
     const getCartCount = () => {
