@@ -108,7 +108,7 @@ const ShopContextProvider = (props) => {
             let itemInfo = products.find((product) => product._id === items);
             for (const item in cartItems[items]) {
                 try {
-                    if (cartItems[items][item] > 3) {
+                    if (cartItems[items][item] > 2) {
                         totalAmount += itemInfo.rental_price * cartItems[items][item];
                     }
                 } catch (error) {
