@@ -35,12 +35,12 @@ const ShopContextProvider = (props) => {
                 cartData[itemId][size] += 1;
             }
             else {
-                cartData[itemId][size] = 3;
+                cartData[itemId][size] = 1;
             }
         }
         else {
             cartData[itemId] = {};
-            cartData[itemId][size] = 3;
+            cartData[itemId][size] = 1;
         }
         setCartItems(cartData);
 
@@ -108,7 +108,7 @@ const ShopContextProvider = (props) => {
             let itemInfo = products.find((product) => product._id === items);
             for (const item in cartItems[items]) {
                 try {
-                    if (cartItems[items][item] > 2) {
+                    if (cartItems[items][item] > 0) {
                         totalAmount += itemInfo.rental_price * cartItems[items][item];
                     }
                 } catch (error) {
