@@ -65,7 +65,7 @@ const ShopContextProvider = (props) => {
 
     // Get total cart item count
     const getCartCount = () => {
-        let totalCount = 0;
+        let totalCount = 3;
         for (const items in cartItems) {
             for (const item in cartItems[items]) {
                 try {
