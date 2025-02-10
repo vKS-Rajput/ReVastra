@@ -6,7 +6,6 @@ import { assets } from '../../../admin/src/assets/assets';
 
 const Lend = ({ token }) => {
   const [images, setImages] = useState([false, false, false, false]);
-
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -14,7 +13,8 @@ const Lend = ({ token }) => {
   const [subCategory, setSubCategory] = useState("Topwear");
   const [bestSeller, setBestSeller] = useState(false);
   const [sizes, setSizes] = useState([]);
-  const [rental_price, setRentalPrice] = useState("");
+  const [rentalPrice, setRentalPrice] = useState("");
+  const [charge, setCharge] = useState(0);
   const [pickuplocation, setPickupLocation] = useState("");
   const [contactno, setContactNo] = useState("");
 
@@ -29,6 +29,32 @@ const Lend = ({ token }) => {
     newImages[index] = file;
     setImages(newImages);
   };
+
+  // Function to calculate rental price and charge
+  useEffect(() => {
+    if (price) {
+      const priceNum = parseFloat(price);
+      let rentalPercentage = 0.15; // 15% rental price for all ranges
+      let chargePercentage = 0.02; // Default charge (2%)
+
+      if (priceNum > 1000 && priceNum <= 1500) {
+        chargePercentage = 0.05; // 5%
+      } else if (priceNum > 1500 && priceNum <= 2000) {
+        chargePercentage = 0.07; // 7%
+      } else if (priceNum > 2000 && priceNum <= 3000) {
+        chargePercentage = 0.10; // 10%
+      }
+
+      const calculatedRentalPrice = priceNum * rentalPercentage;
+      const calculatedCharge = calculatedRentalPrice * chargePercentage;
+      
+      setRentalPrice(calculatedRentalPrice.toFixed(2));
+      setCharge(calculatedCharge.toFixed(2));
+    } else {
+      setRentalPrice("");
+      setCharge(0);
+    }
+  }, [price]);
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
@@ -50,7 +76,7 @@ const Lend = ({ token }) => {
       formData.append("description", description);
       formData.append("price", price);
       formData.append("category", category);
-      formData.append("rental_price", rental_price);
+      formData.append("rental_price", rentalPrice);
       formData.append("subCategory", subCategory);
       formData.append("sizes", JSON.stringify(sizes));
       formData.append("pickuplocation", pickuplocation);
@@ -71,6 +97,7 @@ const Lend = ({ token }) => {
         setImages([false, false, false, false]);
         setPrice('');
         setRentalPrice('');
+        setCharge(0);
         setContactNo('');
         setPickupLocation('');
         setSizes([]);
@@ -135,14 +162,10 @@ const Lend = ({ token }) => {
             placeholder="Price (e.g., 250)"
             required
           />
-          <input
-            onChange={(e) => setRentalPrice(e.target.value)}
-            value={rental_price}
-            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
-            type="text"
-            placeholder="Rental Price"
-            required
-          />
+          {/* Rental Price Calculation */}
+          <p className="px-4 py-2 border rounded-md bg-gray-100 text-gray-700">
+            Rental Price: ₹{rentalPrice} + Charge: ₹{charge} = Total: ₹{(parseFloat(rentalPrice) + parseFloat(charge)).toFixed(2)}
+          </p>
           <input
             onChange={(e) => setPickupLocation(e.target.value)}
             value={pickuplocation}
