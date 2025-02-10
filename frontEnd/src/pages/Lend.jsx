@@ -165,9 +165,23 @@ const Lend = ({ token }) => {
             required
           />
           {/* Rental Price Calculation */}
-          <p className="px-4 py-2 border rounded-md bg-gray-100 text-gray-700">
-            Rental Price: ₹{rentalPrice} + Charge: ₹{charge} = Total: ₹{(parseFloat(rentalPrice) + parseFloat(charge)).toFixed(2)}
-          </p>
+          <div className="p-4 border rounded-lg bg-[#FFF3E0] text-gray-800 shadow-md w-full text-center">
+  <p className="text-lg font-semibold text-[#E63946]">Rental Price Breakdown</p>
+  <div className="flex justify-between items-center mt-2">
+    <span className="text-md font-medium">Rental Price:</span>
+    <span className="text-lg font-bold text-[#E63946]">₹{rentalPrice}</span>
+  </div>
+  <div className="flex justify-between items-center mt-1">
+    <span className="text-md font-medium">Service Charge:</span>
+    <span className="text-lg font-bold text-[#F77F00]">₹{charge}</span>
+  </div>
+  <hr className="my-2 border-gray-300" />
+  <div className="flex justify-between items-center text-lg font-bold">
+    <span className="text-gray-700">Total:</span>
+    <span className="text-[#1D3557]">₹{(parseFloat(rentalPrice) + parseFloat(charge)).toFixed(2)}</span>
+  </div>
+</div>
+
           <input
             onChange={(e) => setPickupLocation(e.target.value)}
             value={pickuplocation}
