@@ -166,14 +166,14 @@ const Lend = ({ token }) => {
           />
           {/* Rental Price Calculation */}
           <div className="p-4 border rounded-lg bg-[#FFF3E0] text-gray-800 shadow-md w-full text-center">
-  <p className="text-lg font-semibold text-[#E63946]">Rental Price Breakdown</p>
+  <p className="text-lg font-semibold text-[#da4c58]">Rental Price Breakdown</p>
   <div className="flex justify-between items-center mt-2">
     <span className="text-md font-medium">Rental Price:</span>
-    <span className="text-lg font-bold text-[#E63946]">₹{rentalPrice}</span>
+    <span className="text-lg font-bold text-[#e34b58]">₹{rentalPrice}</span>
   </div>
   <div className="flex justify-between items-center mt-1">
     <span className="text-md font-medium">Service Charge:</span>
-    <span className="text-lg font-bold text-[#F77F00]">₹{charge}</span>
+    <span className="text-lg font-bold text-red-800">₹{charge}</span>
   </div>
   <hr className="my-2 border-gray-300" />
   <div className="flex justify-between items-center text-lg font-bold">
