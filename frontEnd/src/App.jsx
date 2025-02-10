@@ -29,7 +29,7 @@ const App = () => {
   }, [token])
 
   return (
-    <div className='px-1 sm:px-[1vw] md:px-[2vw] lg:px-[1vw]'>
+    <div className='px-4 sm:px-[5vw] md:px-[7vw] lg:px-[2vw]'>
       <NavBar />
       <SearchBar />
       <ToastContainer />
