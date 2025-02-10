@@ -89,7 +89,7 @@ const List = ({ token }) => {
   const calculateCharge = (rentalPrice) => {
     if (!rentalPrice) return 0;
     rentalPrice = parseFloat(rentalPrice);
-    
+
     let chargeRate = 0.02; // Default 2%
 
     if (rentalPrice > 200 && rentalPrice <= 300) chargeRate = 0.05;
@@ -98,13 +98,6 @@ const List = ({ token }) => {
     else if (rentalPrice > 500) chargeRate = 0.15;
 
     return (rentalPrice * chargeRate).toFixed(2);
-  };
-
-  // Calculate estimated earnings (Rental Price - Charge)
-  const calculateEstimatedEarnings = (price) => {
-    const rentalPrice = calculateRentalPrice(price);
-    const charge = calculateCharge(rentalPrice);
-    return (rentalPrice - charge).toFixed(2);
   };
 
   useEffect(() => {
@@ -128,7 +121,7 @@ const List = ({ token }) => {
 
       <div className="flex flex-col gap-4">
         {/* Table Header */}
-        <div className="hidden md:grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr] items-center py-3 px-4 border bg-blue-100 text-sm rounded-lg shadow-md">
+        <div className="hidden md:grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr_1fr] items-center py-3 px-4 border bg-blue-100 text-sm rounded-lg shadow-md">
           <b className="text-gray-700">Image</b>
           <b className="text-gray-700">Details</b>
           <b className="text-gray-700">Category</b>
@@ -139,54 +132,56 @@ const List = ({ token }) => {
         </div>
 
         {/* Product List */}
-        {filteredList.map((item, index) => (
-          <div
-            key={index}
-            className="grid grid-cols-[1fr_2fr_1fr] md:grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr] items-center gap-4 py-3 px-4 border bg-white hover:bg-gray-50 text-sm rounded-lg shadow-sm transition-all duration-200"
-          >
-            {/* Image */}
-            <img className="w-16 h-16 object-cover rounded-md border" src={item.image[0]} alt={item.name} />
+        {filteredList.map((item, index) => {
+          const rentalPrice = calculateRentalPrice(item.price);
+          const charge = calculateCharge(rentalPrice);
 
-            {/* Product Details */}
-            <div className="flex flex-col">
-              <p className="font-medium text-gray-800">{item.name}</p>
-              <p className="text-gray-600">📍 {item.pickuplocation}</p>
-              <p className="text-gray-600">📞 {item.contactno}</p>
-              <p className="text-gray-600">👕 Sizes: {item.sizes?.join(', ') || 'N/A'}</p>
-              <p className="text-gray-600">ID: <span className='text-red-600 font-bold'>{item._id}</span></p>
+          return (
+            <div
+              key={index}
+              className="grid grid-cols-[1fr_2fr_1fr] md:grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr_1fr] items-center gap-4 py-3 px-4 border bg-white hover:bg-gray-50 text-sm rounded-lg shadow-sm transition-all duration-200"
+            >
+              {/* Image */}
+              <img className="w-16 h-16 object-cover rounded-md border" src={item.image[0]} alt={item.name} />
+
+              {/* Product Details */}
+              <div className="flex flex-col">
+                <p className="font-medium text-gray-800">{item.name}</p>
+                <p className="text-gray-600">📍 {item.pickuplocation}</p>
+                <p className="text-gray-600">📞 {item.contactno}</p>
+                <p className="text-gray-600">👕 Sizes: {item.sizes?.join(', ') || 'N/A'}</p>
+                <p className="text-gray-600">ID: <span className='text-red-600 font-bold'>{item._id}</span></p>
+              </div>
+
+              {/* Category */}
+              <p className="text-gray-600">{item.category}</p>
+
+              {/* Rental Price */}
+              <p className="text-blue-600 font-semibold">{currency}{rentalPrice}</p>
+
+              {/* Charge */}
+              <p className="text-green-600 font-semibold">{currency}{charge}</p>
+
+              {/* Status */}
+              <select
+                className="border rounded-md py-1 px-2 text-sm bg-gray-100 cursor-pointer"
+                value={item.status || 'available'}
+                onChange={(e) => updateProductStatus(item._id, e.target.value)}
+              >
+                <option value="available">Available</option>
+                <option value="out_of_stock">Out of Stock</option>
+              </select>
+
+              {/* Remove Button */}
+              <button
+                onClick={() => removeProduct(item._id)}
+                className="text-red-600 hover:text-red-800 font-medium cursor-pointer text-center transition-all duration-200"
+              >
+                Remove
+              </button>
             </div>
-
-            {/* Category */}
-            <p className="text-gray-600">{item.category}</p>
-
-           
-            {/* Rental Price */}
-            <p className="text-blue-600 font-semibold">{currency}{calculateRentalPrice(item.price)}</p>
-
-            {/* Charge */}
-            <p className="text-green-600 font-semibold">{currency}{calculateCharge(calculateRentalPrice(item.price))}</p>
-
-          
-
-            {/* Status */}
-            <select
-              className="border rounded-md py-1 px-2 text-sm bg-gray-100 cursor-pointer"
-              value={item.status || 'available'}
-              onChange={(e) => updateProductStatus(item._id, e.target.value)}
-            >
-              <option value="available">Available</option>
-              <option value="out_of_stock">Out of Stock</option>
-            </select>
-
-            {/* Remove Button */}
-            <button
-              onClick={() => removeProduct(item._id)}
-              className="text-red-600 hover:text-red-800 font-medium cursor-pointer text-center transition-all duration-200"
-            >
-              Remove
-            </button>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </>
   );
