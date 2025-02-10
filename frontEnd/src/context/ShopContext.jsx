@@ -109,18 +109,10 @@ const ShopContextProvider = (props) => {
             for (const item in cartItems[items]) {
                 try {
                     if (cartItems[items][item] > 0) {
-                        let rentalDays = days || 1; // Default to 1 if days not provided
-                        let basePrice = itemInfo.rental_price;
-    
-                        // Pricing logic: First 3 days same price, then same as day 1
-                        let calculatedPrice = rentalDays <= 3 
-                            ? basePrice * rentalDays 
-                            : (basePrice * 3) + (basePrice * (rentalDays - 3));
-    
-                        totalAmount += calculatedPrice * cartItems[items][item];
+                        totalAmount += itemInfo.rental_price * cartItems[items][item];
                     }
                 } catch (error) {
-                    console.error("Error calculating cart amount:", error);
+
                 }
             }
         }

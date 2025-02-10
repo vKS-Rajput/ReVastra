@@ -4,7 +4,7 @@ import Title from "../components/Title";
 import CartTotal from "../components/CartTotal";
 
 const Cart = () => {
-  const { products, currency, cartItems, updateQuantity, getCartAmount, navigate } =
+  const { products, currency, cartItems, updateQuantity, navigate } =
     useContext(ShopContext);
 
   const [cartData, setCartData] = useState([]);
@@ -19,7 +19,6 @@ const Cart = () => {
               _id: items,
               size: item,
               quantity: cartItems[items][item],
-              days: 1, // Default to 1 day
             });
           }
         }
@@ -27,15 +26,6 @@ const Cart = () => {
       setCartData(tempData);
     }
   }, [cartItems, products]);
-
-  // Function to handle rental day changes
-  const handleDayChange = (index, days) => {
-    if (days < 1) return; // Prevent negative or zero values
-
-    const updatedCart = [...cartData];
-    updatedCart[index].days = days;
-    setCartData(updatedCart);
-  };
 
   return (
     <div className="border-t pt-24 bg-gray-50 min-h-screen">
@@ -67,7 +57,8 @@ const Cart = () => {
                   </p>
                   <div className="flex items-center gap-4 mt-2 text-gray-600">
                     <p className="text-base">
-                      {currency} {productData.rental_price}
+                      {currency}
+                      {productData.rental_price}
                     </p>
                     <p className="px-4 py-1 border rounded-lg bg-gray-100 text-sm">
                       {item.size}
@@ -76,18 +67,24 @@ const Cart = () => {
                 </div>
               </div>
 
-              {/* Rental Duration Input */}
+              {/* Quantity Section */}
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-600 mb-2">Duration</p>
                 <div className="flex items-center justify-center gap-2">
                   <input
                     onChange={(e) =>
-                      handleDayChange(index, Number(e.target.value))
+                      e.target.value === "" || e.target.value === "0"
+                        ? null
+                        : updateQuantity(
+                            item._id,
+                            item.size,
+                            Number(e.target.value)
+                          )
                     }
                     className="border w-16 text-center px-2 py-1 rounded-lg shadow-sm"
                     type="number"
                     min={1}
-                    value={item.days}
+                    defaultValue={item.quantity}
                   />
                   <span className="text-gray-700 text-sm font-medium">days</span>
                 </div>
@@ -111,7 +108,7 @@ const Cart = () => {
       {cartData.length > 0 && (
         <div className="flex justify-center my-20">
           <div className="w-full sm:w-[700px] bg-white shadow-lg rounded-lg p-8">
-            <CartTotal days={cartData.map((item) => item.days)} />
+            <CartTotal />
 
             <div className="w-full text-center mt-8">
               <button
