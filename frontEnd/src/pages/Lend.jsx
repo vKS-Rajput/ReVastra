@@ -34,7 +34,7 @@ const Lend = ({ token }) => {
   useEffect(() => {
     if (price) {
       const priceNum = parseFloat(price);
-      let rentalPercentage = 0.20; // 15% rental price for all ranges
+      let rentalPercentage = 0.08; // 8% rental price for all ranges
       let chargePercentage = 0.05; // Default charge (2%)
 
       if (priceNum > 1000 && priceNum <= 1500) {
