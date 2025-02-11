@@ -35,16 +35,18 @@ const Lend = ({ token }) => {
     if (price) {
       const priceNum = parseFloat(price);
       let rentalPercentage = 0.20; // 15% rental price for all ranges
-      let chargePercentage = 0.02; // Default charge (2%)
+      let chargePercentage = 0.05; // Default charge (2%)
 
       if (priceNum > 1000 && priceNum <= 1500) {
-        chargePercentage = 0.05; // 5%
-      } else if (priceNum > 1500 && priceNum <= 2000) {
-        chargePercentage = 0.07; // 7%
-      } else if (priceNum > 2000 && priceNum <= 3000) {
         chargePercentage = 0.10; // 10%
+      } else if (priceNum > 1500 && priceNum <= 2000) {
+        chargePercentage = 0.10; // 10%
+      } else if (priceNum > 2000 && priceNum <= 3000) {
+        chargePercentage = 0.15; // 15%
       } else if (priceNum > 3000 && priceNum <=4000){
         chargePercentage = 0.15; // 15%
+      } else if (priceNum > 4000){
+        chargePercentage = 0.25; // 15%
       }
 
       const calculatedRentalPrice = priceNum * rentalPercentage;

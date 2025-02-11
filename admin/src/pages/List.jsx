@@ -90,12 +90,12 @@ const List = ({ token }) => {
     if (!rentalPrice) return 0;
     rentalPrice = parseFloat(rentalPrice);
 
-    let chargeRate = 0.02; // Default 2%
+    let chargeRate = 0.05; // Default 2%
 
-    if (rentalPrice > 200 && rentalPrice <= 300) chargeRate = 0.05;
-    else if (rentalPrice > 300 && rentalPrice <= 400) chargeRate = 0.07;
-    else if (rentalPrice > 400 && rentalPrice <= 500) chargeRate = 0.1;
-    else if (rentalPrice > 500) chargeRate = 0.15;
+    if (rentalPrice > 200 && rentalPrice <= 300) chargeRate = 0.10;
+    else if (rentalPrice > 300 && rentalPrice <= 400) chargeRate = 0.10;
+    else if (rentalPrice > 400 && rentalPrice <= 500) chargeRate = 0.15;
+    else if (rentalPrice > 500) chargeRate = 0.20;
 
     return (rentalPrice * chargeRate).toFixed(2);
   };
