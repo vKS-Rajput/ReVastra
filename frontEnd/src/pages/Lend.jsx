@@ -44,7 +44,7 @@ const Lend = ({ token }) => {
       } else if (priceNum > 2000 && priceNum <= 3000) {
         chargePercentage = 0.15; // 15%
       } else if (priceNum > 3000 && priceNum <=4000){
-        chargePercentage = 0.15; // 15%
+        chargePercentage = 0.20; // 15%
       } else if (priceNum > 4000){
         chargePercentage = 0.25; // 15%
       }

@@ -94,8 +94,8 @@ const List = ({ token }) => {
 
     if (rentalPrice > 200 && rentalPrice <= 300) chargeRate = 0.10;
     else if (rentalPrice > 300 && rentalPrice <= 400) chargeRate = 0.10;
-    else if (rentalPrice > 400 && rentalPrice <= 500) chargeRate = 0.15;
-    else if (rentalPrice > 500) chargeRate = 0.20;
+    else if (rentalPrice > 400 && rentalPrice <= 500) chargeRate = 0.20;
+    else if (rentalPrice > 500) chargeRate = 0.25;
 
     return (rentalPrice * chargeRate).toFixed(2);
   };
