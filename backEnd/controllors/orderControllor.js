@@ -77,6 +77,23 @@ const userOrder = async (req, res) => {
   }
 };
 
+// User Earning Data for Frontend
+const userEarning = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.json({ success: false, message: "User ID is required." });
+    }
+
+    const orders = await orderModel.find({ userId });
+    res.json({ success: true, orders });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
 // Update Order Status from Admin Panel
 const updateStatus = async (req, res) => {
   try {
@@ -94,4 +111,4 @@ const updateStatus = async (req, res) => {
   }
 };
 
-export { placeOrder, allOrders, updateStatus, userOrder };
+export { placeOrder, allOrders, updateStatus, userOrder, userEarning };

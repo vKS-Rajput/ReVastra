@@ -1,5 +1,5 @@
 import express from 'express'
-import {placeOrder,  allOrders, userOrder, updateStatus} from '../controllors/orderControllor.js'
+import {placeOrder,  allOrders, userOrder, updateStatus, userEarning} from '../controllors/orderControllor.js'
 import adminAuth  from '../middleware/adminAuth.js'
 import authUser from '../middleware/userAuth.js'
 
@@ -16,6 +16,9 @@ orderRouter.post('/place',authUser ,placeOrder)
 
 // User Feature 
 orderRouter.post('/userorders',authUser,userOrder)
+
+// User Earning
+orderRouter.post('/my_earning', authUser, userEarning)
 
 // verify payment
 

@@ -15,6 +15,7 @@ import SearchBar from './components/SearchBar'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Lend from './pages/Lend'
+import Earning from './pages/Earning'
 
 
 export const backEndURL = import.meta.env.VITE_BACKEND_URL
@@ -42,6 +43,7 @@ const App = () => {
         <Route path='/contact' element={<Contact />} />
         <Route path='/cart' element={<Cart />} />
         <Route path='/orders' element={<Orders />} />
+        <Route path='/my_earning' element={<Earning/>} />
         <Route path='/product/:productId' element={<Product />} />
         <Route path='/signIn' element={<SignIn />} />
         <Route path='/placeorder' element={<PlaceOrder />} />
