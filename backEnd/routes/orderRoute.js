@@ -18,7 +18,7 @@ orderRouter.post('/place',authUser ,placeOrder)
 orderRouter.post('/userorders',authUser,userOrder)
 
 // User Earning
-orderRouter.post('/my_earning', authUser, userEarning)
+orderRouter.post('/my-listings', authUser, userEarning)
 
 // verify payment
 

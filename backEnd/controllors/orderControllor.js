@@ -77,7 +77,6 @@ const userOrder = async (req, res) => {
   }
 };
 
-// User Earning Data for Frontend
 const userEarning = async (req, res) => {
   try {
     const { userId } = req.body;
@@ -86,13 +85,16 @@ const userEarning = async (req, res) => {
       return res.json({ success: false, message: "User ID is required." });
     }
 
-    const orders = await orderModel.find({ userId });
-    res.json({ success: true, orders });
+    // Fetch all orders where the user is the seller (not the buyer)
+    const orders = await orderModel.find({ "items.sellerId": userId });
+
+    res.json({ success: true, earnings: orders });
   } catch (error) {
     console.error(error);
     res.json({ success: false, message: error.message });
   }
 };
+
 
 // Update Order Status from Admin Panel
 const updateStatus = async (req, res) => {
