@@ -1,21 +1,27 @@
-import express from 'express';
-import { placeOrder, allOrders, userOrder, updateStatus, userEarning } from '../controllors/orderControllor.js';
-import adminAuth from '../middleware/adminAuth.js';
-import authUser from '../middleware/userAuth.js';
+import express from 'express'
+import {placeOrder,  allOrders, userOrder, updateStatus, userEarning} from '../controllors/orderControllor.js'
+import adminAuth  from '../middleware/adminAuth.js'
+import authUser from '../middleware/userAuth.js'
 
-const orderRouter = express.Router();
+const orderRouter = express.Router()
 
 // Admin Features
-orderRouter.post('/list', adminAuth, allOrders);
-orderRouter.post('/status', adminAuth, updateStatus);
+orderRouter.post('/list',adminAuth,allOrders)
+orderRouter.post('/status',adminAuth,updateStatus)
 
 // Payment Features
-orderRouter.post('/place', authUser, placeOrder);
+orderRouter.post('/place',authUser ,placeOrder)
 
-// User Features
-orderRouter.post('/userorders', authUser, userOrder);
+// orderRouter.post('/razorpay',authUser,placeOrderRazorpay)
 
-// New API - Fetch earnings for a lender
-orderRouter.post('/user-earnings', authUser, userEarning);
+// User Feature 
+orderRouter.post('/userorders',authUser,userOrder)
 
-export default orderRouter;
+// User Earning
+orderRouter.post('/my_earning', authUser, userEarning)
+
+// verify payment
+
+// orderRouter.post('/verifyRazorpay',authUser, verifyRazorpay)
+
+export default orderRouter
