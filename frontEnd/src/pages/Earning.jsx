@@ -22,7 +22,7 @@ const Earning = () => {
                 // Process the orders to calculate earnings
                 const processedEarnings = response.data.orders.map((order) => {
                     const totalEarning = order.items.reduce((sum, item) => {
-                        return sum + item.price * item.quantity;
+                        return sum + item.rental_price * item.quantity;
                     }, 0);
                     return {
                         ...order,
@@ -60,11 +60,19 @@ const Earning = () => {
                         <div className='mt-4'>
                             <h4 className='font-semibold'>Items:</h4>
                             {order.items.map((item) => (
-                                <div key={item._id} className='ml-4'>
-                                    <p>{item.name} (x{item.quantity})</p>
-                                    <p className='text-gray-600'>
-                                        Price: {currency} {item.price}
-                                    </p>
+                                <div key={item._id} className='ml-4 mt-2 flex items-center'>
+                                    {/* Product Image */}
+                                    <img
+                                        src={item.image} // Ensure the backend provides the image URL
+                                        alt={item.name}
+                                        className='w-16 h-16 object-cover rounded-md'
+                                    />
+                                    <div className='ml-4'>
+                                        <p>{item.name} (x{item.quantity})</p>
+                                        <p className='text-gray-600'>
+                                            Price: {currency} {item.rental_price}
+                                        </p>
+                                    </div>
                                 </div>
                             ))}
                         </div>
