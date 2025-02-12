@@ -1,37 +1,27 @@
-import express from 'express';
-import { 
-  placeOrder,  
-  allOrders, 
-  userOrder, 
-  updateStatus, 
-  userEarning, 
-  myListedProducts 
-} from '../controllors/orderControllor.js';
+import express from 'express'
+import {placeOrder,  allOrders, userOrder, updateStatus, userEarning} from '../controllors/orderControllor.js'
+import adminAuth  from '../middleware/adminAuth.js'
+import authUser from '../middleware/userAuth.js'
 
-import adminAuth from '../middleware/adminAuth.js';
-import authUser from '../middleware/userAuth.js';
-
-const orderRouter = express.Router();
+const orderRouter = express.Router()
 
 // Admin Features
-orderRouter.post('/list', adminAuth, allOrders);
-orderRouter.post('/status', adminAuth, updateStatus);
+orderRouter.post('/list',adminAuth,allOrders)
+orderRouter.post('/status',adminAuth,updateStatus)
 
 // Payment Features
-orderRouter.post('/place', authUser, placeOrder);
+orderRouter.post('/place',authUser ,placeOrder)
 
-// orderRouter.post('/razorpay', authUser, placeOrderRazorpay);
+// orderRouter.post('/razorpay',authUser,placeOrderRazorpay)
 
 // User Feature 
-orderRouter.post('/userorders', authUser, userOrder);
+orderRouter.post('/userorders',authUser,userOrder)
 
-// User Earnings (fix incorrect route name)
-orderRouter.post('/user-earnings', authUser, userEarning);
+// User Earning
+orderRouter.post('/my_earning', authUser, userEarning)
 
-// User's Listed Products
-orderRouter.post('/my-listings', authUser, myListedProducts);
+// verify payment
 
-// Verify Payment
-// orderRouter.post('/verifyRazorpay', authUser, verifyRazorpay);
+// orderRouter.post('/verifyRazorpay',authUser, verifyRazorpay)
 
-export default orderRouter;
+export default orderRouter

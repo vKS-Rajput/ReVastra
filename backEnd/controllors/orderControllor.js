@@ -1,6 +1,5 @@
 import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
-import productModel from "../models/productModel.js";
 import razorpay from "razorpay";
 
 // Global Variables
@@ -78,7 +77,7 @@ const userOrder = async (req, res) => {
   }
 };
 
-// Fetch earnings for a seller
+// User Earning Data for Frontend
 const userEarning = async (req, res) => {
   try {
     const { userId } = req.body;
@@ -87,29 +86,8 @@ const userEarning = async (req, res) => {
       return res.json({ success: false, message: "User ID is required." });
     }
 
-    // Fetch orders where the user is the seller
-    const orders = await orderModel.find({ "items.sellerId": userId });
-
-    res.json({ success: true, earnings: orders });
-  } catch (error) {
-    console.error(error);
-    res.json({ success: false, message: error.message });
-  }
-};
-
-// Fetch products listed by a user
-const myListedProducts = async (req, res) => {
-  try {
-    const { userId } = req.body;
-
-    if (!userId) {
-      return res.json({ success: false, message: "User ID is required." });
-    }
-
-    // Fetch all products where the user is the owner
-    const products = await productModel.find({ owner: userId });
-
-    res.json({ success: true, products });
+    const orders = await orderModel.find({ userId });
+    res.json({ success: true, orders });
   } catch (error) {
     console.error(error);
     res.json({ success: false, message: error.message });
@@ -133,4 +111,4 @@ const updateStatus = async (req, res) => {
   }
 };
 
-export { placeOrder, allOrders, updateStatus, userOrder, userEarning, myListedProducts };
+export { placeOrder, allOrders, updateStatus, userOrder, userEarning };
