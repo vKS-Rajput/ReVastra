@@ -13,18 +13,19 @@ const MyListings = () => {
   const fetchMyListings = async () => {
     try {
       if (!token) return;
-      const response = await axios.get(backEndURL + '/api/product/my-listings', {
+      const response = await axios.get(backEndURL + '/api/order/my-listings', {
         headers: { token },
       });
 
       if (response.data.success) {
-        setMyProducts(response.data.products.reverse());
-        setFilteredProducts(response.data.products.reverse());
+        const products = response.data.products.reverse();
+        setMyProducts(products);
+        setFilteredProducts(products);
       } else {
         toast.error(response.data.message);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error('Failed to fetch listings');
     }
   };
@@ -40,12 +41,13 @@ const MyListings = () => {
 
       if (response.data.success) {
         toast.success(response.data.message);
-        fetchMyListings();
+        setMyProducts(myProducts.filter(product => product._id !== id));
+        setFilteredProducts(filteredProducts.filter(product => product._id !== id));
       } else {
         toast.error(response.data.message);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error('Failed to remove product');
     }
   };
@@ -61,38 +63,50 @@ const MyListings = () => {
 
       if (response.data.success) {
         toast.success(`Product status updated to "${status}"`);
-        fetchMyListings();
+        setMyProducts(prev =>
+          prev.map(product =>
+            product._id === id ? { ...product, status } : product
+          )
+        );
+        setFilteredProducts(prev =>
+          prev.map(product =>
+            product._id === id ? { ...product, status } : product
+          )
+        );
       } else {
         toast.error(response.data.message);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error('Failed to update status');
     }
   };
 
   // Handle search
   const handleSearch = (e) => {
-    setSearchQuery(e.target.value);
-    if (e.target.value === '') {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+
+    if (query === '') {
       setFilteredProducts(myProducts);
     } else {
-      const filtered = myProducts.filter(item =>
-        item.name.toLowerCase().includes(e.target.value.toLowerCase())
-      );
-      setFilteredProducts(filtered);
+      setFilteredProducts(myProducts.filter(item =>
+        item.name.toLowerCase().includes(query)
+      ));
     }
   };
 
   useEffect(() => {
-    fetchMyListings();
-  }, []);
+    if (token) {
+      fetchMyListings();
+    }
+  }, [token]);
 
   return (
     <>
-      <h1 className="text-2xl font-bold mb-4 text-center text-gray-800">My Listings</h1>
+      <h1 className="text-2xl mt-20 font-bold mb-4 text-center text-gray-800">My Listings</h1>
 
-      <div className="mb-4 text-center">
+      <div className="mb-4 mt-18 text-center">
         <input
           type="text"
           placeholder="Search by Product Name"
@@ -103,7 +117,7 @@ const MyListings = () => {
       </div>
 
       <div className="flex flex-col gap-4">
-        <div className="hidden md:grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr] items-center py-3 px-4 border bg-blue-100 text-sm rounded-lg shadow-md">
+        <div className="hidden md:grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr] items-center py-3 px-4 border bg-blue-100 text-sm rounded-lg shadow-md">
           <b>Image</b>
           <b>Details</b>
           <b>Category</b>
@@ -115,9 +129,13 @@ const MyListings = () => {
         {filteredProducts.map((item, index) => (
           <div
             key={index}
-            className="grid grid-cols-[1fr_2fr_1fr] md:grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_1fr] items-center gap-4 py-3 px-4 border bg-white hover:bg-gray-50 text-sm rounded-lg shadow-sm transition-all duration-200"
+            className="grid grid-cols-[1fr_2fr_1fr] md:grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr] items-center gap-4 py-3 px-4 border bg-white hover:bg-gray-50 text-sm rounded-lg shadow-sm transition-all duration-200"
           >
-            <img className="w-16 h-16 object-cover rounded-md border" src={item.image[0]} alt={item.name} />
+            <img
+              className="w-16 h-16 object-cover rounded-md border"
+              src={item.image?.[0] || '/placeholder.jpg'}
+              alt={item.name}
+            />
 
             <div className="flex flex-col">
               <p className="font-medium text-gray-800">{item.name}</p>
