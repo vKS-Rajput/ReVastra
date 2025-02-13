@@ -149,7 +149,7 @@ const List = ({ token }) => {
                 <p className="font-medium text-gray-800">{item.name}</p>
                 <p className="text-gray-600">📍 {item.pickuplocation}</p>
                 <p className="text-gray-600">📞 {item.contactno}</p>
-
+                <p className='text-gray-600'>User Id: {User._id}</p>
                 <p className="text-gray-600">👕 Sizes: {item.sizes?.join(', ') || 'N/A'}</p>
                 <p className="text-gray-600">ID: <span className='text-red-600 font-bold'>{item._id}</span></p>
               </div>
