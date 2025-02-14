@@ -144,6 +144,10 @@ const Lend = ({ token }) => {
       {/* Section: Image Upload */}
       <div className="w-full">
         <p className="text-lg font-bold mb-4">Upload Product Images</p>
+        <div className='grid grid-cols-1'>
+          <img src={assets.upload_area} alt="" />
+          <p>Front</p>
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {images.map((image, index) => (
             <label
@@ -167,7 +171,7 @@ const Lend = ({ token }) => {
             </label>
             
           ))}
-          <p>Front</p>
+        
         </div>
       </div>
 
