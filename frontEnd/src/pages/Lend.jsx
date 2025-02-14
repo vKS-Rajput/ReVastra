@@ -144,10 +144,6 @@ const Lend = ({ token }) => {
       {/* Section: Image Upload */}
       <div className="w-full">
         <p className="text-lg font-bold mb-4">Upload Product Images</p>
-        <div className='grid grid-cols-1'>
-          <img className='w-24 h-24 object-cover rounded-md' src={assets.upload_area} alt="" />
-          <p className='text-gray-500 font-bold'>Front</p>
-        </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {images.map((image, index) => (
             <label
@@ -155,7 +151,6 @@ const Lend = ({ token }) => {
               htmlFor={`image${index + 1}`}
               className="border-dashed border-2 border-gray-300 p-4 rounded-lg cursor-pointer hover:border-red-500 transition-colors duration-300 flex justify-center items-center"
             >
-             
               <img
                 className="w-24 h-24 object-cover rounded-md"
                 src={!image ? assets.upload_area : URL.createObjectURL(image)}
@@ -167,11 +162,8 @@ const Lend = ({ token }) => {
                 id={`image${index + 1}`}
                 hidden
               />
-              
             </label>
-            
           ))}
-        
         </div>
       </div>
 
