@@ -8,6 +8,7 @@ const GoogleLend = () => {
       alignItems: 'center', 
       justifyContent: 'center', 
       height: '100vh', 
+      marginTop: '20px',
       textAlign: 'center',
       backgroundColor: '#f9f9f9',
     }}>
