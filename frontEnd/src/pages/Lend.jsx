@@ -163,9 +163,11 @@ const Lend = ({ token }) => {
                 id={`image${index + 1}`}
                 hidden
               />
-              <p>Front</p>
+              
             </label>
+            
           ))}
+          <p>Front</p>
         </div>
       </div>
 
