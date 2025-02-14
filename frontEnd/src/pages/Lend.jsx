@@ -151,6 +151,7 @@ const Lend = ({ token }) => {
               htmlFor={`image${index + 1}`}
               className="border-dashed border-2 border-gray-300 p-4 rounded-lg cursor-pointer hover:border-red-500 transition-colors duration-300 flex justify-center items-center"
             >
+              <p>Front</p>
               <img
                 className="w-24 h-24 object-cover rounded-md"
                 src={!image ? assets.upload_area : URL.createObjectURL(image)}
