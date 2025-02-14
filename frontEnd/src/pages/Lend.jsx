@@ -145,8 +145,8 @@ const Lend = ({ token }) => {
       <div className="w-full">
         <p className="text-lg font-bold mb-4">Upload Product Images</p>
         <div className='grid grid-cols-1'>
-          <img src={assets.upload_area} alt="" />
-          <p>Front</p>
+          <img className='w-24 h-24 object-cover rounded-md' src={assets.upload_area} alt="" />
+          <p className='text-gray-500 font-bold'>Front</p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {images.map((image, index) => (
