@@ -47,7 +47,7 @@ const NavBar = () => {
   const navLinks = [
     { name: 'HOME', path: '/' },
     { name: 'BORROW', path: '/collection' },
-    { name: 'LEND', path: '/googlelend', requiresAuth: true },
+    { name: 'LEND', path: '/product_for_rent', requiresAuth: true },
     { name: 'ABOUT', path: '/about' },
     { name: 'CONTACT', path: '/contact' },
   ];
