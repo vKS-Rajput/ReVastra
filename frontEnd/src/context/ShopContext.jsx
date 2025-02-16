@@ -8,6 +8,7 @@ export const ShopContext = createContext();
 const ShopContextProvider = (props) => {
     const currency = "₹";
     const delivery_fee = 10;
+    const washingFee = 25;
     const backEndURL = import.meta.env.VITE_BACKEND_URL
 
     // State management
@@ -17,6 +18,19 @@ const ShopContextProvider = (props) => {
     const [showSearch, setShowSearch] = useState(true);
     const [cartItems, setCartItems] = useState({});
     const navigate = useNavigate();
+    const [includeWashing, setIncludeWashing] = useState(
+        JSON.parse(localStorage.getItem("includeWashing")) || false
+    );
+    
+    // Function to toggle washing fee
+    const toggleWashingFee = () => {
+        setIncludeWashing((prev) => {
+            const newState = !prev;
+            localStorage.setItem("includeWashing", JSON.stringify(newState)); // Save to localStorage
+            return newState;
+        });
+    };
+    
 
 
     // Function to add an item to the cart
@@ -178,25 +192,28 @@ const ShopContextProvider = (props) => {
     }, [token])
 
     // Memoized value for the context
-    const value = 
-        {
-            products,
-            currency,
-            delivery_fee,
-            search,
-            setSearch,
-            showSearch,
-            setShowSearch,
-            getCartAmount,
-            cartItems,
-            addToCart,
-            backEndURL,
-            getCartCount,
-            updateQuantity,
-            setToken,
-            token,
-            navigate,
-        }
+    const value = {
+        products,
+        currency,
+        delivery_fee,
+        search,
+        setSearch,
+        showSearch,
+        setShowSearch,
+        getCartAmount,
+        cartItems,
+        addToCart,
+        backEndURL,
+        getCartCount,
+        updateQuantity,
+        setToken,
+        token,
+        washingFee,
+        navigate,
+        includeWashing,    // ✅ Add this
+        toggleWashingFee,  // ✅ Add this
+    };
+    
     ;
 
     return <ShopContext.Provider value={value}>{props.children}</ShopContext.Provider>;

@@ -41,8 +41,8 @@ const CountdownTimer = ({ returnDateTime }) => {
 };
 
 const Orders = () => {
-  const { backEndURL, token, currency } = useContext(ShopContext);
-  const [orderData, setorderData] = useState([]);
+  const { backEndURL, token, currency, delivery_fee } = useContext(ShopContext);
+  const [orderData, setOrderData] = useState([]);
 
   const loadOrderData = async () => {
     try {
@@ -53,16 +53,17 @@ const Orders = () => {
       const response = await axios.post(backEndURL + '/api/order/userorders', {}, { headers: { token } });
       if (response.data.success) {
         let allOrdersItem = [];
-        response.data.orders.map((order) => {
-          order.items.map((item) => {
+        response.data.orders.forEach((order) => {
+          order.items.forEach((item) => {
             item['status'] = order.status;
             item['payment'] = order.payment;
             item['paymentMethod'] = order.paymentMethod;
             item['date'] = order.date;
+            item['deliveryFee'] = delivery_fee; // Add delivery fee
             allOrdersItem.push(item);
           });
         });
-        setorderData(allOrdersItem.reverse());
+        setOrderData(allOrdersItem.reverse());
       }
     } catch (error) {
       console.error('Error loading order data:', error);
@@ -89,6 +90,10 @@ const Orders = () => {
         {orderData.map((item, index) => {
           const returnDate = calculateFinalDate(item.date, item.quantity); // Calculate return date with time
 
+          // Calculate total price
+          const washingFee = item.washingFee ? item.washingFee : 0;
+          const totalPrice = item.rental_price * item.quantity + item.deliveryFee + washingFee;
+
           return (
             <div key={index} className="bg-white shadow-lg rounded-lg p-6 flex flex-col justify-between">
               <div className="flex items-start gap-4 sm:gap-6 text-sm">
@@ -98,14 +103,14 @@ const Orders = () => {
                   <div className="flex items-center gap-2 sm:gap-3 mt-2">
                     <p className="text-base font-semibold text-gray-700">
                       {currency}
-                      {item.rental_price}
+                      {item.rental_price} x {item.quantity} days
                     </p>
-                    <p className="text-sm text-gray-500">Days: {item.quantity}</p>
                     <p className="text-sm text-gray-500">Size: {item.size}</p>
                   </div>
                   <p className="mt-2 text-sm text-gray-400">Date: {new Date(item.date).toDateString()}</p>
                   <p className="mt-1 text-sm text-gray-400">Payment Method: {item.paymentMethod}</p>
 
+                  {/* Show Return Date & Countdown if Delivered */}
                   {item.status === 'Delivered' ? (
                     <>
                       <p className="mt-1 text-md text-red-600">
@@ -121,15 +126,34 @@ const Orders = () => {
                 </div>
               </div>
 
+              {/* Delivery Fee & Washing Fee Details */}
+              <div className="mt-4 border-t pt-4 text-sm text-gray-700">
+                <p className="flex justify-between">
+                  <span>Rental Price:</span> <span>{currency}{item.rental_price * item.quantity}.00</span>
+                </p>
+                <p className="flex justify-between">
+                  <span>Delivery Fee:</span> <span>{currency}{item.deliveryFee}.00</span>
+                </p>
+                {washingFee > 0 && (
+                  <p className="flex justify-between">
+                    <span>Washing Fee:</span> <span>{currency}{washingFee}.00</span>
+                  </p>
+                )}
+                <p className="flex justify-between text-lg font-bold text-red-600 mt-2">
+                  <span>Total:</span> <span>{currency}{totalPrice}.00</span>
+                </p>
+              </div>
+
               <div className="mt-4 flex flex-col sm:flex-row justify-between items-center">
                 <div className="flex items-center gap-2">
                   <p
-                    className={`min-w-2 h-2 rounded-full ${item.status === 'Delivered'
+                    className={`min-w-2 h-2 rounded-full ${
+                      item.status === 'Delivered'
                         ? 'bg-green-500'
                         : item.status === 'Pending'
-                          ? 'bg-yellow-500'
-                          : 'bg-red-500'
-                      }`}
+                        ? 'bg-yellow-500'
+                        : 'bg-red-500'
+                    }`}
                   />
                   <p className="text-sm font-medium text-gray-700">{item.status}</p>
                 </div>
@@ -144,15 +168,6 @@ const Orders = () => {
           );
         })}
       </div>
-      <div className="mt-8 text-center">
-        <div className="inline-block bg-yellow-100 border-l-4 border-red-500 p-4 rounded-md shadow-md">
-          <p className="text-sm text-red-800 font-medium">
-            <strong className="block text-red-900">Important Note:</strong>
-            The time displayed in the timer may not be completely accurate. The final return date will be calculated after the delivery date.
-          </p>
-        </div>
-      </div>
-
     </div>
   );
 };

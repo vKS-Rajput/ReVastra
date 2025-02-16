@@ -30,7 +30,7 @@ const OurPolicy = () => {
         <li>Personal data (name, email, payment details) for transactions.</li>
       </ul>
 
-      <h2 className="text-2xl font-semibold text-blue-500 mt-6">How We Use Your Data</h2>
+      <h2 className="text-2xl font-semibold text-red-500 mt-6">How We Use Your Data</h2>
       <ul className="list-disc list-inside text-gray-700 space-y-2 mt-2">
         <li>To improve services and user experience.</li>
         <li>To send updates and offers.</li>

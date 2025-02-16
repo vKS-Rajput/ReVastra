@@ -103,6 +103,17 @@ const Product = () => {
           </button>
         </div>
       </div>
+      {/* Contract & Delivery Process */}
+<div className="mt-8 p-5 border-2 border-red-500 bg-red-100 rounded-lg">
+  <h2 className="text-xl font-bold  text-red-700">Important Note: Contract & Delivery Process</h2>
+  <ul className="list-disc pl-5 text-gray-700 mt-2">
+    <li>Users sign a contract upon delivery stating they will comply with policies.</li>
+    <li>Delivery personnel verify product condition with video/photo proof.</li>
+    <li><strong>Open Box Delivery:</strong> The product is checked at the time of delivery.</li>
+    <li>User must provide a photo with the product or valid ID as proof of receipt.</li>
+  </ul>
+</div>
+
     </div>
   ) : (
     <div>Loading...</div>

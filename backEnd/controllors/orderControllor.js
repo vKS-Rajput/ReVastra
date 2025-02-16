@@ -18,7 +18,8 @@ const deliveryCharge = 10;
 // Placing Order Using COD Method
 const placeOrder = async (req, res) => {
   try {
-    const { userId, amount, items, address } = req.body;
+    const { userId, amount, items, address, washingFee, deliveryFee } = req.body;
+
 
     // Ensure required fields are present
     if (!userId || !amount || !items || !address) {
@@ -30,10 +31,13 @@ const placeOrder = async (req, res) => {
       address,
       amount,
       items,
+      washingFee, // Ensure washing fee is included
+      deliveryFee, // Ensure delivery fee is included
       paymentMethod: "COD",
       payment: false,
       date: Date.now(),
     };
+    
 
     // Save the order
     const newOrder = new orderModel(orderData);
@@ -69,8 +73,9 @@ const userOrder = async (req, res) => {
       return res.json({ success: false, message: "User ID is required." });
     }
 
-    const orders = await orderModel.find({ userId });
-    res.json({ success: true, orders });
+    const orders = await orderModel.find({ userId }).select("amount items washingFee deliveryFee paymentMethod date");
+res.json({ success: true, orders });
+
   } catch (error) {
     console.error(error);
     res.json({ success: false, message: error.message });
