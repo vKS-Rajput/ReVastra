@@ -17,6 +17,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import Lend from './pages/Lend'
 import Earning from './pages/Earning'
 import GoogleLend from './pages/GoogleLend'
+import OurPolicy from './pages/OurPolicy'
 
 
 export const backEndURL = import.meta.env.VITE_BACKEND_URL
@@ -48,6 +49,7 @@ const App = () => {
         <Route path='/my_earning' element={<Earning/>} />
         <Route path='/product/:productId' element={<Product />} />
         <Route path='/signIn' element={<SignIn />} />
+        <Route path='/ourPolicy' element={<OurPolicy/>}/>
         <Route path='/placeorder' element={<PlaceOrder />} />
       </Routes>
       

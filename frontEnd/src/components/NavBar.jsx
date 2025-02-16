@@ -50,6 +50,7 @@ const NavBar = () => {
     { name: 'LEND', path: '/lend', requiresAuth: true },
     { name: 'ABOUT', path: '/about' },
     { name: 'CONTACT', path: '/contact' },
+    {name: 'POLICY', path: '/ourPolicy'}
   ];
 
   return (
