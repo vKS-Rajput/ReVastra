@@ -76,26 +76,6 @@ const registerUser = async (req, res) => {
     }
 };
 
-// Route to Get User Data (Profile)
-const getUserData = async (req, res) => {
-    try {
-        const userId = req.user.id; // Extracted from `authUser` middleware
-
-        // Find user in the database and exclude the password field
-        const user = await userModel.findById(userId).select("-password");
-
-        if (!user) {
-            return res.status(404).json({ success: false, message: "User not found" });
-        }
-
-        res.status(200).json({ success: true, user });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, message: "Server Error" });
-    }
-};
-
-
 // Route For Admin Login
 const adminLogin = async (req, res) => {
     try {
@@ -112,4 +92,4 @@ const adminLogin = async (req, res) => {
     }
 };
 
-export { loginUser, registerUser, adminLogin, getUserData };
+export { loginUser, registerUser, adminLogin };
