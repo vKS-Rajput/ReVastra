@@ -16,6 +16,7 @@ import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Lend from './pages/Lend'
 import Earning from './pages/Earning'
+import Profile from './pages/Profile'
 import GoogleLend from './pages/GoogleLend'
 import OurPolicy from './pages/OurPolicy'
 
@@ -46,6 +47,7 @@ const App = () => {
         <Route path='/contact' element={<Contact />} />
         <Route path='/cart' element={<Cart />} />
         <Route path='/orders' element={<Orders />} />
+        <Route path='/profile' element={<Profile/>}/>
         <Route path='/my_earning' element={<Earning/>} />
         <Route path='/product/:productId' element={<Product />} />
         <Route path='/signIn' element={<SignIn />} />
