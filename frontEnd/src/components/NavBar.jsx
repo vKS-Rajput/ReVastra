@@ -10,24 +10,14 @@ const NavBar = () => {
   const navigate = useNavigate();
 
   const logout = () => {
-    navigate('/signIn');
     localStorage.removeItem('token');
     setToken('');
-    setCartItems({});
+    setCartItems({}); // ✅ Clears the cart upon logout
+    navigate('/signIn');
   };
 
-  const toggleMobileMenu = () => {
-    setMobileMenuVisible((prev) => !prev);
-  };
-
-  const toggleProfileDropdown = () => {
-    setProfileDropdownVisible((prev) => !prev);
-  };
-
-  const closeMenus = () => {
-    setMobileMenuVisible(false);
-    setProfileDropdownVisible(false);
-  };
+  const toggleMobileMenu = () => setMobileMenuVisible((prev) => !prev);
+  const toggleProfileDropdown = () => setProfileDropdownVisible((prev) => !prev);
 
   const handleOutsideClick = (e) => {
     if (!e.target.closest('.dropdown-menu') && !e.target.closest('.profile-icon')) {
@@ -50,7 +40,7 @@ const NavBar = () => {
     { name: 'LEND', path: '/lend', requiresAuth: true },
     { name: 'ABOUT', path: '/about' },
     { name: 'CONTACT', path: '/contact' },
-    {name: 'POLICY', path: '/ourPolicy'}
+    { name: 'POLICY', path: '/ourPolicy' },
   ];
 
   return (
@@ -79,13 +69,7 @@ const NavBar = () => {
           {/* Profile Icon */}
           <div className="relative profile-icon">
             <img
-              onClick={() => {
-                if (!token) {
-                  navigate('/signin');
-                } else {
-                  toggleProfileDropdown();
-                }
-              }}
+              onClick={() => (!token ? navigate('/signin') : toggleProfileDropdown())}
               className="w-5 cursor-pointer"
               src={assets.profile_icon}
               alt="Profile"
@@ -93,14 +77,10 @@ const NavBar = () => {
             {token && isProfileDropdownVisible && (
               <div className="absolute dropdown-menu right-0 pt-4">
                 <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded shadow-lg">
-                  <p onClick={()=> navigate('/profile')} className='cursor-pointer hover:text-black'>My Profile</p>
+                  <p onClick={() => navigate('/profile')} className="cursor-pointer hover:text-black">My Profile</p>
                   <p onClick={() => navigate('/my_earning')} className="cursor-pointer hover:text-black">My Earning</p>
-                  <p onClick={() => navigate('/orders')} className="cursor-pointer hover:text-black">
-                    Orders
-                  </p>
-                  <p onClick={logout} className="cursor-pointer hover:text-black">
-                    Logout
-                  </p>
+                  <p onClick={() => navigate('/orders')} className="cursor-pointer hover:text-black">Orders</p>
+                  <p onClick={logout} className="cursor-pointer hover:text-black">Logout</p>
                 </div>
               </div>
             )}
@@ -138,7 +118,7 @@ const NavBar = () => {
               <NavLink
                 key={link.name}
                 to={link.requiresAuth && !token ? '/signin' : link.path}
-                onClick={closeMenus}
+                onClick={() => setMobileMenuVisible(false)}
                 className="py-2 hover:text-black"
               >
                 {link.name}

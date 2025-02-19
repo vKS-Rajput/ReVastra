@@ -125,10 +125,10 @@ const PlaceOrder = () => {
   return (
     <form
       onSubmit={onSubmitHandler}
-      className="flex flex-col gap-6 pt-10 p-6 bg-gradient-to-r from-blue-50 to-gray-100 rounded-lg shadow-lg"
+      className="mt-20 flex flex-col gap-6 pt-8 p-4 sm:p-6 bg-gradient-to-r from-blue-50 to-gray-100 rounded-lg shadow-lg w-full max-w-3xl mx-auto"
     >
-      {/* Delivery Info Section */}
-      <div className="bg-white p-6 rounded-md shadow-md">
+      {/* Delivery Info */}
+      <div className="bg-white p-4 sm:p-6 rounded-md shadow-md">
         <Title text1="Delivery" text2="Information" />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
           <input
@@ -136,7 +136,7 @@ const PlaceOrder = () => {
             name="fullName"
             value={formData.fullName}
             onChange={onChangeHandler}
-            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946]"
+            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] w-full"
             placeholder="Full Name"
           />
           <input
@@ -144,7 +144,7 @@ const PlaceOrder = () => {
             name="hostel"
             value={formData.hostel}
             onChange={onChangeHandler}
-            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] col-span-2"
+            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] w-full"
             placeholder="Hostel Type"
           />
           <input
@@ -152,14 +152,14 @@ const PlaceOrder = () => {
             name="block"
             value={formData.block}
             onChange={onChangeHandler}
-            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946]"
+            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] w-full"
             placeholder="Block"
           />
           <input
             name="room"
             value={formData.room}
             onChange={onChangeHandler}
-            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946]"
+            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] w-full"
             placeholder="Room No."
           />
           <input
@@ -167,80 +167,62 @@ const PlaceOrder = () => {
             name="phone"
             value={formData.phone}
             onChange={onChangeHandler}
-            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] col-span-2"
+            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] w-full sm:col-span-2"
             placeholder="Phone Number"
           />
         </div>
       </div>
 
-      {/* Payment Method Section */}
-      <div className="bg-white p-6 rounded-md shadow-md">
+      {/* Payment Method */}
+      <div className="bg-white p-4 sm:p-6 rounded-md shadow-md">
         <Title text1="Payment" text2="Method" />
         <div className="flex flex-col sm:flex-row gap-4 mt-4">
-          <div
-            onClick={() => setMethod("razorpay")}
-            className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer shadow-sm transition-transform transform hover:scale-105 ${method === "razorpay"
-                ? "border-[#E63946] bg-blue-50"
-                : "border-gray-300"
+          {[{ id: "razorpay", label: "Razorpay", logo: assets.razorpay_logo }, { id: "cod", label: "Cash on Delivery" }].map((option) => (
+            <div
+              key={option.id}
+              onClick={() => setMethod(option.id)}
+              className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer shadow-sm transition-transform transform hover:scale-105 w-full ${
+                method === option.id ? "border-[#E63946] bg-blue-50" : "border-gray-300"
               }`}
-          >
-            <span
-              className={`w-4 h-4 border rounded-full flex items-center justify-center ${method === "razorpay" ? "bg-[#E63946]" : ""
-                }`}
-            ></span>
-            <img
-              className="h-6"
-              src={assets.razorpay_logo}
-              alt="Razorpay"
-            />
-          </div>
-          <div
-            onClick={() => setMethod("cod")}
-            className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer shadow-sm transition-transform transform hover:scale-105 ${method === "cod"
-                ? "border-[#E63946] bg-blue-50"
-                : "border-gray-300"
-              }`}
-          >
-            <span
-              className={`w-4 h-4 border rounded-full flex items-center justify-center ${method === "cod" ? "bg-[#E63946]" : ""
-                }`}
-            ></span>
-            <p className="text-sm font-medium">Cash on Delivery</p>
-          </div>
+            >
+              <span className={`w-4 h-4 border rounded-full flex items-center justify-center ${method === option.id ? "bg-[#E63946]" : ""}`}></span>
+              {option.logo ? <img className="h-6" src={option.logo} alt={option.label} /> : <p className="text-sm font-medium">{option.label}</p>}
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Cart Summary and Submit Button */}
-      <div className="flex flex-col items-center bg-white p-6 rounded-md shadow-md">
+      {/* Cart Summary */}
+      <div className="bg-white p-4 sm:p-6 rounded-md shadow-md flex flex-col items-center">
         <CartTotal />
         <button
           type="submit"
-          className="mt-6 w-full bg-[#E63946] text-white font-bold py-3 rounded-lg shadow-md hover:bg-[#E63946] transition duration-300"
+          className="mt-6 w-full bg-[#E63946] text-white font-bold py-3 rounded-lg shadow-md hover:bg-red-600 transition duration-300"
         >
           Place Order
         </button>
       </div>
 
-      {/* Note Section */}
+      {/* Note */}
       <div className="mt-6 text-center">
-        <div className="inline-block bg-blue-50 border-l-4 border-red-500 p-4 rounded-md shadow-md">
+        <div className="inline-block bg-blue-50 border-l-4 border-red-500 p-4 rounded-md shadow-md max-w-lg w-full">
           <p className="text-sm text-red-800 font-medium">
             <strong className="block text-red-900">Important Note:</strong>
-            There will be no delivery outside the campus. Please try to order inside the college campus for now. Our delivery area will extend very soon!
+            No delivery outside the campus. Please order within the college campus.
           </p>
         </div>
       </div>
-       {/* Contract & Delivery Process */}
-<div className="mt-8 p-5 border-2 border-red-500 bg-red-100 rounded-lg">
-  <h2 className="text-xl font-bold  text-red-700">Important Note: Contract & Delivery Process</h2>
-  <ul className="list-disc pl-5 text-gray-700 mt-2">
-    <li>Users sign a contract upon delivery stating they will comply with policies.</li>
-    <li>Delivery personnel verify product condition with video/photo proof.</li>
-    <li><strong>Open Box Delivery:</strong> The product is checked at the time of delivery.</li>
-    <li>User must provide a photo with the product or valid ID as proof of receipt.</li>
-  </ul>
-</div>
 
+      {/* Contract Info */}
+      <div className="mt-8 p-5 border-2 border-red-500 bg-red-100 rounded-lg max-w-lg mx-auto">
+        <h2 className="text-lg font-bold text-red-700">Contract & Delivery Process</h2>
+        <ul className="list-disc pl-5 text-gray-700 mt-2 text-sm">
+          <li>Users sign a contract upon delivery acknowledging the policies.</li>
+          <li>Delivery personnel verify product condition with video/photo proof.</li>
+          <li><strong>Open Box Delivery:</strong> Products are checked at delivery time.</li>
+          <li>Users must provide a photo with the product or valid ID as proof of receipt.</li>
+        </ul>
+      </div>
     </form>
   );
 };
