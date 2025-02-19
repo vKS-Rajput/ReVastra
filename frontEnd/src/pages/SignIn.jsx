@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 
 const SignIn = () => {
   const [currentState, setCurrentState] = useState('Login');
-  const { token, setToken, navigate, backEndURL } = useContext(ShopContext);
+  const { token, setToken, user, setUser, navigate, backEndURL } = useContext(ShopContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -18,9 +18,11 @@ const SignIn = () => {
 
         if (response.data.success) {
           setToken(response.data.token);
+          setUser(response.data.user); // Store user data in context
           localStorage.setItem('token', response.data.token);
+          localStorage.setItem('user', JSON.stringify(response.data.user)); // Store user data in localStorage
           toast.success("Account created successfully!");
-          navigate('/'); // Navigate immediately after successful signup
+          navigate('/'); // Navigate to home page
         } else {
           toast.error(response.data.message);
         }
@@ -29,9 +31,11 @@ const SignIn = () => {
 
         if (response.data.success) {
           setToken(response.data.token);
+          setUser(response.data.user); // Store user data in context
           localStorage.setItem('token', response.data.token);
+          localStorage.setItem('user', JSON.stringify(response.data.user)); // Store user data in localStorage
           toast.success("Logged in successfully!");
-          navigate('/'); // Navigate immediately after successful login
+          navigate('/'); // Navigate to home page
         } else {
           toast.error(response.data.message);
         }
@@ -44,11 +48,13 @@ const SignIn = () => {
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
-    if (storedToken) {
-      setToken(storedToken); // Set token in context if it exists
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    if (storedToken && storedUser) {
+      setToken(storedToken); // Set token in context
+      setUser(storedUser); // Set user data in context
       navigate('/'); // Redirect to home page
     }
-  }, [token, navigate, setToken]);
+  }, [token, navigate, setToken, setUser]);
 
   return (
     <form

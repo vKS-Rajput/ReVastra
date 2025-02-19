@@ -90,8 +90,6 @@ const getUserProfile = async (req, res) => {
     }
 };
 
-export { loginUser, registerUser, adminLogin, getUserProfile };
-
 // Route For Admin Login
 const adminLogin = async (req, res) => {
     try {

@@ -13,6 +13,7 @@ const ShopContextProvider = (props) => {
 
     // State management
     const [token, setToken] = useState('');
+    const [user, setUser] = useState(null);
     const [search, setSearch] = useState('');
     const [products, setProducts] = useState([]);
     const [showSearch, setShowSearch] = useState(true);
@@ -208,6 +209,8 @@ const ShopContextProvider = (props) => {
         updateQuantity,
         setToken,
         token,
+        user,
+        setUser,
         washingFee,
         navigate,
         includeWashing,    // ✅ Add this
