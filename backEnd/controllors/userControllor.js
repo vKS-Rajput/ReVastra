@@ -76,6 +76,22 @@ const registerUser = async (req, res) => {
     }
 };
 
+// Get User Profile
+const getUserProfile = async (req, res) => {
+    try {
+        const user = await userModel.findById(req.user.id).select('-password'); // Exclude password from the response
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+        res.status(200).json({ success: true, user });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export { loginUser, registerUser, adminLogin, getUserProfile };
+
 // Route For Admin Login
 const adminLogin = async (req, res) => {
     try {
@@ -92,4 +108,4 @@ const adminLogin = async (req, res) => {
     }
 };
 
-export { loginUser, registerUser, adminLogin };
+export { loginUser, registerUser, adminLogin, getUserProfile };
