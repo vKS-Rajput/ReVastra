@@ -1,14 +1,12 @@
 import express from 'express';
-import { loginUser, registerUser, adminLogin, getUserProfile, getDashboardStats } from '../controllors/userControllor.js';
+import { loginUser, registerUser, adminLogin, getUserProfile } from '../controllors/userControllor.js';
 import authUser from '../middleware/userAuth.js';
-import adminAuth from '../middleware/adminAuth.js';  // 🆕 Import admin middleware
 
 const userRouter = express.Router();
 
-userRouter.post('/register', registerUser);         // User Registration
-userRouter.post('/login', loginUser);               // User Login
-userRouter.post('/admin', adminLogin);              // Admin Login
-userRouter.get('/profile', authUser, getUserProfile); // Get User Profile
-
+userRouter.post('/register', registerUser)
+userRouter.post('/login', loginUser)
+userRouter.post('/admin', adminLogin)
+userRouter.get('/profile', authUser, getUserProfile);
 
 export default userRouter;

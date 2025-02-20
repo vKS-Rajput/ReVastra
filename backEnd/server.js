@@ -17,8 +17,12 @@ connectCloudinary()
 
 // middlewares
 app.use(express.json())
-app.use(cors())
-
+app.use(cors({
+    origin: 'https://re-vastra-admin.vercel.app',  // ✅ Allow your frontend URL
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true, // ✅ If you use cookies or auth headers
+  }));
+  
 // api endpoints
 app.use('/api/user',userRouter)
 app.use('/api/product',productRouter)
