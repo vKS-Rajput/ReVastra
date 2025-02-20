@@ -29,12 +29,7 @@ const Sidebar = () => {
         >
           Orders
         </NavLink>
-        <NavLink
-          to="/verification"
-          className="flex items-center px-6 py-3 hover:bg-[#E63946] hover:text-black transition-all duration-300"
-        >
-          ID Verify
-        </NavLink>
+        
       </nav>
     </aside>
   );
