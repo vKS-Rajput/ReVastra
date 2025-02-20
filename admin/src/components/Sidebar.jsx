@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { PackagePlus, List, ShoppingBag, Users, Box, ClipboardList } from 'lucide-react';
-import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { backEndURL } from '../App';
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -13,25 +9,18 @@ const Dashboard = () => {
     orders: 0,
   });
 
+  // Fetch statistics (replace with your backend calls)
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const { data } = await axios.get(backEndURL + '/api/user/admin/stats', {
-          headers: {token},
+        // Simulating API calls (replace with real API endpoints)
+        setStats({
+          users: 125,      // Example: fetched from `/api/users/count`
+          products: 58,    // Example: fetched from `/api/products/count`
+          orders: 210,     // Example: fetched from `/api/orders/count`
         });
-        if (data.success) {
-          setStats({
-            users: data.userCount,
-            products: data.productCount,
-            orders: data.orderCount,
-          });
-        } else {
-          toast.error(data.message || 'Failed to fetch stats');
-        }
       } catch (error) {
         console.error('Error fetching stats:', error);
-        toast.error('Error fetching stats');
       }
     };
 
@@ -52,8 +41,6 @@ const Dashboard = () => {
 
   return (
     <div className="from-blue-50 to-blue-100 py-10 px-4">
-      <ToastContainer />
-
       {/* Dashboard Header */}
       <h2 className="text-4xl font-bold text-center text-gray-800 mb-12">Admin Dashboard</h2>
 
@@ -83,7 +70,9 @@ const Dashboard = () => {
               <span className="text-xl font-medium">{label}</span>
               <span className="text-3xl font-bold mt-2">{count}</span>
             </div>
-            <div className="bg-white text-black rounded-full p-3">{icon}</div>
+            <div className="bg-white text-black rounded-full p-3">
+              {icon}
+            </div>
           </div>
         ))}
       </div>

@@ -11,6 +11,6 @@ userRouter.post('/admin', adminLogin);              // Admin Login
 userRouter.get('/profile', authUser, getUserProfile); // Get User Profile
 
 // 🆕 Admin Dashboard Stats Route (Protected by adminAuth)
-userRouter.get('/admin/stats', getDashboardStats);
+userRouter.get('/stats', getDashboardStats);
 
 export default userRouter;
