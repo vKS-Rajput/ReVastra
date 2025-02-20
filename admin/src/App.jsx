@@ -1,48 +1,40 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from './components/Navbar';
-import Sidebar from './components/Sidebar';
+import Dashboard from './components/Sidebar'; // Import Dashboard
 import { Route, Routes } from 'react-router-dom';
 import Add from './pages/Add';
 import List from './pages/List';
 import Orders from './pages/Orders';
 import Login from './components/Login';
 import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'
+import 'react-toastify/dist/ReactToastify.css';
 
-export const backEndURL = import.meta.env.VITE_BACKEND_URL
-export const currency = '₹'
+export const backEndURL = import.meta.env.VITE_BACKEND_URL;
+export const currency = '₹';
 
 const App = () => {
-  const [token, setToken] = useState(localStorage.getItem('token') ? localStorage.getItem('token') : ''); // State to handle login token
+  const [token, setToken] = useState(localStorage.getItem('token') || '');
 
   useEffect(() => {
-    localStorage.setItem('token', token)
-  }, [token])
+    localStorage.setItem('token', token);
+  }, [token]);
 
   return (
     <div className="bg-gray-200 min-h-screen flex flex-col text-black">
-      <ToastContainer/>
-      {/* If token is empty, show Login */}
+      <ToastContainer />
       {token === '' ? (
         <Login setToken={setToken} />
       ) : (
         <>
-          {/* Navbar */}
           <Navbar setToken={setToken} />
-
-          {/* Main Layout */}
-          <div className="flex flex-1">
-            {/* Sidebar */}
-            <Sidebar />
-
-            {/* Content Area */}
-            <div className="w-[70%] mx-auto ml-[max(5vw,25px)] my-8 text-black text-base">
-              <Routes>
-                <Route path="/add" element={<Add token={token} />} />
-                <Route path="/list" element={<List token={token} />} />
-                <Route path="/orders" element={<Orders token={token} />} />
-              </Routes>
-            </div>
+          {/* Routes without sidebar */}
+          <div className="flex-1 w-full max-w-6xl mx-auto my-8">
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/add" element={<Add token={token} />} />
+              <Route path="/list" element={<List token={token} />} />
+              <Route path="/orders" element={<Orders token={token} />} />
+            </Routes>
           </div>
         </>
       )}
