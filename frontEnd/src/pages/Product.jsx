@@ -10,20 +10,14 @@ const Product = () => {
   const [image, setImage] = useState('');
   const [size, setSize] = useState('');
 
-  // Fetch product data
-  const fetchProductData = async () => {
+  useEffect(() => {
     const product = products.find((item) => item._id === productId);
     if (product) {
       setProductData(product);
       setImage(product.image[0]);
     }
-  };
-
-  useEffect(() => {
-    fetchProductData();
   }, [productId, products]);
 
-  // Handle add to cart
   const handleAddToCart = async () => {
     if (size) {
       try {
@@ -38,54 +32,67 @@ const Product = () => {
   };
 
   return productData ? (
-    <div className="border-t-2 pt-10 transition-opacity ease-in duration-500 opacity-100" style={{ marginTop: '90px' }}>
-      <div className="flex flex-col sm:flex-row gap-12 sm:gap-12">
+    <div className="mx-auto justify-center px-4 sm:px-6 lg:px-8 py-8" style={{ marginTop: '60px' }}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         {/* Product Images */}
-        <div className="flex-1 flex flex-col-reverse sm:flex-row gap-3">
-          <div className="flex sm:flex-col overflow-x-auto sm:overflow-y-scroll justify-between sm:justify-normal sm:w-[18%] w-full">
+        <div className=" justify-center flex flex-col sm:flex-row gap-4">
+          <div className="flex sm:flex-col overflow-x-auto sm:overflow-y-auto sm:w-24 w-full sm:h-[450px] gap-2">
             {productData.image.map((item, index) => (
               <img
-                onClick={() => setImage(item)}
-                src={item}
                 key={index}
-                className={`w-[18%] sm:w-full sm:mb-3 flex-shrink-0 cursor-pointer transition-transform hover:scale-105 duration-300 ${image === item ? 'border-2 border-gray-400' : ''}`}
-                alt={`Product ${index}`}
+                src={item}
+                onClick={() => setImage(item)}
+                className={`w-20 h-20 object-cover rounded-lg cursor-pointer border transition-transform duration-300 hover:scale-105 ${image === item ? 'border-gray-500' : 'border-gray-300'}`}
+                alt={`Thumbnail ${index + 1}`}
               />
             ))}
           </div>
-          <div className="w-full sm:w-[80%]">
-            <img className="w-full h-auto rounded-lg shadow-lg transition-transform duration-300 hover:scale-105" src={image} alt="Selected product" />
+          <div className="w-auto ">
+            <img
+              src={image}
+              alt="Selected product"
+              className="w-full  h-auto object-contain rounded-2xl shadow-lg transition-transform duration-300 hover:scale-105"
+            />
           </div>
         </div>
 
         {/* Product Info */}
-        <div className="flex-1">
-          <h1 className="font-bold text-3xl mt-2 text-gray-800">{productData.name}</h1>
-          
-          {/* Availability Status */}
-          <p className={`mt-2 font-medium text-lg ${productData.status === 'available' ? 'text-green-600' : 'text-red-600'}`}>
+        <div className="rounded-2xl shadow-2xl p-8 bg-white">
+          <h1 className="font-bold text-4xl text-gray-800 mb-4">{productData.name}</h1>
+          <p className={`text-lg font-medium mb-4 ${productData.status === 'available' ? 'text-green-600' : 'text-red-600'}`}>
             {productData.status === 'available' ? '✔ Available' : '✖ Out of Stock'}
           </p>
 
-          <div className="mt-5">
+          <div className="mb-6">
             <p className="text-lg text-gray-400 line-through">Original: {currency}{productData.price}</p>
-            <p className="text-4xl font-semibold text-[#ff6347] mt-2">
+            <p className="text-3xl font-semibold text-red-500">
               Rent: {currency}{productData.rental_price}
-              <span className="text-lg font-normal text-gray-600">/ day</span>
+              <span className="text-lg font-normal text-gray-600"> / day</span>
             </p>
-            <p className="text-sm text-gray-600 font-medium mt-1">Low-cost rental option available</p>
+            <p className="text-sm text-gray-600 mt-1">Low-cost rental option available</p>
           </div>
-          <p className="mt-5 text-gray-600 md:w-4/5 font-medium text-lg">{productData.description}</p>
+
+          {/* Description */}
+          <div className="mb-6">
+            <p className="text-lg font-semibold mb-3">Product Details</p>
+            <div className="h-auto overflow-y-auto pr-4 border-l-2 border-red-400 pl-4 rounded-md  space-y-2">
+              {productData.description.split('\n').map((line, index) => (
+                <p key={index} className="text-gray-700 text-sm leading-relaxed">{line}</p>
+              ))}
+            </div>
+          </div>
 
           {/* Select Size */}
-          <div className="flex flex-col gap-4 my-8">
-            <p className="text-lg font-semibold">Select Size</p>
-            <div className="flex gap-2">
+          <div className="mb-6">
+            <p className="text-lg font-semibold mb-3">Select Size</p>
+            <div className="flex flex-wrap gap-3">
               {productData.sizes.map((item, index) => (
                 <button
-                  className={`border py-2 px-4 text-sm rounded-md transition-colors duration-300 ${item === size ? 'bg-gray-900 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
                   key={index}
                   onClick={() => setSize(item)}
+                  className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
+                    item === size ? 'bg-red-600 text-white border-red-600' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                  }`}
                 >
                   {item}
                 </button>
@@ -93,30 +100,48 @@ const Product = () => {
             </div>
           </div>
 
-          {/* Add to Cart */}
+          {/* Add to Cart Button */}
           <button
             onClick={handleAddToCart}
             disabled={productData.status !== 'available'}
-            className={`px-6 py-3 mt-4 rounded-lg shadow-md transition duration-300 ${productData.status === 'available' ? 'bg-[#E63946] text-white hover:bg-[#e5533f]' : 'bg-gray-400 text-gray-700 cursor-not-allowed'}`}
+            className={`w-full py-3 rounded-xl text-lg font-semibold transition-all ${
+              productData.status === 'available'
+                ? 'bg-red-500 text-white hover:bg-red-600'
+                : 'bg-gray-300 text-gray-600 cursor-not-allowed'
+            }`}
           >
             {productData.status === 'available' ? 'Add to Cart' : 'Out of Stock'}
           </button>
         </div>
       </div>
-      {/* Contract & Delivery Process */}
-<div className="mt-8 p-5 border-2 border-red-500 bg-red-100 rounded-lg">
-  <h2 className="text-xl font-bold  text-red-700">Important Note: Contract & Delivery Process</h2>
-  <ul className="list-disc pl-5 text-gray-700 mt-2">
-    <li>Users sign a contract upon delivery stating they will comply with policies.</li>
-    <li>Delivery personnel verify product condition with video/photo proof.</li>
-    <li><strong>Open Box Delivery:</strong> The product is checked at the time of delivery.</li>
-    <li>User must provide a photo with the product or valid ID as proof of receipt.</li>
-  </ul>
-</div>
 
+      {/* Contract & Benefits Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-12">
+        <div className="p-6 border-2 border-red-400 bg-red-50 rounded-2xl shadow-lg">
+          <h2 className="text-xl font-bold text-red-700 mb-4">Important: Contract & Delivery Process</h2>
+          <ul className="list-disc pl-6 text-gray-700 space-y-3">
+            <li>Users sign a contract upon delivery confirming compliance with policies.</li>
+            <li>Delivery personnel verify product condition with video/photo proof.</li>
+            <li><strong>Open Box Delivery:</strong> Inspect product at delivery time.</li>
+            <li>Photo with product or valid ID required as proof of receipt.</li>
+          </ul>
+        </div>
+
+        <div className="p-6 border-2 border-green-400 bg-green-50 rounded-2xl shadow-lg">
+          <h2 className="text-xl font-bold text-green-700 mb-4">Why Rent With Us?</h2>
+          <ul className="space-y-3 text-gray-700">
+            <li>🚀 Quick & Hassle-Free Deliveries</li>
+            <li>✅ Verified & Quality Checked Products</li>
+            <li>🔄 Easy Returns & Refunds</li>
+            <li>💵 Budget-Friendly Rental Plans</li>
+          </ul>
+        </div>
+      </div>
     </div>
   ) : (
-    <div>Loading...</div>
+    <div className="flex justify-center items-center h-96">
+      <p className="text-lg font-medium text-gray-600">Loading product details...</p>
+    </div>
   );
 };
 
