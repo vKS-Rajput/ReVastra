@@ -43,23 +43,14 @@ const CountdownTimer = ({ returnDateTime }) => {
 const Orders = () => {
   const { backEndURL, token, currency, delivery_fee } = useContext(ShopContext);
   const [orderData, setOrderData] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
   const loadOrderData = async () => {
     try {
       if (!token) {
-        setError('No token found. Please log in.');
-        return;
+        return null;
       }
 
-      setLoading(true);
-      const response = await axios.post(
-        `${backEndURL}/api/order/userorders`,
-        {},
-        { headers: { token } }
-      );
-
+      const response = await axios.post(backEndURL + '/api/order/userorders', {}, { headers: { token } });
       if (response.data.success) {
         let allOrdersItem = [];
         response.data.orders.forEach((order) => {
@@ -76,9 +67,6 @@ const Orders = () => {
       }
     } catch (error) {
       console.error('Error loading order data:', error);
-      setError('Failed to load orders. Please try again.');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -92,35 +80,19 @@ const Orders = () => {
     loadOrderData();
   }, [token]);
 
-  if (loading) {
-    return (
-      <div className="border-t pt-24 bg-gray-50 flex justify-center items-center h-screen">
-        <p className="text-lg text-gray-600">Loading orders...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="border-t pt-24 bg-gray-50 flex justify-center items-center h-screen">
-        <p className="text-lg text-red-600">{error}</p>
-      </div>
-    );
-  }
-
   return (
     <div className="border-t pt-24 bg-gray-50">
       <div className="text-2xl text-center font-semibold text-gray-800">
         <Title text1={'MY'} text2={'ORDERS'} />
       </div>
 
-      <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 px-4 sm:px-6 lg:px-8">
+      <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
         {orderData.map((item, index) => {
-          const returnDate = calculateFinalDate(item.date, item.duration); // Use item.duration instead of item.quantity
+          const returnDate = calculateFinalDate(item.date, item.quantity); // Calculate return date with time
 
           // Calculate total price
-          const washingFee = item.washingFee || 0;
-          const totalPrice = item.rental_price * item.duration + item.deliveryFee + washingFee;
+          const washingFee = item.washingFee ? item.washingFee : 0;
+          const totalPrice = item.rental_price * item.quantity + item.deliveryFee + washingFee;
 
           return (
             <div key={index} className="bg-white shadow-lg rounded-lg p-6 flex flex-col justify-between">
@@ -131,7 +103,7 @@ const Orders = () => {
                   <div className="flex items-center gap-2 sm:gap-3 mt-2">
                     <p className="text-base font-semibold text-gray-700">
                       {currency}
-                      {item.rental_price} x {item.duration} days
+                      {item.rental_price} x {item.quantity} days
                     </p>
                     <p className="text-sm text-gray-500">Size: {item.size}</p>
                   </div>
@@ -157,7 +129,7 @@ const Orders = () => {
               {/* Delivery Fee & Washing Fee Details */}
               <div className="mt-4 border-t pt-4 text-sm text-gray-700">
                 <p className="flex justify-between">
-                  <span>Rental Price:</span> <span>{currency}{item.rental_price * item.duration}.00</span>
+                  <span>Rental Price:</span> <span>{currency}{item.rental_price * item.quantity}.00</span>
                 </p>
                 <p className="flex justify-between">
                   <span>Delivery Fee:</span> <span>{currency}{item.deliveryFee}.00</span>
