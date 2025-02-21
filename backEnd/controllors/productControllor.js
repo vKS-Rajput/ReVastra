@@ -37,6 +37,7 @@ const addProduct = async (req, res) => {
         );
 
         const productData = {
+            userId: req.body.userId, 
             name,
             description,
             price: Number(price),
