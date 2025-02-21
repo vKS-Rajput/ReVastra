@@ -17,9 +17,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import Lend from './pages/Lend'
 import Earning from './pages/Earning'
 import Profile from './pages/Profile'
-import GoogleLend from './pages/GoogleLend'
-import OurPolicy from './pages/OurPolicy'
-import MyProducts from './pages/MyProducts'
+import OurPolicy from '../src/components/OurPolicy'
 
 
 export const backEndURL = import.meta.env.VITE_BACKEND_URL
