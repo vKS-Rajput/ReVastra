@@ -18,9 +18,9 @@ const MyProducts = () => {
         return;
       }
 
-      const response = await axios.get(`${backEndURL}/api/product/my-product`, {
-        headers: { token }, // ✅ Send token this way, matching your middleware
-      });
+      // const response = await axios.get(`${backEndURL}/api/product/my-product`, {
+      //   headers: { token }, // ✅ Send token this way, matching your middleware
+      // });
       
       
       console.log("Fetched Products:", response.data.products);

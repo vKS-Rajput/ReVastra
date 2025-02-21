@@ -103,7 +103,7 @@ const singleProduct = async (req, res) => {
 
 const myProducts = async (req, res) => {
     try {
-        const userId = req.body.userId; // ✅ Corrected
+        const userId = req.body.user; // ✅ Corrected
         console.log("🔎 User ID in request body:", userId); // Debug log
 
         const products = await productModel.find({ userId });
