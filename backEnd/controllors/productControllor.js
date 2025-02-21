@@ -8,7 +8,7 @@ const addProduct = async (req, res) => {
         if (!name || !description || !price || !category || !sizes || !rental_price || !contactno || !pickuplocation) {
             return res.status(400).json({ success: false, message: "All required fields must be provided." });
         }
-
+ 
         let parsedSizes;
         try {
             parsedSizes = Array.isArray(sizes) ? sizes : JSON.parse(sizes);
