@@ -41,7 +41,6 @@ const App = () => {
         <Route path='/' element={<Home />} />
         <Route path='/collection' element={<Collection />} />
         <Route path='/lend' element={<Lend token={token} />} />
-        <Route path='/product_for_rent' element={<GoogleLend/>}/>
         <Route path='/about' element={<About />} />
         <Route path='/contact' element={<Contact />} />
         <Route path='/cart' element={<Cart />} />
@@ -52,7 +51,6 @@ const App = () => {
         <Route path='/signIn' element={<SignIn />} />
         <Route path='/ourPolicy' element={<OurPolicy/>}/>
         <Route path='/placeorder' element={<PlaceOrder />} />
-        <Route path='/myProducts' element={<MyProducts/>}/>
       </Routes>
       
 
