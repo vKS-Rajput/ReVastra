@@ -102,14 +102,24 @@ const singleProduct = async (req, res) => {
 
 const myProducts = async (req, res) => {
     try {
-      const userId = req.user.id; // ✅ Now works!
-      const products = await productModel.find({ userId });
-      res.json({ success: true, products });
+        const userId = req.body.userId; // ✅ Corrected
+        console.log("🔎 User ID in request body:", userId); // Debug log
+
+        const products = await productModel.find({ userId });
+
+        if (!products.length) {
+            console.warn("⚠️ No products found for user:", userId);
+            return res.status(404).json({ success: false, message: "No products found" });
+        }
+
+        console.log("✅ Products fetched:", products); // Debug log
+        res.json({ success: true, products });
     } catch (error) {
-      console.error("Error fetching user's products:", error);
-      res.status(500).json({ success: false, message: "Server error" });
+        console.error("❌ Error fetching user's products:", error); 
+        res.status(500).json({ success: false, message: "Server error" });
     }
-  };
+};
+
   
 
 
