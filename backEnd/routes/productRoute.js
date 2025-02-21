@@ -4,10 +4,12 @@ import {
     addProduct, 
     removeProduct, 
     singleProduct, 
-    updateProductStatus 
+    updateProductStatus, 
+    myProducts
 } from '../controllors/productControllor.js';
 import upload from '../middleware/multer.js';
 import adminAuth from '../middleware/adminAuth.js';
+import userAuth from '../middleware/userAuth.js'
 
 const productRouter = express.Router();
 
@@ -27,6 +29,9 @@ productRouter.get('/single', singleProduct);
 
 // Route to list products
 productRouter.get('/list', listProduct);
+
+// ✅ User route: List products added by the logged-in user
+productRouter.get('/my-product', userAuth, myProducts)
 
 // Admin-only route to update product status
 productRouter.put('/update-status/:id', adminAuth, updateProductStatus);

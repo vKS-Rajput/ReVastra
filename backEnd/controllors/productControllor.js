@@ -100,6 +100,19 @@ const singleProduct = async (req, res) => {
     }
 };
 
+const myProducts = async (req, res) => {
+    try {
+        const userId = req.user.id; // ✅ Assumes authentication middleware adds req.user
+        const products = await productModel.find({ userId });
+
+        res.json({ success: true, products });
+    } catch (error) {
+        console.error("Error fetching user's products:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+
 // ✅ New function to update product status
 const updateProductStatus = async (req, res) => {
     try {
@@ -125,4 +138,4 @@ const updateProductStatus = async (req, res) => {
     }
 };
 
-export { addProduct, listProduct, removeProduct, singleProduct, updateProductStatus };
+export { addProduct, listProduct, removeProduct, singleProduct, updateProductStatus, myProducts };
