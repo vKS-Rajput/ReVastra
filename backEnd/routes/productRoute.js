@@ -9,7 +9,7 @@ import {
 } from '../controllors/productControllor.js';
 import upload from '../middleware/multer.js';
 import adminAuth from '../middleware/adminAuth.js';
-import userAuth from '../middleware/userAuth.js'
+import authUser from '../middleware/userAuth.js'
 
 const productRouter = express.Router();
 
@@ -31,7 +31,7 @@ productRouter.get('/single', singleProduct);
 productRouter.get('/list', listProduct);
 
 // ✅ User route: List products added by the logged-in user
-productRouter.get('/my-product', userAuth, myProducts)
+productRouter.get('/my-product', authUser, myProducts)
 
 // Admin-only route to update product status
 productRouter.put('/update-status/:id', adminAuth, updateProductStatus);

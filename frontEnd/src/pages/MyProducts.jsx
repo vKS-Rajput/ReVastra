@@ -18,10 +18,13 @@ const MyProducts = () => {
         return;
       }
 
-      const response = await axios.get(backEndURL + '/api/product/my-product', {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await axios.get(`${backEndURL}/api/product/my-product`, {
+        headers: { token }, // ✅ Send token this way, matching your middleware
       });
-      console.log("User ID:", req.user.id); 
+      
+      
+      console.log("Fetched Products:", response.data.products);
+
 
       if (response.data.success) {
         setProducts(response.data.products.reverse());
