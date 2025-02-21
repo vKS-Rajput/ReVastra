@@ -113,7 +113,7 @@ const myProducts = async (req, res) => {
             return res.status(404).json({ success: false, message: "No products found" });
         }
 
-        console.log("✅ Products fetched:", products); // Debug log
+        console.log("✅ Products fetched:", products); // Debug 
         res.json({ success: true, products });
     } catch (error) {
         console.error("❌ Error fetching user's products:", error); 
