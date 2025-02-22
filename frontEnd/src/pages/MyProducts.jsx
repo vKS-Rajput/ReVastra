@@ -72,17 +72,15 @@ const MyProducts = () => {
         {products.map((product, index) => (
           <div key={index} className="bg-white shadow-lg rounded-lg p-6 flex flex-col justify-between">
             <div className="flex items-start gap-4 sm:gap-6 text-sm">
-              <img
-                className="w-20 sm:w-24 h-24 sm:h-28 rounded-md object-cover"
-                src={`${backEndURL}/${product.image[0]}`}
-                alt={product.name}
-              />
+            <img className="w-16 h-16 object-cover rounded-md border" src={product.image[0]} alt={item.name} />
               <div>
                 <p className="text-lg font-medium text-gray-800">{product.name}</p>
-                <p className="text-sm text-gray-500 mt-1">Size: {product.size}</p>
+                <p className="text-sm text-gray-500 mt-1">Size: {product.sizes?.join(', ') || 'N/A'}</p>
+                <p className="text-gray-600">{product.category}</p>
+
                 <p className="text-sm text-gray-500 mt-1">Pickup: {product.pickuplocation}</p>
-                <p className="text-sm text-gray-500 mt-1">Contact: {product.contactnumber}</p>
-                <p className="text-sm text-gray-400 mt-2">Uploaded: {new Date(product.createdAt).toDateString()}</p>
+                <p className="text-sm text-gray-500 mt-1">Contact: {product.contactno}</p>
+                <p className="text-sm text-gray-400 mt-2">Uploaded: {new Date(product.date).toDateString()}</p>
               </div>
             </div>
 
