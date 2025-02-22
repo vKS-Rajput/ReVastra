@@ -44,7 +44,7 @@ const MyProducts = () => {
   if (products.length === 0) return <p className="text-center text-gray-500">You haven't listed any products yet.</p>;
 
   return (
-    <div className="border-t pt-24 bg-gray-50">
+    <div className="border-t mt-20 pt-24 bg-gray-50">
       <div className="text-2xl text-center font-semibold text-gray-800">
         <Title text1={'MY'} text2={'LISTED PRODUCTS'} />
       </div>

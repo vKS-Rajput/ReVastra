@@ -18,6 +18,7 @@ import Lend from './pages/Lend'
 import Earning from './pages/Earning'
 import Profile from './pages/Profile'
 import OurPolicy from '../src/components/OurPolicy'
+import MyProducts from './pages/MyProducts'
 
 
 export const backEndURL = import.meta.env.VITE_BACKEND_URL
@@ -51,6 +52,7 @@ const App = () => {
         <Route path='/signIn' element={<SignIn />} />
         <Route path='/ourPolicy' element={<OurPolicy/>}/>
         <Route path='/placeorder' element={<PlaceOrder />} />
+        <Route path='/myProducts' element={<MyProducts/>}/>
       </Routes>
       
 
