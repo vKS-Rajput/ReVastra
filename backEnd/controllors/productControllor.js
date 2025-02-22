@@ -4,86 +4,87 @@ import userModel from "../models/userModel.js";
 
 const addProduct = async (req, res) => {
     try {
-         const userId = req.user.id
-        const {
-            
-            name,
-            price,
-            description,
-            rental_price,
-            category,
-            subCategory,
-            sizes,
-            contactno,
-            pickuplocation,
-            bestSeller,
-        } = req.body;
-
-        // ✅ Check if userId and required fields are present
-        if ( !name || !description || !price || !category || !sizes || !rental_price || !contactno || !pickuplocation) {
-            return res.status(400).json({ success: false, message: "All required fields including userId must be provided." });
-        }
-
-        // ✅ Parse sizes if it's a string
-        let parsedSizes;
-        try {
-            parsedSizes = Array.isArray(sizes) ? sizes : JSON.parse(sizes);
-        } catch (error) {
-            return res.status(400).json({ success: false, message: "Invalid sizes format. Must be valid JSON." });
-        }
-
-        // ✅ Handle image uploads
-        const images = req.files
-            ? [req.files.image1, req.files.image2, req.files.image3, req.files.image4].filter(Boolean)
-            : req.file ? [req.file] : [];
-
-        if (images.length === 0) {
-            return res.status(400).json({ success: false, message: "At least one image must be uploaded." });
-        }
-
-        const imagesUrl = await Promise.all(
-            images.map(async (item) => {
-                try {
-                    const result = await cloudinary.uploader.upload(item[0].path, { resource_type: "image" });
-                    return result.secure_url;
-                } catch (error) {
-                    console.error("Error uploading image:", error);
-                    throw new Error("Image upload failed.");
-                }
-            })
-        );
-
-        // ✅ Create product data with userId
-        const productData = {
-            userId, // ✅ User ID added directly from the request body
-            name,
-            description,
-            price: Number(price),
-            category,
-            subCategory,
-            rental_price: Number(rental_price),
-            sizes: parsedSizes,
-            bestSeller: Boolean(bestSeller),
-            pickuplocation,
-            contactno,
-            image: imagesUrl,
-            date: Date.now(),
-            status: "available", // Default status
-        };
-
-        // ✅ Save product to the database
-        const product = new productModel(productData);
-        const id = new userModel(userId); 
-        await product.save();
-        await id.save();
-
-        res.status(200).json({ success: true, message: "Product added successfully", product });
+      const userId = req.user.id; // ✅ Extract userId from middleware
+  
+      const {
+        name,
+        price,
+        description,
+        rental_price,
+        category,
+        subCategory,
+        sizes,
+        contactno,
+        pickuplocation,
+        bestSeller,
+      } = req.body;
+  
+      // ✅ Check required fields
+      if (!name || !description || !price || !category || !sizes || !rental_price || !contactno || !pickuplocation) {
+        return res.status(400).json({
+          success: false,
+          message: "All required fields must be provided.",
+        });
+      }
+  
+      // ✅ Parse sizes
+      let parsedSizes;
+      try {
+        parsedSizes = Array.isArray(sizes) ? sizes : JSON.parse(sizes);
+      } catch (error) {
+        return res.status(400).json({ success: false, message: "Invalid sizes format. Must be valid JSON." });
+      }
+  
+      // ✅ Handle image uploads
+      const images = req.files
+        ? [req.files.image1, req.files.image2, req.files.image3, req.files.image4].filter(Boolean)
+        : req.file ? [req.file] : [];
+  
+      if (images.length === 0) {
+        return res.status(400).json({ success: false, message: "At least one image must be uploaded." });
+      }
+  
+      const imagesUrl = await Promise.all(
+        images.map(async (item) => {
+          try {
+            const result = await cloudinary.uploader.upload(item[0].path, { resource_type: "image" });
+            return result.secure_url;
+          } catch (error) {
+            console.error("❌ Error uploading image:", error);
+            throw new Error("Image upload failed.");
+          }
+        })
+      );
+  
+      // ✅ Product data with userId from auth middleware
+      const productData = {
+        userId,
+        name,
+        description,
+        price: Number(price),
+        category,
+        subCategory,
+        rental_price: Number(rental_price),
+        sizes: parsedSizes,
+        bestSeller: Boolean(bestSeller),
+        pickuplocation,
+        contactno,
+        image: imagesUrl,
+        date: Date.now(),
+        status: "available",
+      };
+  
+      // ✅ Save product
+      const product = new productModel(productData);
+      await product.save();
+  
+      res.status(200).json({ success: true, message: "Product added successfully", product });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, message: error.message });
+      console.error("❌ Error adding product:", error);
+      res.status(500).json({ success: false, message: error.message });
     }
-};
-
+  };
+  
 const listProduct = async (req, res) => {
     try {
         const products = await productModel.find({});
