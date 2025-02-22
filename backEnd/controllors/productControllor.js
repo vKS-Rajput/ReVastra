@@ -1,10 +1,12 @@
 import { v2 as cloudinary } from "cloudinary";
 import productModel from "../models/productmodel.js";
+import userModel from "../models/userModel.js";
 
 const addProduct = async (req, res) => {
     try {
+         const userId = req.user.id
         const {
-            userId,
+            
             name,
             price,
             description,
@@ -18,7 +20,7 @@ const addProduct = async (req, res) => {
         } = req.body;
 
         // ✅ Check if userId and required fields are present
-        if (!userId || !name || !description || !price || !category || !sizes || !rental_price || !contactno || !pickuplocation) {
+        if ( !name || !description || !price || !category || !sizes || !rental_price || !contactno || !pickuplocation) {
             return res.status(400).json({ success: false, message: "All required fields including userId must be provided." });
         }
 
@@ -71,7 +73,9 @@ const addProduct = async (req, res) => {
 
         // ✅ Save product to the database
         const product = new productModel(productData);
+        const id = new userModel(userId); 
         await product.save();
+        await id.save();
 
         res.status(200).json({ success: true, message: "Product added successfully", product });
     } catch (error) {
