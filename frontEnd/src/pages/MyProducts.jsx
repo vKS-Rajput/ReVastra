@@ -72,7 +72,7 @@ const MyProducts = () => {
         {products.map((product, index) => (
           <div key={index} className="bg-white shadow-lg rounded-lg p-6 flex flex-col justify-between">
             <div className="flex items-start gap-4 sm:gap-6 text-sm">
-            <img className="w-16 h-16 object-cover rounded-md border" src={product.image[0]} alt={item.name} />
+            <img className="w-16 h-16 object-cover rounded-md border" src={product.image[0]} alt={product.name} />
               <div>
                 <p className="text-lg font-medium text-gray-800">{product.name}</p>
                 <p className="text-sm text-gray-500 mt-1">Size: {product.sizes?.join(', ') || 'N/A'}</p>
