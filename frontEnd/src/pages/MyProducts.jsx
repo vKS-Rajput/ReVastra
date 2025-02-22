@@ -74,7 +74,7 @@ const MyProducts = () => {
             <div className="flex items-start gap-4 sm:gap-6 text-sm">
               <img
                 className="w-20 sm:w-24 h-24 sm:h-28 rounded-md object-cover"
-                src={`${backEndURL}/${product.imageUrls[0]}`}
+                src={`${backEndURL}/${product.image[0]}`}
                 alt={product.name}
               />
               <div>
