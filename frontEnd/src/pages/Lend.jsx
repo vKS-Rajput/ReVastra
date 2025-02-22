@@ -4,7 +4,8 @@ import axios from "axios";
 import { backEndURL } from '../App';
 import { assets } from '../../../admin/src/assets/assets';
 
-const Lend = ({ token, userId }) => {  // ✅ userId passed as a prop
+const Lend = ({ token }) => {  // ✅ userId passed as a prop
+  const [userId, setUserId] = useState("");
   const [images, setImages] = useState([false, false, false, false]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -51,6 +52,13 @@ const Lend = ({ token, userId }) => {  // ✅ userId passed as a prop
     }
   }, [price]);
 
+  useEffect(() => {
+    if (token) {
+      const decoded = jwtDecode(token);  // Decodes the JWT
+      setUserId(decoded.userId);         // Make sure 'userId' matches your token payload
+    }
+  }, [token]);
+
   const onSubmitHandler = async (e) => {
     e.preventDefault();
 
@@ -66,7 +74,7 @@ const Lend = ({ token, userId }) => {  // ✅ userId passed as a prop
 
     try {
       const formData = new FormData();
-      formData.append("userId", userId)
+      formData.append("userId", userId);
       formData.append("name", name);
       formData.append("description", description);
       formData.append("price", price);
