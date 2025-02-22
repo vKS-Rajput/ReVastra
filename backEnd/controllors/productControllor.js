@@ -120,8 +120,8 @@ const singleProduct = async (req, res) => {
 
 const myProducts = async (req, res) => {
     try {
-        const userId = req.body.user; // ✅ Corrected
-        console.log("🔎 User ID in request body:", userId); // Debug log
+        const userId = req.user.id; // ✅ Access user ID from authUser middleware
+        console.log("🔎 User ID from auth middleware:", userId);
 
         const products = await productModel.find({ userId });
 
@@ -130,16 +130,15 @@ const myProducts = async (req, res) => {
             return res.status(404).json({ success: false, message: "No products found" });
         }
 
-        console.log("✅ Products fetched:", products); // Debug 
+        console.log("✅ Products fetched:", products);
         res.json({ success: true, products });
     } catch (error) {
-        console.error("❌ Error fetching user's products:", error); 
+        console.error("❌ Error fetching user's products:", error);
         res.status(500).json({ success: false, message: "Server error" });
     }
 };
 
   
-
 
 // ✅ New function to update product status
 const updateProductStatus = async (req, res) => {
