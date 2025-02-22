@@ -4,7 +4,7 @@ import Title from '../components/Title';
 
 const Earning = () => {
     return (
-        <div className='border-t pt-24 bg-gray-50 min-h-screen flex flex-col items-center justify-center'>
+        <div className='border-t pt-20 bg-gray-50 min-h-screen flex flex-col items-center justify-center'>
             <div className='text-2xl text-center font-semibold text-gray-800'>
                 <Title text1={'MY'} text2={'Earning'} />
             </div>

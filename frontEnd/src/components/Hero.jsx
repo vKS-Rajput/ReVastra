@@ -12,7 +12,7 @@ const Hero = () => {
   return (
     <div
       className="relative flex items-center justify-center h-screen bg-gradient-to-br from-[#333333] via-[#1a1a1a] to-[#0f0f0f] overflow-hidden"
-      style={{ marginTop: '80px' }}>
+      style={{ marginTop: '50px' }}>
       {/* Video Background */}
       <video
         className="absolute inset-0 w-full h-full object-cover opacity-70"

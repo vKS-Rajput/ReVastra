@@ -50,7 +50,7 @@ const Collection = () => {
   }, [category, subCategory, search, products]);
 
   return (
-    <div className='flex flex-col sm:flex-row gap-6 sm:gap-10 pt-10 border-t border-gray-200'>
+    <div className='flex flex-col sm:flex-row gap-6 sm:gap-10  border-t border-gray-200'>
       {/* Filter Options */}
       <div className="min-w-60 sm:w-1/4 bg-white shadow-lg rounded-xl p-6">
         <p

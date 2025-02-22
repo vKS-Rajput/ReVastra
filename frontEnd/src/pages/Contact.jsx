@@ -4,7 +4,7 @@ import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelopeOpenText } from 'react-icons/fa';
 
 const Contact = () => {
   return (
-    <div className="bg-gradient-to-b from-white to-gray-50 py-12 px-4 sm:px-8">
+    <div className="bg-gradient-to-b from-white to-gray-50 py-8 px-4 sm:px-8">
       {/* Title Section */}
       <div className="text-center text-3xl font-semibold text-gray-800 py-8">
         <Title text1={'CONTACT'} text2={'US'} />
