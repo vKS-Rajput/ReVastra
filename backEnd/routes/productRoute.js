@@ -14,7 +14,7 @@ import authUser from '../middleware/userAuth.js'
 const productRouter = express.Router();
 
 // Admin-only route to add a product
-productRouter.post('/add', adminAuth, upload.fields([
+productRouter.post('/add', authUser, upload.fields([
     { name: 'image1', maxCount: 1 },
     { name: 'image2', maxCount: 1 },
     { name: 'image3', maxCount: 1 },
@@ -36,12 +36,6 @@ productRouter.get('/my-product', authUser, myProducts)
 // Admin-only route to update product status
 productRouter.put('/update-status/:id', adminAuth, updateProductStatus);
 
-// Authenticated user route to lend a product
-productRouter.post('/lend', upload.fields([
-    { name: 'image1', maxCount: 1 },
-    { name: 'image2', maxCount: 1 },
-    { name: 'image3', maxCount: 1 },
-    { name: 'image4', maxCount: 1 }
-]), addProduct);
+
 
 export default productRouter;
