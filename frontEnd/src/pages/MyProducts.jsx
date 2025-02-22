@@ -1,97 +1,116 @@
 import React, { useContext, useEffect, useState } from 'react';
-import axios from 'axios';
-import Title from '../components/Title';
 import { ShopContext } from '../context/ShopContext';
+import Title from '../components/Title';
+import axios from 'axios';
 
 const MyProducts = () => {
+  const { backEndURL, token } = useContext(ShopContext);
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const { backEndURL } = useContext(ShopContext);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const fetchMyProducts = async () => {
+  const loadProductData = async () => {
     try {
-      const token = localStorage.getItem("token");
       if (!token) {
-        setError("Please log in to view your listed products.");
-        setLoading(false);
+        setError('No token found. Please log in.');
         return;
       }
 
+      setLoading(true);
       const response = await axios.get(`${backEndURL}/api/product/my-product`, {
-        headers: { token },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (response.data.success) {
-        setProducts(response.data.products.reverse()); // Display latest first
+        setProducts(response.data.products.reverse());
       } else {
-        setError("Failed to fetch products.");
+        setError('Failed to fetch products.');
       }
     } catch (err) {
       console.error('Error fetching products:', err);
-      setError("An error occurred while loading your products.");
+      setError('Error fetching products.');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchMyProducts();
-  }, []);
+    loadProductData();
+  }, [token]);
 
-  if (loading) return <p className="text-center text-lg">Loading...</p>;
-  if (error) return <p className="text-center text-red-600">{error}</p>;
-  if (products.length === 0) return <p className="text-center text-gray-500">You haven't listed any products yet.</p>;
+  if (loading) {
+    return (
+      <div className="border-t pt-24 bg-gray-50 flex justify-center items-center h-screen">
+        <p className="text-lg text-gray-600">Loading products...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="border-t pt-24 bg-gray-50 flex justify-center items-center h-screen">
+        <p className="text-lg text-red-600">{error}</p>
+      </div>
+    );
+  }
+
+  if (!products.length) {
+    return (
+      <div className="border-t pt-24 bg-gray-50 flex justify-center items-center h-screen">
+        <p className="text-lg text-gray-600">You haven't uploaded any products yet.</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="border-t mt-20 pt-24 bg-gray-50">
+    <div className="border-t pt-24 bg-gray-50">
       <div className="text-2xl text-center font-semibold text-gray-800">
-        <Title text1={'MY'} text2={'LISTED PRODUCTS'} />
+        <Title text1={'MY'} text2={'PRODUCTS'} />
       </div>
 
-      <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+      <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 px-4 sm:px-6 lg:px-8">
         {products.map((product, index) => (
           <div key={index} className="bg-white shadow-lg rounded-lg p-6 flex flex-col justify-between">
-            <div className="flex items-start gap-4 text-sm">
+            <div className="flex items-start gap-4 sm:gap-6 text-sm">
               <img
-                className="w-20 h-20 rounded-md object-cover"
-                src={product.image?.[0] || '/placeholder.jpg'}
+                className="w-20 sm:w-24 h-24 sm:h-28 rounded-md object-cover"
+                src={`${backEndURL}/${product.imageUrls[0]}`}
                 alt={product.name}
               />
               <div>
                 <p className="text-lg font-medium text-gray-800">{product.name}</p>
-                <p className="mt-2 text-sm text-gray-500">Category: {product.category}</p>
-                {product.subCategory && (
-                  <p className="text-sm text-gray-400">Sub-Category: {product.subCategory}</p>
-                )}
-                <p className="mt-2 text-base font-semibold text-gray-700">
-                  Price: ₹{product.price} | Rental: ₹{product.rental_price}/day
-                </p>
-                <p className="text-sm text-gray-400 mt-1">Pickup: {product.pickuplocation}</p>
-                <p className="text-sm text-gray-400">Contact: {product.contactno}</p>
-                <p className={`mt-2 text-sm font-medium ${
-                  product.status === 'available' ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  Status: {product.status}
-                </p>
+                <p className="text-sm text-gray-500 mt-1">Size: {product.size}</p>
+                <p className="text-sm text-gray-500 mt-1">Pickup: {product.pickuplocation}</p>
+                <p className="text-sm text-gray-500 mt-1">Contact: {product.contactnumber}</p>
+                <p className="text-sm text-gray-400 mt-2">Uploaded: {new Date(product.createdAt).toDateString()}</p>
               </div>
             </div>
 
             <div className="mt-4 border-t pt-4 text-sm text-gray-700">
               <p className="flex justify-between">
-                <span>Sizes:</span> <span>{product.sizes?.join(", ") || "N/A"}</span>
+                <span>Rental Price:</span> <span>₹{product.rental_price}</span>
               </p>
-              <p className="flex justify-between mt-1">
-                <span>Listed On:</span> <span>{new Date(product.date).toLocaleDateString()}</span>
+              {product.best_seller && (
+                <p className="flex justify-between text-green-600 font-semibold">
+                  <span>Best Seller:</span> <span>Yes</span>
+                </p>
+              )}
+              <p className={`flex justify-between font-bold mt-2 ${
+                product.status === 'available' ? 'text-green-600' : 'text-red-600'
+              }`}>
+                <span>Status:</span> <span>{product.status}</span>
               </p>
             </div>
 
-            <button
-              onClick={fetchMyProducts}
-              className="mt-4 px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100 transition duration-200"
-            >
-              Refresh List
-            </button>
+            <div className="mt-4 flex justify-between items-center">
+              <p className="text-sm font-medium text-gray-700">{product.details}</p>
+              <button
+                onClick={loadProductData}
+                className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100 transition-all"
+              >
+                Refresh
+              </button>
+            </div>
           </div>
         ))}
       </div>
