@@ -18,7 +18,7 @@ const MyProducts = () => {
         return;
       }
 
-      const response = await axios.get(`${backEndURL}/api/product/my-product`, {
+      const response = await axios.get(`${backEndURL}/api/user/my-product`, {
         headers: { token },
       });
 
