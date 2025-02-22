@@ -66,9 +66,6 @@ const Lend = ({ token, userId }) => {  // ✅ userId passed as a prop
 
     try {
       const formData = new FormData();
-      
-      // ✅ Append userId and other fields
-      formData.append("userId", userId);  
       formData.append("name", name);
       formData.append("description", description);
       formData.append("price", price);
@@ -84,12 +81,10 @@ const Lend = ({ token, userId }) => {  // ✅ userId passed as a prop
         if (image) formData.append(`image${index + 1}`, image);
       });
 
-      const response = await axios.post(`${backEndURL}/api/product/lend`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          token: token,  // ✅ Pass token in headers
-        },
-      });
+      const response = await axios.post(`${backEndURL}/api/product/lend`, formData, {headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,  // ✅ Standard convention
+      }});
 
       if (response.data.success) {
         toast.success("✅ Product uploaded successfully!");

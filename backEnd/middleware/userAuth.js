@@ -1,20 +1,23 @@
 import jwt from 'jsonwebtoken';
 
 const authUser = async (req, res, next) => {
-  const { token } = req.headers;
+  const authHeader = req.headers.authorization;
 
-  if (!token) {
-    return res.json({ success: false, message: 'Not Authorized. Login Again.' });
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ success: false, message: 'Not Authorized. Login Again.' });
   }
+
+  const token = authHeader.split(' ')[1]; // Extract token after "Bearer"
 
   try {
-    const token_decode = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = { id: token_decode.id }; // ✅ Attach to req.user
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = { id: decoded.id }; // ✅ Attach user ID
     next();
   } catch (error) {
-    console.log('Token verification error:', error);
-    res.json({ success: false, message: error.message });
+    console.error('Token verification error:', error);
+    res.status(401).json({ success: false, message: 'Invalid token' });
   }
 };
+
 
 export default authUser;
