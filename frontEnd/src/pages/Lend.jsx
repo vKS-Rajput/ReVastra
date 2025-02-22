@@ -108,6 +108,7 @@ const Lend = ({ token }) => {  // ✅ userId passed as a prop
         setContactNo('');
         setPickupLocation('');
         setSizes([]);
+        setUserId('')
         setBestSeller(false);
       } else {
         toast.error(response.data.message);
