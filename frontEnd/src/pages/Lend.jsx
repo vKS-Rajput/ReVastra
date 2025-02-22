@@ -4,7 +4,7 @@ import axios from "axios";
 import { backEndURL } from '../App';
 import { assets } from '../../../admin/src/assets/assets';
 
-const Lend = ({ token }) => {
+const Lend = ({ token, userId }) => {  // ✅ userId passed as a prop
   const [images, setImages] = useState([false, false, false, false]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -30,28 +30,19 @@ const Lend = ({ token }) => {
     setImages(newImages);
   };
 
-  // Function to calculate rental price and charge
   useEffect(() => {
     if (price) {
       const priceNum = parseFloat(price);
-      let rentalPercentage = 0.08; // 8% rental price for all ranges
-      let chargePercentage = 0.05; // Default charge (2%)
+      let rentalPercentage = 0.08;
+      let chargePercentage = 0.05;
 
-      if (priceNum > 1000 && priceNum <= 1500) {
-        chargePercentage = 0.15; // 10%
-      } else if (priceNum > 1500 && priceNum <= 2000) {
-        chargePercentage = 0.15; // 10%
-      } else if (priceNum > 2000 && priceNum <= 3000) {
-        chargePercentage = 0.20; // 15%
-      } else if (priceNum > 3000 && priceNum <=4000){
-        chargePercentage = 0.20; // 15%
-      } else if (priceNum > 4000){
-        chargePercentage = 0.25; // 15%
-      }
+      if (priceNum > 1000 && priceNum <= 1500) chargePercentage = 0.15;
+      else if (priceNum > 1500 && priceNum <= 3000) chargePercentage = 0.20;
+      else if (priceNum > 3000) chargePercentage = 0.25;
 
       const calculatedRentalPrice = priceNum * rentalPercentage;
       const calculatedCharge = calculatedRentalPrice * chargePercentage;
-      
+
       setRentalPrice(calculatedRentalPrice.toFixed(2));
       setCharge(calculatedCharge.toFixed(2));
     } else {
@@ -62,23 +53,22 @@ const Lend = ({ token }) => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
-  
-    // Validate images
+
     if (images.every(image => !image)) {
       toast.error("Please upload at least one image.");
       return;
     }
-  
-    // Validate sizes
+
     if (sizes.length === 0) {
       toast.error("Please select at least one size.");
       return;
     }
-  
+
     try {
       const formData = new FormData();
-  
-      // Append text fields
+      
+      // ✅ Append userId and other fields
+      formData.append("userId", userId);  
       formData.append("name", name);
       formData.append("description", description);
       formData.append("price", price);
@@ -89,24 +79,20 @@ const Lend = ({ token }) => {
       formData.append("pickuplocation", pickuplocation);
       formData.append("contactno", contactno);
       formData.append("bestSeller", bestSeller);
-  
-      // Append image files
+
       images.forEach((image, index) => {
         if (image) formData.append(`image${index + 1}`, image);
       });
-  
-      // Make the Axios request
-      const response = await axios.post(backEndURL + "/api/product/lend", formData, {
+
+      const response = await axios.post(`${backEndURL}/api/product/lend`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
-          token: token, // Include the token in the headers
+          token: token,  // ✅ Pass token in headers
         },
       });
-  
+
       if (response.data.success) {
         toast.success("✅ Product uploaded successfully!");
-  
-        // Reset the form fields
         setName('');
         setDescription('');
         setImages([false, false, false, false]);
@@ -123,13 +109,8 @@ const Lend = ({ token }) => {
     } catch (error) {
       console.error("Error occurred:", error);
       if (error.response) {
-        // Backend responded with an error
         toast.error(error.response.data.message || "Failed to upload product.");
-      } else if (error.request) {
-        // No response received from the backend
-        toast.error("No response from the server. Please try again.");
       } else {
-        // Something went wrong in setting up the request
         toast.error("An error occurred. Please try again.");
       }
     }

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // ✅ Added to track product owner
+    userId: {type: String, required: true},
     name: { type: String, required: true },
     description: { type: String, required: true },
     price: { type: Number, required: true },

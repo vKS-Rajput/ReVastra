@@ -3,12 +3,26 @@ import productModel from "../models/productmodel.js";
 
 const addProduct = async (req, res) => {
     try {
-        const { name, price, description, rental_price, category, subCategory, sizes, contactno, pickuplocation, bestSeller } = req.body;
+        const {
+            userId,
+            name,
+            price,
+            description,
+            rental_price,
+            category,
+            subCategory,
+            sizes,
+            contactno,
+            pickuplocation,
+            bestSeller,
+        } = req.body;
 
-        if (!name || !description || !price || !category || !sizes || !rental_price || !contactno || !pickuplocation) {
-            return res.status(400).json({ success: false, message: "All required fields must be provided." });
+        // ✅ Check if userId and required fields are present
+        if (!userId || !name || !description || !price || !category || !sizes || !rental_price || !contactno || !pickuplocation) {
+            return res.status(400).json({ success: false, message: "All required fields including userId must be provided." });
         }
- 
+
+        // ✅ Parse sizes if it's a string
         let parsedSizes;
         try {
             parsedSizes = Array.isArray(sizes) ? sizes : JSON.parse(sizes);
@@ -16,6 +30,7 @@ const addProduct = async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid sizes format. Must be valid JSON." });
         }
 
+        // ✅ Handle image uploads
         const images = req.files
             ? [req.files.image1, req.files.image2, req.files.image3, req.files.image4].filter(Boolean)
             : req.file ? [req.file] : [];
@@ -36,8 +51,9 @@ const addProduct = async (req, res) => {
             })
         );
 
+        // ✅ Create product data with userId
         const productData = {
-            userId: req.body.userId, 
+            userId, // ✅ User ID added directly from the request body
             name,
             description,
             price: Number(price),
@@ -50,9 +66,10 @@ const addProduct = async (req, res) => {
             contactno,
             image: imagesUrl,
             date: Date.now(),
-            status: "available", // ✅ Default status when adding a product
+            status: "available", // Default status
         };
 
+        // ✅ Save product to the database
         const product = new productModel(productData);
         await product.save();
 
