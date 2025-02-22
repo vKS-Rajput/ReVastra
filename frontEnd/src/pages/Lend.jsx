@@ -56,6 +56,9 @@ const Lend = ({ token }) => {  // ✅ userId passed as a prop
   const onSubmitHandler = async (e) => {
     e.preventDefault();
 
+    if (isLoading) return; // Prevent multiple clicks
+  setIsLoading(true);
+
     if (images.every(image => !image)) {
       toast.error("Please upload at least one image.");
       return;
