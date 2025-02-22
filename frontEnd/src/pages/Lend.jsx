@@ -3,10 +3,8 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { backEndURL } from '../App';
 import { assets } from '../../../admin/src/assets/assets';
-import { jwtDecode } from "jwt-decode";
 
-
-const Lend = ({ token }) => {  // ✅ userId passed as a prop
+const Lend = ({ token }) => {
   const [images, setImages] = useState([false, false, false, false]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -19,6 +17,7 @@ const Lend = ({ token }) => {  // ✅ userId passed as a prop
   const [charge, setCharge] = useState(0);
   const [pickuplocation, setPickupLocation] = useState("");
   const [contactno, setContactNo] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -55,9 +54,7 @@ const Lend = ({ token }) => {  // ✅ userId passed as a prop
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
-
-    if (isLoading) return; // Prevent multiple clicks
-  setIsLoading(true);
+    if (isLoading) return;
 
     if (images.every(image => !image)) {
       toast.error("Please upload at least one image.");
@@ -68,6 +65,8 @@ const Lend = ({ token }) => {  // ✅ userId passed as a prop
       toast.error("Please select at least one size.");
       return;
     }
+
+    setIsLoading(true);
 
     try {
       const formData = new FormData();
@@ -89,8 +88,8 @@ const Lend = ({ token }) => {  // ✅ userId passed as a prop
       const response = await axios.post(`${backEndURL}/api/product/add`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,  // ✅ Standard convention
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (response.data.success) {
@@ -110,21 +109,17 @@ const Lend = ({ token }) => {  // ✅ userId passed as a prop
       }
     } catch (error) {
       console.error("Error occurred:", error);
-      if (error.response) {
-        toast.error(error.response.data.message || "Failed to upload product.");
-      } else {
-        toast.error("An error occurred. Please try again.");
-      }
+      toast.error(error.response?.data?.message || "An error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
-
 
   return (
     <form
       onSubmit={onSubmitHandler}
       className="flex flex-col w-full items-center mt-20 gap-6 p-6 bg-white shadow-xl rounded-lg max-w-4xl mx-auto hover:shadow-2xl transition-shadow duration-300"
     >
-      {/* Section: Image Upload */}
       <div className="w-full">
         <p className="text-lg font-bold mb-4">Upload Product Images</p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -150,7 +145,6 @@ const Lend = ({ token }) => {  // ✅ userId passed as a prop
         </div>
       </div>
 
-      {/* Section: Product Details */}
       <div className="w-full">
         <p className="text-lg font-bold mb-4">Product Details</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -170,7 +164,7 @@ const Lend = ({ token }) => {  // ✅ userId passed as a prop
             placeholder="Price (e.g., 250)"
             required
           />
-          {/* Rental Price Calculation */}
+
           <div className="p-4 border rounded-lg bg-gray-200 text-gray-800 shadow-md w-full text-center">
             <p className="text-lg font-semibold text-[#da4c58]">Rental Price Breakdown</p>
             <div className="flex justify-between items-center mt-2">
@@ -183,7 +177,7 @@ const Lend = ({ token }) => {  // ✅ userId passed as a prop
             </div>
             <hr className="my-2 border-gray-300" />
             <div className="flex justify-between items-center text-lg font-bold">
-              <span className="text-gray-700">Esitmated Earning:</span>
+              <span className="text-gray-700">Estimated Earning:</span>
               <span className="text-green-500">₹{(parseFloat(rentalPrice) - parseFloat(charge)).toFixed(2)}</span>
             </div>
           </div>
@@ -206,6 +200,7 @@ const Lend = ({ token }) => {  // ✅ userId passed as a prop
           />
           <select
             onChange={(e) => setCategory(e.target.value)}
+            value={category}
             className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
             required
           >
@@ -214,6 +209,7 @@ const Lend = ({ token }) => {  // ✅ userId passed as a prop
           </select>
           <select
             onChange={(e) => setSubCategory(e.target.value)}
+            value={subCategory}
             className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
             required
           >
@@ -230,24 +226,14 @@ const Lend = ({ token }) => {  // ✅ userId passed as a prop
         />
       </div>
 
-      {/* Section: Sizes */}
       <div className="w-full">
         <p className="text-lg font-bold mb-4">Available Sizes</p>
         <div className="flex gap-4">
-          {["S", "M", "L", "XL", "XXL"].map((size) => (
+          {['S', 'M', 'L', 'XL', 'XXL'].map((size) => (
             <div
               key={size}
-              onClick={() =>
-                setSizes((prev) =>
-                  prev.includes(size)
-                    ? prev.filter((item) => item !== size)
-                    : [...prev, size]
-                )
-              }
-              className={`${sizes.includes(size)
-                  ? "bg-[#E63946] text-white"
-                  : "bg-gray-200"
-                } px-4 py-2 cursor-pointer rounded-md hover:bg-[#E63946] hover:text-white transition-colors duration-300`}
+              onClick={() => setSizes((prev) => prev.includes(size) ? prev.filter((item) => item !== size) : [...prev, size])}
+              className={`${sizes.includes(size) ? "bg-[#E63946] text-white" : "bg-gray-200"} px-4 py-2 cursor-pointer rounded-md hover:bg-[#E63946] hover:text-white transition-colors duration-300`}
             >
               {size}
             </div>
@@ -255,7 +241,6 @@ const Lend = ({ token }) => {  // ✅ userId passed as a prop
         </div>
       </div>
 
-      {/* Bestseller Checkbox */}
       <div className="flex items-center gap-3 w-full">
         <input
           onChange={() => setBestSeller((prev) => !prev)}
@@ -268,17 +253,14 @@ const Lend = ({ token }) => {  // ✅ userId passed as a prop
         </label>
       </div>
 
-      {/* Submit Button */}
       <div className="flex justify-center w-full">
         <button
           type="submit"
           disabled={isLoading}
-          className={`w-64 py-3 mt-6 font-bold rounded-md ${isLoading ? "bg-gray-400 cursor-not-allowed" : "bg-[#E63946] hover:bg-[#D7263D]"
-            }`}
+          className={`w-64 py-3 mt-6 font-bold rounded-md ${isLoading ? "bg-gray-400 cursor-not-allowed" : "bg-[#E63946] hover:bg-[#D7263D]"}`}
         >
           {isLoading ? "Uploading..." : "Add Product"}
         </button>
-
       </div>
     </form>
   );
