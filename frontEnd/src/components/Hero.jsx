@@ -32,7 +32,6 @@ const Hero = () => {
         <div className="flex flex-col items-center text-white">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 animate-fadeInUp">
             Latest fashion trends at your doorstep!
-Sustainable Fashion, Endless Looks!
           </h1>
           <p className="text-sm sm:text-base md:text-lg lg:text-xl font-light mb-8 max-w-2xl animate-fadeIn">
            Explore a wide range of outfits from casual to formal wear, rent what fits your vibe, and return when you're done. Sustainable, affordable fashion at your fingertips.  </p>
