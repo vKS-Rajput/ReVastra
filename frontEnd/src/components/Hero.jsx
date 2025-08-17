@@ -31,7 +31,8 @@ const Hero = () => {
       <div className="relative z-10 text-center px-6 sm:px-8 md:px-12 lg:px-20 max-w-4xl">
         <div className="flex flex-col items-center text-white">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 animate-fadeInUp">
-            Let’s Make Beautiful Flowers a Part of Your Life
+            Latest fashion trends at your doorstep!
+Sustainable Fashion, Endless Looks!
           </h1>
           <p className="text-sm sm:text-base md:text-lg lg:text-xl font-light mb-8 max-w-2xl animate-fadeIn">
             Explore a vibrant tapestry of blooms and arrangements that add color, fragrance, and elegance to your life. Discover the perfect floral expression for every moment and occasion.
