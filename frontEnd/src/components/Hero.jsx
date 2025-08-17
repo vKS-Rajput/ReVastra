@@ -30,11 +30,12 @@ const Hero = () => {
       {/* Hero Content */}
       <div className="relative z-10 text-center px-6 sm:px-8 md:px-12 lg:px-20 max-w-4xl">
         <div className="flex flex-col items-center text-white">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 animate-fadeInUp">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 animate-fadeInUp"
+            style={{ fontFamily: 'Times New Roman, Times, serif' }}>
             Latest fashion trends at your doorstep!
           </h1>
           <p className="text-sm sm:text-base md:text-lg lg:text-xl font-light mb-8 max-w-2xl animate-fadeIn">
-           Discover our latest trends, handled with care to meet all your needs. Explore and find your next favorite or put yours on display!   </p>
+            Discover our latest trends, handled with care to meet all your needs. Explore and find your next favorite or put yours on display!   </p>
           <button
             onClick={handleShopNow}
             className="px-6 sm:px-8 py-3 sm:py-4 bg-[#E63946] text-sm sm:text-lg font-semibold rounded-full shadow-lg transition-transform duration-300 transform hover:scale-110 hover:bg-[#D62828] animate-fadeOut"
