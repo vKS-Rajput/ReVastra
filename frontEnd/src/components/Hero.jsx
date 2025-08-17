@@ -35,8 +35,7 @@ const Hero = () => {
 Sustainable Fashion, Endless Looks!
           </h1>
           <p className="text-sm sm:text-base md:text-lg lg:text-xl font-light mb-8 max-w-2xl animate-fadeIn">
-            Explore a vibrant tapestry of blooms and arrangements that add color, fragrance, and elegance to your life. Discover the perfect floral expression for every moment and occasion.
-          </p>
+           Explore a wide range of outfits from casual to formal wear, rent what fits your vibe, and return when you're done. Sustainable, affordable fashion at your fingertips.  </p>
           <button
             onClick={handleShopNow}
             className="px-6 sm:px-8 py-3 sm:py-4 bg-[#E63946] text-sm sm:text-lg font-semibold rounded-full shadow-lg transition-transform duration-300 transform hover:scale-110 hover:bg-[#D62828] animate-fadeOut"
