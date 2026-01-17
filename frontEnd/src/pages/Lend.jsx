@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { toast } from "react-toastify";
 import axios from "axios";
-import { backEndURL } from '../App';
-import { assets } from '../../../admin/src/assets/assets';
+import { ShopContext } from '../context/ShopContext';
 
-const Lend = ({ token }) => {
+const Lend = () => {
+  const { token, backEndURL } = useContext(ShopContext);
   const [images, setImages] = useState([false, false, false, false]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -127,18 +127,28 @@ const Lend = ({ token }) => {
             <label
               key={index}
               htmlFor={`image${index + 1}`}
-              className="border-dashed border-2 border-gray-300 p-4 rounded-lg cursor-pointer hover:border-red-500 transition-colors duration-300 flex justify-center items-center"
+              className="border-dashed border-2 border-gray-300 p-4 rounded-lg cursor-pointer hover:border-red-500 transition-colors duration-300 flex justify-center items-center min-h-[120px]"
             >
-              <img
-                className="w-24 h-24 object-cover rounded-md"
-                src={!image ? assets.upload_area : URL.createObjectURL(image)}
-                alt="Upload Preview"
-              />
+              {!image ? (
+                <div className="flex flex-col items-center text-gray-400">
+                  <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  <span className="text-sm mt-1">Add Image</span>
+                </div>
+              ) : (
+                <img
+                  className="w-24 h-24 object-cover rounded-md"
+                  src={URL.createObjectURL(image)}
+                  alt="Upload Preview"
+                />
+              )}
               <input
                 onChange={(e) => onImageChange(index, e.target.files[0])}
                 type="file"
                 id={`image${index + 1}`}
                 hidden
+                accept="image/*"
               />
             </label>
           ))}

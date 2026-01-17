@@ -48,13 +48,14 @@ const SignIn = () => {
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
-    const storedUser = JSON.parse(localStorage.getItem('user'));
-    if (storedToken && storedUser) {
-      setToken(storedToken); // Set token in context
-      setUser(storedUser); // Set user data in context
-      navigate('/'); // Redirect to home page
+    const storedUser = localStorage.getItem('user');
+    if (storedToken && storedUser && storedUser !== 'undefined') {
+      setToken(storedToken);
+      setUser(JSON.parse(storedUser));
+      navigate('/');
     }
-  }, [token, navigate, setToken, setUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run only on mount to check for stored credentials
 
   return (
     <form

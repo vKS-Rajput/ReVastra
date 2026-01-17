@@ -2,7 +2,6 @@ import userModel from "../models/userModel.js";
 import validator from "validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { error } from "console";
 
 const createToken = (id) => {
     if (!process.env.JWT_SECRET) {
@@ -22,7 +21,7 @@ const loginUser = async (req, res) => {
             return res.status(400).json({ success: false, message: "User does not exist. Please register." });
         }
 
-        
+
 
         // Compare passwords
         const isPassMatch = await bcrypt.compare(password, user.password);
@@ -98,10 +97,10 @@ const adminLogin = async (req, res) => {
     try {
         const { email, password } = req.body;
         if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
-            const token = jwt.sign(email+password,process.env.JWT_SECRET);
-            res.json({success:true,token})
-        } else{
-            res.json({success:false, message:"Invalid Cradintials"})
+            const token = jwt.sign(email + password, process.env.JWT_SECRET);
+            res.json({ success: true, token })
+        } else {
+            res.json({ success: false, message: "Invalid Cradintials" })
         }
     } catch (error) {
         console.error(error);

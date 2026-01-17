@@ -57,7 +57,7 @@ const Orders = () => {
       const response = await axios.post(
         `${backEndURL}/api/order/userorders`,
         {},
-        { headers: { token } }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (response.data.success) {
@@ -118,9 +118,11 @@ const Orders = () => {
         {orderData.map((item, index) => {
           const returnDate = calculateFinalDate(item.date, item.duration); // Use item.duration instead of item.quantity
 
-          // Calculate total price
+          // Calculate total price with null checks
+          const itemDuration = item.duration || 1;
+          const itemRentalPrice = item.rental_price || 0;
           const washingFee = item.washingFee || 0;
-          const totalPrice = item.rental_price * item.duration + item.deliveryFee + washingFee;
+          const totalPrice = itemRentalPrice * itemDuration + item.deliveryFee + washingFee;
 
           return (
             <div key={index} className="bg-white shadow-lg rounded-lg p-6 flex flex-col justify-between">
@@ -175,13 +177,12 @@ const Orders = () => {
               <div className="mt-4 flex flex-col sm:flex-row justify-between items-center">
                 <div className="flex items-center gap-2">
                   <p
-                    className={`min-w-2 h-2 rounded-full ${
-                      item.status === 'Delivered'
+                    className={`min-w-2 h-2 rounded-full ${item.status === 'Delivered'
                         ? 'bg-green-500'
                         : item.status === 'Pending'
-                        ? 'bg-yellow-500'
-                        : 'bg-red-500'
-                    }`}
+                          ? 'bg-yellow-500'
+                          : 'bg-red-500'
+                      }`}
                   />
                   <p className="text-sm font-medium text-gray-700">{item.status}</p>
                 </div>

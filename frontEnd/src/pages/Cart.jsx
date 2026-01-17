@@ -4,7 +4,7 @@ import Title from "../components/Title";
 import CartTotal from "../components/CartTotal";
 
 const Cart = () => {
-  const { products, currency, cartItems, updateQuantity, navigate } =
+  const { products, currency, cartItems, updateDuration, navigate } =
     useContext(ShopContext);
 
   const [cartData, setCartData] = useState([]);
@@ -18,7 +18,7 @@ const Cart = () => {
             tempData.push({
               _id: items,
               size: item,
-              quantity: cartItems[items][item],
+              duration: cartItems[items][item],
             });
           }
         }
@@ -75,16 +75,16 @@ const Cart = () => {
                     onChange={(e) =>
                       e.target.value === "" || e.target.value === "0"
                         ? null
-                        : updateQuantity(
-                            item._id,
-                            item.size,
-                            Number(e.target.value)
-                          )
+                        : updateDuration(
+                          item._id,
+                          item.size,
+                          Number(e.target.value)
+                        )
                     }
                     className="border w-16 text-center px-2 py-1 rounded-lg shadow-sm"
                     type="number"
                     min={1}
-                    defaultValue={item.quantity}
+                    defaultValue={item.duration}
                   />
                   <span className="text-gray-700 text-sm font-medium">days</span>
                 </div>
@@ -93,7 +93,7 @@ const Cart = () => {
               {/* Remove Button */}
               <div className="text-center mt-2 sm:mt-0">
                 <p
-                  onClick={() => updateQuantity(item._id, item.size, 0)}
+                  onClick={() => updateDuration(item._id, item.size, 0)}
                   className="bg-red-100 text-red-500 cursor-pointer hover:bg-red-500 hover:text-white transition-colors duration-200 rounded-md px-3 py-1 text-sm sm:text-base"
                 >
                   Remove
@@ -121,16 +121,16 @@ const Cart = () => {
           </div>
         </div>
       )}
-       {/* Contract & Delivery Process */}
-<div className="mt-8 p-5 border-2 border-red-500 bg-red-100 rounded-lg">
-  <h2 className="text-xl font-bold  text-red-700">Important Note: Contract & Delivery Process</h2>
-  <ul className="list-disc pl-5 text-gray-700 mt-2">
-    <li>Users sign a contract upon delivery stating they will comply with policies.</li>
-    <li>Delivery personnel verify product condition with video/photo proof.</li>
-    <li><strong>Open Box Delivery:</strong> The product is checked at the time of delivery.</li>
-    <li>User must provide a photo with the product or valid ID as proof of receipt.</li>
-  </ul>
-</div>
+      {/* Contract & Delivery Process */}
+      <div className="mt-8 p-5 border-2 border-red-500 bg-red-100 rounded-lg">
+        <h2 className="text-xl font-bold  text-red-700">Important Note: Contract & Delivery Process</h2>
+        <ul className="list-disc pl-5 text-gray-700 mt-2">
+          <li>Users sign a contract upon delivery stating they will comply with policies.</li>
+          <li>Delivery personnel verify product condition with video/photo proof.</li>
+          <li><strong>Open Box Delivery:</strong> The product is checked at the time of delivery.</li>
+          <li>User must provide a photo with the product or valid ID as proof of receipt.</li>
+        </ul>
+      </div>
     </div>
   );
 };

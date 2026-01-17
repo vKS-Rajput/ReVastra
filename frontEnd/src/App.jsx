@@ -36,28 +36,40 @@ const App = () => {
     <div className='px-0'>
       <NavBar />
       <SearchBar />
-      <ToastContainer />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        limit={3}
+        toastId="unique-toast"
+      />
 
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/collection' element={<Collection />} />
-        <Route path='/lend' element={<Lend token={token} />} />
+        <Route path='/lend' element={<Lend />} />
         <Route path='/about' element={<About />} />
         <Route path='/contact' element={<Contact />} />
         <Route path='/cart' element={<Cart />} />
         <Route path='/orders' element={<Orders />} />
-        <Route path='/profile' element={<Profile/>}/>
-        <Route path='/my_earning' element={<Earning/>} />
+        <Route path='/profile' element={<Profile />} />
+        <Route path='/my_earning' element={<Earning />} />
         <Route path='/product/:productId' element={<Product />} />
         <Route path='/signIn' element={<SignIn />} />
-        <Route path='/ourPolicy' element={<OurPolicy/>}/>
+        <Route path='/ourPolicy' element={<OurPolicy />} />
         <Route path='/placeorder' element={<PlaceOrder />} />
-        <Route path='/myProducts' element={<MyProducts/>}/>
+        <Route path='/myProducts' element={<MyProducts />} />
       </Routes>
-      
+
 
       <Footer />
-   
+
     </div>
   )
 }

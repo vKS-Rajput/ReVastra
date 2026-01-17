@@ -21,7 +21,7 @@ const ShopContextProvider = ({ children }) => {
         const storedValue = localStorage.getItem("includeWashing");
         return storedValue && storedValue !== "undefined" ? JSON.parse(storedValue) : false;
     });
-    
+
     const navigate = useNavigate();
 
     // Toggle washing fee
@@ -40,7 +40,7 @@ const ShopContextProvider = ({ children }) => {
         }
 
         setCartItems((prev) => {
-            const updatedCart = { ...prev, [itemId]: { ...prev[itemId], [size]: (prev[itemId]?.[size] || 0) + 1 }};
+            const updatedCart = { ...prev, [itemId]: { ...prev[itemId], [size]: (prev[itemId]?.[size] || 0) + 1 } };
             return updatedCart;
         });
 
@@ -59,29 +59,29 @@ const ShopContextProvider = ({ children }) => {
     }, [token, backEndURL]);
 
     // Get cart item count
-    const getCartCount = useCallback(() => 
+    const getCartCount = useCallback(() =>
         Object.values(cartItems).reduce(
             (total, sizes) => total + Object.values(sizes).reduce((sum, qty) => sum + qty, 0),
             0
         ), [cartItems]);
 
-    // Update quantity
-    const updateQuantity = useCallback(async (itemId, size, quantity) => {
-        setCartItems((prev) => ({ ...prev, [itemId]: { ...prev[itemId], [size]: quantity }}));
+    // Update duration (rental days)
+    const updateDuration = useCallback(async (itemId, size, duration) => {
+        setCartItems((prev) => ({ ...prev, [itemId]: { ...prev[itemId], [size]: duration } }));
 
         if (token) {
             try {
-                await axios.post(`${backEndURL}/api/cart/update`, { itemId, size, quantity }, {
+                await axios.post(`${backEndURL}/api/cart/update`, { itemId, size, duration }, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
             } catch (error) {
-                toast.error(error.message || "Failed to update quantity.");
+                toast.error(error.message || "Failed to update duration.");
             }
         }
     }, [token, backEndURL]);
 
     // Calculate total cart amount
-    const getCartAmount = useCallback(() => 
+    const getCartAmount = useCallback(() =>
         Object.entries(cartItems).reduce((total, [itemId, sizes]) => {
             const item = products.find(product => product._id === itemId);
             return item ? total + Object.values(sizes).reduce((sum, qty) => sum + (item.rental_price * qty), 0) : total;
@@ -114,23 +114,23 @@ const ShopContextProvider = ({ children }) => {
     // Fetch user profile
     const fetchUserProfile = useCallback(async () => {
         if (!token) return;
-    
+
         try {
             console.log("Fetching profile from:", `${backEndURL}/api/user/profile`);
             const { data } = await axios.get(`${backEndURL}/api/user/profile`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-    
+
             if (data.success) {
                 setUser(data.user);
                 localStorage.setItem("user", JSON.stringify(data.user));
-            } 
+            }
         } catch (error) {
             console.error("Profile fetch error:", error.response?.data || error.message);
             toast.error("⚠️ Error fetching profile.");
         }
     }, [token, backEndURL]);
-    
+
 
     // Logout function
     const logout = () => {
@@ -153,7 +153,7 @@ const ShopContextProvider = ({ children }) => {
         } else {
             localStorage.removeItem("user"); // Clean up invalid values
         }
-        
+
 
         if (storedToken) {
             setToken(storedToken);
@@ -179,7 +179,7 @@ const ShopContextProvider = ({ children }) => {
         addToCart,
         backEndURL,
         getCartCount,
-        updateQuantity,
+        updateDuration,
         setToken,
         token,
         user,
@@ -190,8 +190,8 @@ const ShopContextProvider = ({ children }) => {
         toggleWashingFee,
         fetchUserProfile,
         logout,
-    }), [products, currency, delivery_fee, search, showSearch, cartItems, addToCart, backEndURL, getCartAmount, getCartCount, updateQuantity, token, user, washingFee, navigate, includeWashing, toggleWashingFee, fetchUserProfile, logout]);
-    
+    }), [products, currency, delivery_fee, search, showSearch, cartItems, addToCart, backEndURL, getCartAmount, getCartCount, updateDuration, token, user, washingFee, navigate, includeWashing, toggleWashingFee, fetchUserProfile, logout]);
+
     return <ShopContext.Provider value={value}>{children}</ShopContext.Provider>;
 };
 

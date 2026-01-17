@@ -45,7 +45,7 @@ const PlaceOrder = () => {
             );
             if (itemInfo) {
               itemInfo.size = item;
-              itemInfo.quantity = cartItems[items][item];
+              itemInfo.duration = cartItems[items][item];
               orderItems.push(itemInfo);
             }
           }
@@ -59,7 +59,7 @@ const PlaceOrder = () => {
       };
 
       switch (method) {
-        case "cod":
+        case "cod": {
           const response = await axios.post(
             backEndURL + "/api/order/place",
             orderData,
@@ -71,8 +71,9 @@ const PlaceOrder = () => {
             toast.error(response.data.message);
           }
           break;
+        }
 
-        case "razorpay":
+        case "razorpay": {
           const responseRazorpay = await axios.post(
             backEndURL + "/api/order/razorpay",
             orderData,
@@ -82,6 +83,7 @@ const PlaceOrder = () => {
             initPay(responseRazorpay.data.order);
           }
           break;
+        }
 
         default:
           break;
@@ -181,9 +183,8 @@ const PlaceOrder = () => {
             <div
               key={option.id}
               onClick={() => setMethod(option.id)}
-              className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer shadow-sm transition-transform transform hover:scale-105 w-full ${
-                method === option.id ? "border-[#E63946] bg-blue-50" : "border-gray-300"
-              }`}
+              className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer shadow-sm transition-transform transform hover:scale-105 w-full ${method === option.id ? "border-[#E63946] bg-blue-50" : "border-gray-300"
+                }`}
             >
               <span className={`w-4 h-4 border rounded-full flex items-center justify-center ${method === option.id ? "bg-[#E63946]" : ""}`}></span>
               {option.logo ? <img className="h-6" src={option.logo} alt={option.label} /> : <p className="text-sm font-medium">{option.label}</p>}

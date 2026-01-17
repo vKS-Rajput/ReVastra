@@ -58,7 +58,7 @@ const Orders = ({ token }) => {
       if (response.data.success) {
         const updatedOrders = response.data.orders.reverse().map(order => {
           order.items.forEach(item => {
-            const expirationDate = calculateExpirationDate(order.date, item.quantity);
+            const expirationDate = calculateExpirationDate(order.date, item.duration || 1);
             if (new Date() >= expirationDate) {
               item.status = 'Date Over';
             }
@@ -152,14 +152,14 @@ const Orders = ({ token }) => {
                     Return Date:{' '}
                     <strong>
                       {new Date(
-                        calculateExpirationDate(order.date, order.items[0].quantity)
+                        calculateExpirationDate(order.date, order.items[0]?.duration || 1)
                       ).toLocaleDateString()}
                     </strong>
                   </p>
                 )}
                 {order.status === 'Delivered' && (
                   <CountdownTimer
-                    returnDateTime={calculateExpirationDate(order.date, order.items[0].quantity)}
+                    returnDateTime={calculateExpirationDate(order.date, order.items[0]?.duration || 1)}
                   />
                 )}
               </div>
@@ -175,7 +175,7 @@ const Orders = ({ token }) => {
                 <div className="space-y-3">
                   {order.items.map((item, itemIndex) => (
                     <div key={itemIndex} className="flex justify-between text-sm text-gray-600">
-                      <span className="font-semibold">{item.quantity} days</span>
+                      <span className="font-semibold">{item.duration || 1} days</span>
                       {item.status === 'Date Over' && (
                         <span className="text-red-500 font-semibold">Date Over</span>
                       )}
