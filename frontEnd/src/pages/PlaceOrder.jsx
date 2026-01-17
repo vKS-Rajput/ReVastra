@@ -53,9 +53,12 @@ const PlaceOrder = () => {
       }
 
       let orderData = {
+        userId: JSON.parse(localStorage.getItem('user'))?._id,
         address: formData,
         items: orderItems,
         amount: getCartAmount() + delivery_fee + washingFee,
+        deliveryFee: delivery_fee,
+        washingFee: washingFee,
       };
 
       switch (method) {
@@ -63,10 +66,12 @@ const PlaceOrder = () => {
           const response = await axios.post(
             backEndURL + "/api/order/place",
             orderData,
-            { headers: { token } }
+            { headers: { Authorization: `Bearer ${token}` } }
           );
           if (response.data.success) {
+            setCartItems({});
             navigate("/orders");
+            toast.success("Order placed successfully!");
           } else {
             toast.error(response.data.message);
           }
@@ -74,14 +79,8 @@ const PlaceOrder = () => {
         }
 
         case "razorpay": {
-          const responseRazorpay = await axios.post(
-            backEndURL + "/api/order/razorpay",
-            orderData,
-            { headers: { token } }
-          );
-          if (responseRazorpay.data.success) {
-            initPay(responseRazorpay.data.order);
-          }
+          // Razorpay is not configured yet
+          toast.error("Razorpay payment is not available yet. Please use Cash on Delivery.");
           break;
         }
 

@@ -11,8 +11,24 @@ const ShopContextProvider = ({ children }) => {
     const washingFee = 25;
     const backEndURL = import.meta.env.VITE_BACKEND_URL;
 
-    const [token, setToken] = useState('');
-    const [user, setUser] = useState(null);
+    // Initialize token from localStorage immediately
+    const [token, setToken] = useState(() => {
+        const storedToken = localStorage.getItem("token");
+        return storedToken && storedToken !== "undefined" && storedToken !== "null" ? storedToken : '';
+    });
+
+    // Initialize user from localStorage immediately
+    const [user, setUser] = useState(() => {
+        const storedUser = localStorage.getItem("user");
+        try {
+            return storedUser && storedUser !== "undefined" && storedUser !== "null"
+                ? JSON.parse(storedUser)
+                : null;
+        } catch {
+            return null;
+        }
+    });
+
     const [search, setSearch] = useState('');
     const [products, setProducts] = useState([]);
     const [showSearch, setShowSearch] = useState(true);
@@ -23,6 +39,20 @@ const ShopContextProvider = ({ children }) => {
     });
 
     const navigate = useNavigate();
+
+    // Sync token to localStorage when it changes
+    useEffect(() => {
+        if (token) {
+            localStorage.setItem("token", token);
+        }
+    }, [token]);
+
+    // Sync user to localStorage when it changes
+    useEffect(() => {
+        if (user) {
+            localStorage.setItem("user", JSON.stringify(user));
+        }
+    }, [user]);
 
     // Toggle washing fee
     const toggleWashingFee = useCallback(() => {
@@ -99,26 +129,28 @@ const ShopContextProvider = ({ children }) => {
     }, [backEndURL]);
 
     // Fetch user cart
-    const getUserCart = useCallback(async () => {
-        if (!token) return;
+    const getUserCart = useCallback(async (authToken) => {
+        const tokenToUse = authToken || token;
+        if (!tokenToUse) return;
         try {
             const { data } = await axios.post(`${backEndURL}/api/cart/get`, {}, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${tokenToUse}` },
             });
-            if (data.success) setCartItems(data.cartData);
+            if (data.success) setCartItems(data.cartData || {});
         } catch (error) {
-            toast.error("⚠️ Error fetching cart.");
+            console.error("Error fetching cart:", error);
         }
     }, [token, backEndURL]);
 
     // Fetch user profile
-    const fetchUserProfile = useCallback(async () => {
-        if (!token) return;
+    const fetchUserProfile = useCallback(async (authToken) => {
+        const tokenToUse = authToken || token;
+        if (!tokenToUse) return;
 
         try {
             console.log("Fetching profile from:", `${backEndURL}/api/user/profile`);
             const { data } = await axios.get(`${backEndURL}/api/user/profile`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${tokenToUse}` },
             });
 
             if (data.success) {
@@ -127,7 +159,14 @@ const ShopContextProvider = ({ children }) => {
             }
         } catch (error) {
             console.error("Profile fetch error:", error.response?.data || error.message);
-            toast.error("⚠️ Error fetching profile.");
+            // Don't show toast for 401 errors on initial load - token might be expired
+            if (error.response?.status === 401) {
+                // Token is invalid, clear it
+                setToken('');
+                setUser(null);
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+            }
         }
     }, [token, backEndURL]);
 
@@ -142,28 +181,18 @@ const ShopContextProvider = ({ children }) => {
         toast.success("Logged out successfully.");
     };
 
-    // Initial fetch: products, token, user, and cart
+    // Initial fetch: products only (token is already loaded from localStorage)
     useEffect(() => {
         getProductData();
+    }, [getProductData]);
 
-        const storedToken = localStorage.getItem("token");
-        const storedUser = localStorage.getItem("user");
-        if (storedUser && storedUser !== "undefined") {
-            setUser(JSON.parse(storedUser));
-        } else {
-            localStorage.removeItem("user"); // Clean up invalid values
+    // Fetch user data when token is available
+    useEffect(() => {
+        if (token) {
+            fetchUserProfile(token);
+            getUserCart(token);
         }
-
-
-        if (storedToken) {
-            setToken(storedToken);
-            if (storedUser && storedUser !== "undefined") {
-                setUser(JSON.parse(storedUser));
-            }
-            fetchUserProfile();
-            getUserCart();
-        }
-    }, [getProductData, fetchUserProfile, getUserCart]);
+    }, [token]);
 
     const value = useMemo(() => ({
         products,
