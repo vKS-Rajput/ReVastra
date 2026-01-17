@@ -18,12 +18,14 @@ const deliveryCharge = 10;
 // Placing Order Using COD Method
 const placeOrder = async (req, res) => {
   try {
-    const { userId, amount, items, address, washingFee, deliveryFee } = req.body;
+    // Get userId from auth middleware or from body (backward compatibility)
+    const userId = req.user?.id || req.body.userId;
+    const { amount, items, address, washingFee, deliveryFee } = req.body;
 
 
     // Ensure required fields are present
     if (!userId || !amount || !items || !address) {
-      return res.json({ success: false, message: "All fields are required." });
+      return res.json({ success: false, message: "All fields are required. Please log in." });
     }
 
     const orderData = {
@@ -67,10 +69,11 @@ const allOrders = async (req, res) => {
 // User Order Data for Frontend
 const userOrder = async (req, res) => {
   try {
-    const { userId } = req.body;
+    // Get userId from auth middleware or from body (backward compatibility)
+    const userId = req.user?.id || req.body.userId;
 
     if (!userId) {
-      return res.json({ success: false, message: "User ID is required." });
+      return res.json({ success: false, message: "User ID is required. Please log in." });
     }
 
     const orders = await orderModel.find({ userId }).select("amount items washingFee deliveryFee paymentMethod date status payment");
