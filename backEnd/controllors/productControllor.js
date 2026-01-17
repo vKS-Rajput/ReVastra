@@ -130,12 +130,8 @@ const myProducts = async (req, res) => {
 
     const products = await productModel.find({ userId });
 
-    if (!products.length) {
-      console.warn("⚠️ No products found for user:", userId);
-      return res.status(404).json({ success: false, message: "No products found" });
-    }
-
-    console.log("✅ Products fetched:", products);
+    // Always return 200 with products array (even if empty)
+    console.log(`✅ Found ${products.length} products for user:`, userId);
     res.json({ success: true, products });
   } catch (error) {
     console.error("❌ Error fetching user's products:", error);
