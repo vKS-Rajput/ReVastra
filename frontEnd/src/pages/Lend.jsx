@@ -6,7 +6,7 @@ import { Upload, CheckCircle, ChevronRight, ChevronLeft, MapPin, Phone, Info, Do
 import Title from '../components/Title';
 
 const Lend = () => {
-  const { token, backEndURL, navigate } = useContext(ShopContext);
+  const { token, backEndURL, navigate, user } = useContext(ShopContext);
 
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -62,6 +62,14 @@ const Lend = () => {
       images.forEach(image => image && URL.revokeObjectURL(URL.createObjectURL(image)));
     };
   }, []);
+
+  // Check if user is a seller - redirect to become-seller if not
+  useEffect(() => {
+    if (token && user && !user.isSeller) {
+      toast.info("You need to become a seller first to list products!");
+      navigate('/become-seller');
+    }
+  }, [token, user, navigate]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;

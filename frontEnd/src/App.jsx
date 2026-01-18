@@ -41,7 +41,7 @@ const App = () => {
   }, [token])
 
   return (
-    <div className='px-0 min-h-screen flex flex-col bg-neutral-50 dark:bg-neutral-950 text-neutral-800 dark:text-neutral-200'>
+    <div className='px-0 min-h-screen flex flex-col bg-neutral-50 dark:bg-neutral-950 text-neutral-800 dark:text-neutral-200 pt-20'>
       <NavBar />
       <SearchBar />
       <ToastContainer

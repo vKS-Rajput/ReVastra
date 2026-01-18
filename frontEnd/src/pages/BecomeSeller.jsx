@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -6,10 +6,18 @@ import { useNavigate } from 'react-router-dom';
 import { CheckCircle, Store, User, CreditCard } from 'lucide-react';
 
 const BecomeSeller = () => {
-    const { token, backEndURL, setUser } = useContext(ShopContext);
+    const { token, backEndURL, setUser, user, fetchUserProfile } = useContext(ShopContext);
     const navigate = useNavigate();
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
+
+    // Check if user is already a seller
+    useEffect(() => {
+        if (user?.isSeller) {
+            toast.info("You're already a seller! Redirecting to list a product.");
+            navigate('/lend');
+        }
+    }, [user, navigate]);
 
     const [formData, setFormData] = useState({
         // Personal/Address
@@ -80,13 +88,9 @@ const BecomeSeller = () => {
             );
 
             if (response.data.success) {
-                toast.success(response.data.message);
-                // Update local user context if possible, or force re-fetch
-                // Assuming setUser can handle partial updates or we just redirect
-                if (response.data.user) {
-                    // setUser(response.data.user); // Uncomment if context supports this
-                }
-                navigate('/my-profile');
+                toast.success("🎉 You're now a seller! Start listing your items.");
+                await fetchUserProfile(token); // Refresh user data with seller status
+                navigate('/lend');
             } else {
                 toast.error(response.data.message);
             }

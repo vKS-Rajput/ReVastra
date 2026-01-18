@@ -99,7 +99,10 @@ const NavBar = () => {
             {token && (
               <div className="group-hover:block hidden absolute dropdown-menu right-0 pt-4">
                 <div className="flex flex-col gap-2 w-48 py-3 px-4 bg-white text-neutral-600 rounded-xl shadow-medium border border-neutral-100">
-                  <p className="cursor-pointer hover:text-primary-500 font-medium transition-colors flex items-center gap-2">
+                  <p
+                    onClick={() => navigate("/profile")}
+                    className="cursor-pointer hover:text-primary-500 font-medium transition-colors flex items-center gap-2"
+                  >
                     <User size={16} /> My Profile
                   </p>
                   <p
@@ -210,9 +213,15 @@ const NavBar = () => {
 
           {/* Mobile Footer Area */}
           <div className="mt-auto p-6 bg-neutral-50 border-t border-neutral-100">
-            <Link to="/login" onClick={() => setVisible(false)} className="btn-primary w-full block text-center">
-              {token ? "My Profile" : "Login / Sign Up"}
-            </Link>
+            {token ? (
+              <Link to="/profile" onClick={() => setVisible(false)} className="btn-primary w-full block text-center">
+                My Profile
+              </Link>
+            ) : (
+              <Link to="/login" onClick={() => setVisible(false)} className="btn-primary w-full block text-center">
+                Login / Sign Up
+              </Link>
+            )}
           </div>
         </div>
       </div>
