@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Hero = () => {
@@ -67,45 +66,30 @@ const Hero = () => {
           </button>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-8 max-w-lg mx-auto">
-          <div className="text-center">
-            <div className="text-3xl sm:text-4xl font-bold text-white mb-1">500+</div>
-            <div className="text-gray-400 text-sm">Active Listings</div>
-          </div>
-          <div className="text-center border-x border-white/10">
-            <div className="text-3xl sm:text-4xl font-bold text-white mb-1">50+</div>
-            <div className="text-gray-400 text-sm">Happy Renters</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl sm:text-4xl font-bold text-white mb-1">₹15K+</div>
-            <div className="text-gray-400 text-sm">Saved by Users</div>
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
+          <span className="text-white/50 text-xs">Scroll to explore</span>
+          <svg className="w-5 h-5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </div>
+
+        {/* Floating Fashion Cards (decorative) */}
+        <div className="hidden lg:block absolute top-1/4 left-10 w-32 h-40 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-2xl border border-white/10 transform -rotate-12 hover:rotate-0 transition-transform duration-500">
+          <div className="p-3">
+            <div className="w-full h-24 bg-gradient-to-br from-red-400/30 to-pink-400/30 rounded-lg mb-2"></div>
+            <div className="h-2 bg-white/20 rounded w-3/4"></div>
+            <div className="h-2 bg-white/10 rounded w-1/2 mt-1"></div>
           </div>
         </div>
-      </div>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
-        <span className="text-white/50 text-xs">Scroll to explore</span>
-        <svg className="w-5 h-5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-        </svg>
-      </div>
-
-      {/* Floating Fashion Cards (decorative) */}
-      <div className="hidden lg:block absolute top-1/4 left-10 w-32 h-40 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-2xl border border-white/10 transform -rotate-12 hover:rotate-0 transition-transform duration-500">
-        <div className="p-3">
-          <div className="w-full h-24 bg-gradient-to-br from-red-400/30 to-pink-400/30 rounded-lg mb-2"></div>
-          <div className="h-2 bg-white/20 rounded w-3/4"></div>
-          <div className="h-2 bg-white/10 rounded w-1/2 mt-1"></div>
-        </div>
-      </div>
-
-      <div className="hidden lg:block absolute bottom-1/4 right-10 w-32 h-40 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-2xl border border-white/10 transform rotate-12 hover:rotate-0 transition-transform duration-500">
-        <div className="p-3">
-          <div className="w-full h-24 bg-gradient-to-br from-purple-400/30 to-indigo-400/30 rounded-lg mb-2"></div>
-          <div className="h-2 bg-white/20 rounded w-3/4"></div>
-          <div className="h-2 bg-white/10 rounded w-1/2 mt-1"></div>
+        <div className="hidden lg:block absolute bottom-1/4 right-10 w-32 h-40 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-2xl border border-white/10 transform rotate-12 hover:rotate-0 transition-transform duration-500">
+          <div className="p-3">
+            <div className="w-full h-24 bg-gradient-to-br from-purple-400/30 to-indigo-400/30 rounded-lg mb-2"></div>
+            <div className="h-2 bg-white/20 rounded w-3/4"></div>
+            <div className="h-2 bg-white/10 rounded w-1/2 mt-1"></div>
+          </div>
         </div>
       </div>
     </div>
