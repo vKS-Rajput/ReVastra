@@ -1,232 +1,226 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { assets } from '../assets/assets';
-import { ShopContext } from '../context/ShopContext';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Home,
-  ShoppingBag,
-  DollarSign,
-  Phone,
-  User,
-  LogOut,
-  PlusCircle,
-  Info,
-  FileText,
-  Package,
-} from 'lucide-react';
+import React, { useContext, useState, useEffect } from "react";
+import { Link, NavLink } from "react-router-dom";
+import { ShopContext } from "../context/ShopContext";
+import { assets } from "../assets/assets";
+import { Search, ShoppingBag, User, Menu, X, LogOut, Heart, Store, Package } from "lucide-react";
+import ThemeToggle from "./ThemeToggle";
 
 const NavBar = () => {
-  const [isProfileDropdownVisible, setProfileDropdownVisible] = useState(false);
-  const { getCartCount, token, setToken, setCartItems } = useContext(ShopContext);
-  const navigate = useNavigate();
+  const [visible, setVisible] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const {
+    showSearch,
+    setShowSearch,
+    getCartCount,
+    navigate,
+    token,
+    setToken,
+    setCartItems,
+    wishlist
+  } = useContext(ShopContext);
 
   const logout = () => {
-    localStorage.removeItem('token');
-    setToken('');
+    navigate("/login");
+    localStorage.removeItem("token");
+    setToken("");
     setCartItems({});
-    navigate('/signIn');
   };
 
-  const toggleProfileDropdown = () => setProfileDropdownVisible((prev) => !prev);
-
+  // Handle scroll effect for glassmorphism
   useEffect(() => {
-    const handleOutsideClick = (e) => {
-      if (!e.target.closest('.profile-dropdown') && !e.target.closest('.profile-icon')) {
-        setProfileDropdownVisible(false);
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
       }
     };
-    if (isProfileDropdownVisible) document.addEventListener('click', handleOutsideClick);
-    return () => document.removeEventListener('click', handleOutsideClick);
-  }, [isProfileDropdownVisible]);
 
-  const navLinks = [
-    { name: 'Home', path: '/', icon: <Home size={20} /> },
-    { name: 'Borrow', path: '/collection', icon: <ShoppingBag size={20} /> },
-    { name: 'My Products', path: '/myProducts', icon: <Package size={20} />, requiresAuth: true },
-    { name: 'Orders', path: '/orders', icon: <ShoppingBag size={20} />, requiresAuth: true },
-    
-  ];
-  
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md">
-      {/* Top Navbar for Large Screens */}
-      <div className="hidden sm:flex justify-between items-center py-3 px-4 sm:px-10">
-        <Link to="/" className="flex items-center">
-          <img src={assets.logo} className="w-20 sm:w-24" alt="ReVastra Logo" />
+    <div
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${scrolled ? "bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md shadow-sm py-3" : "bg-transparent py-5"
+        }`}
+    >
+      <div className="container-custom flex items-center justify-between font-medium">
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-2 group">
+          <img src={assets.logo} className="w-10 transition-transform duration-300 group-hover:scale-110" alt="Logo" />
+          <span className="text-2xl font-decorative font-bold bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent">
+            ReVastra
+          </span>
         </Link>
 
-        <div className="flex gap-6 items-center">
-          {navLinks.map((link) => (
+        {/* Desktop Navigation */}
+        <ul className="hidden sm:flex gap-8 text-neutral-600 dark:text-neutral-300">
+          {["HOME", "COLLECTION", "LEND", "ABOUT", "CONTACT"].map((item) => (
             <NavLink
-              key={link.name}
-              to={link.requiresAuth && !token ? '/signin' : link.path}
+              key={item}
+              to={item === "HOME" ? "/" : `/${item.toLowerCase()}`}
               className={({ isActive }) =>
-                `flex items-center gap-1 text-sm ${isActive ? 'text-black font-semibold' : 'text-gray-600 hover:text-black'}`
+                `flex flex-col items-center gap-1 text-sm font-semibold tracking-wide transition-colors duration-300 ${isActive ? "text-primary-600" : "hover:text-primary-500"
+                }`
               }
             >
-              {link.icon}
-              <span>{link.name}</span>
+              <p>{item}</p>
+              <hr
+                className={`w-2/4 border-none h-[2px] bg-primary-500 rounded-full transition-all duration-300 ${"hidden"
+                  }`}
+              />
             </NavLink>
           ))}
-        </div>
+        </ul>
 
-        <div className="flex items-center gap-4">
-          <Link to="/cart" className="relative">
-            <ShoppingBag size={24} className="text-gray-700" />
-            <span className="absolute -top-2 -right-2 w-5 h-5 text-xs font-semibold flex items-center justify-center bg-red-500 text-white rounded-full">
+        {/* Icons Section */}
+        <div className="flex items-center gap-5">
+          {/* Theme Toggle */}
+          <ThemeToggle />
+
+          {/* Search Icon */}
+          <button
+            onClick={() => setShowSearch(!showSearch)}
+            className="text-neutral-700 hover:text-primary-500 transition-colors"
+          >
+            <Search size={22} strokeWidth={2} />
+          </button>
+
+          {/* User Profile */}
+          <div className="group relative">
+            {token ? (
+              <button className="text-neutral-700 hover:text-primary-500 transition-colors pt-1">
+                <User size={22} strokeWidth={2} />
+              </button>
+            ) : (
+              <Link to="/login" className="text-neutral-700 hover:text-primary-500 transition-colors">
+                <User size={22} strokeWidth={2} />
+              </Link>
+            )}
+
+            {/* Dropdown Menu */}
+            {token && (
+              <div className="group-hover:block hidden absolute dropdown-menu right-0 pt-4">
+                <div className="flex flex-col gap-2 w-48 py-3 px-4 bg-white text-neutral-600 rounded-xl shadow-medium border border-neutral-100">
+                  <p className="cursor-pointer hover:text-primary-500 font-medium transition-colors flex items-center gap-2">
+                    <User size={16} /> My Profile
+                  </p>
+                  <p
+                    onClick={() => navigate("/become-seller")}
+                    className="cursor-pointer hover:text-primary-500 font-medium transition-colors flex items-center gap-2"
+                  >
+                    <Store size={16} /> Become Seller
+                  </p>
+                  <p
+                    onClick={() => navigate("/seller-orders")}
+                    className="cursor-pointer hover:text-primary-500 font-medium transition-colors flex items-center gap-2"
+                  >
+                    <Package size={16} /> Incoming Orders
+                  </p>
+                  <p
+                    onClick={() => navigate("/orders")}
+                    className="cursor-pointer hover:text-primary-500 font-medium transition-colors flex items-center gap-2"
+                  >
+                    <ShoppingBag size={16} /> Orders
+                  </p>
+                  <p
+                    onClick={() => navigate("/myproducts")}
+                    className="cursor-pointer hover:text-primary-500 font-medium transition-colors flex items-center gap-2"
+                  >
+                    <ShoppingBag size={16} /> My Products
+                  </p>
+                  <p
+                    onClick={() => navigate("/earning")}
+                    className="cursor-pointer hover:text-primary-500 font-medium transition-colors flex items-center gap-2"
+                  >
+                    <ShoppingBag size={16} /> My Earning
+                  </p>
+
+                  <div className="h-[1px] bg-neutral-100 my-1"></div>
+
+                  <p
+                    onClick={logout}
+                    className="cursor-pointer text-red-500 hover:text-red-600 font-medium transition-colors flex items-center gap-2"
+                  >
+                    <LogOut size={16} /> Logout
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Wishlist Icon */}
+          <Link to="/wishlist" className="relative text-neutral-700 dark:text-neutral-300 hover:text-primary-500 dark:hover:text-primary-400 transition-colors">
+            <Heart size={22} strokeWidth={2} />
+            {wishlist.length > 0 && (
+              <span className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white dark:border-neutral-900 shadow-sm">
+                {wishlist.length}
+              </span>
+            )}
+          </Link>
+
+          {/* Cart Icon */}
+          <Link to="/cart" className="relative text-neutral-700 dark:text-neutral-300 hover:text-primary-500 dark:hover:text-primary-400 transition-colors">
+            <ShoppingBag size={22} strokeWidth={2} />
+            <span className="absolute -top-2 -right-2 w-5 h-5 bg-primary-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white dark:border-neutral-900 shadow-sm">
               {getCartCount()}
             </span>
           </Link>
 
-          <div
-            className="relative profile-icon cursor-pointer"
-            onClick={() => (token ? toggleProfileDropdown() : navigate('/signin'))}
+          {/* Mobile Menu Icon */}
+          <button
+            onClick={() => setVisible(true)}
+            className="sm:hidden text-neutral-700 dark:text-neutral-300 hover:text-primary-500 transition-colors"
           >
-            <img className="w-5 rounded-full" src={assets.profile_icon} alt="Profile" />
-            <AnimatePresence>
-              {token && isProfileDropdownVisible && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-lg profile-dropdown"
+            <Menu size={24} />
+          </button>
+        </div>
+
+        {/* Mobile Sidebar Menu */}
+        <div
+          className={`absolute top-0 right-0 bottom-0 overflow-hidden bg-white/95 backdrop-blur-xl transition-all duration-300 shadow-2xl z-50 ${visible ? "w-full" : "w-0"
+            }`}
+        >
+          <div className="flex flex-col text-neutral-600 h-full">
+            <div
+              onClick={() => setVisible(false)}
+              className="flex items-center gap-4 p-5 cursor-pointer border-b border-neutral-100 hover:bg-neutral-50 transition-colors"
+            >
+              <div className="h-8 w-8 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-500">
+                <X size={20} />
+              </div>
+              <p className="font-semibold text-lg">Back</p>
+            </div>
+
+            <div className="flex flex-col p-4 gap-2">
+              {["HOME", "COLLECTION", "LEND", "ABOUT", "CONTACT"].map((item) => (
+                <NavLink
+                  key={item}
+                  onClick={() => setVisible(false)}
+                  to={item === "HOME" ? "/" : `/${item.toLowerCase()}`}
+                  className={({ isActive }) =>
+                    `py-4 px-6 border rounded-lg text-lg font-medium transition-all duration-200 ${isActive
+                      ? "bg-primary-50 border-primary-100 text-primary-600"
+                      : "border-transparent hover:bg-neutral-50"
+                    }`
+                  }
                 >
-                  <div className="py-3 px-4 text-gray-600 space-y-3">
-                    <button onClick={() => navigate('/profile')} className="flex items-center gap-2 hover:text-black">
-                      <User size={18} /> My Profile
-                    </button>
-                    <button onClick={() => navigate('/lend')} className="flex items-center gap-2 hover:text-black">
-                      <PlusCircle size={18} /> Upload Product
-                    </button>
-                    <button onClick={() => navigate('/myProducts')} className="flex items-center gap-2 hover:text-black">
-                      <Package size={18} /> My Products
-                    </button>
-                    <button onClick={() => navigate('/orders')} className="flex items-center gap-2 hover:text-black">
-                      <ShoppingBag size={18} /> Orders
-                    </button>
-                    <button onClick={() => navigate('/my_earning')} className="flex items-center gap-2 hover:text-black">
-                      <DollarSign size={18} /> My Earning
-                    </button>
-                    <button onClick={() => navigate('/about')} className="flex items-center gap-2 hover:text-black">
-                      <Info size={18} /> About
-                    </button>
-                    <button onClick={() => navigate('/ourPolicy')} className="flex items-center gap-2 hover:text-black">
-                      <FileText size={18} /> Policy
-                    </button>
-                    <button onClick={() => navigate('/contact')} className="flex items-center gap-2 hover:text-black">
-                      <Phone size={18} /> Contact
-                    </button>
-                    <hr className="border-gray-200" />
-                    <button onClick={logout} className="flex items-center gap-2 text-red-500 hover:text-red-600">
-                      <LogOut size={18} /> Logout
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  {item}
+                </NavLink>
+              ))}
+            </div>
+
+            {/* Mobile Footer Area */}
+            <div className="mt-auto p-6 bg-neutral-50 border-t border-neutral-100">
+              <Link to="/login" onClick={() => setVisible(false)} className="btn-primary w-full block text-center">
+                {token ? "My Profile" : "Login / Sign Up"}
+              </Link>
+            </div>
           </div>
         </div>
       </div>
-
-      {/* Mobile Top Navbar */}
-      <div className="sm:hidden flex justify-between items-center py-4 px-4 border-b border-gray-200">
-        <Link to="/" className="flex items-center">
-          <img src={assets.logo} className="w-20" alt="ReVastra Logo" />
-        </Link>
-        <div className="flex items-center gap-4">
-          <Link to="/cart" className="relative">
-            <ShoppingBag size={24} className="text-gray-700" />
-            <span className="absolute -top-2 -right-2 w-5 h-5 text-xs font-semibold flex items-center justify-center bg-red-500 text-white rounded-full">
-              {getCartCount()}
-            </span>
-          </Link>
-          <div
-            className="relative profile-icon cursor-pointer"
-            onClick={() => (token ? toggleProfileDropdown() : navigate('/signin'))}
-          >
-            <img className="w-6 rounded-none" src={assets.profile_icon} alt="Profile" />
-            <AnimatePresence>
-              {token && isProfileDropdownVisible && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-lg profile-dropdown"
-                >
-                  <div className="py-3 px-4 text-gray-600 space-y-3">
-                    <button onClick={() => navigate('/profile')} className="flex items-center gap-2 hover:text-black">
-                      <User size={18} /> My Profile
-                    </button>
-                    <button onClick={() => navigate('/myProducts')} className="flex items-center gap-2 hover:text-black">
-                      <Package size={18} /> My Products
-                    </button>
-                    <button onClick={() => navigate('/orders')} className="flex items-center gap-2 hover:text-black">
-                      <ShoppingBag size={18} /> Orders
-                    </button>
-                    <button onClick={() => navigate('/my_earning')} className="flex items-center gap-2 hover:text-black">
-                      <DollarSign size={18} /> My Earning
-                    </button>
-                    <button onClick={() => navigate('/about')} className="flex items-center gap-2 hover:text-black">
-                      <Info size={18} /> About
-                    </button>
-                    <button onClick={() => navigate('/ourPolicy')} className="flex items-center gap-2 hover:text-black">
-                      <FileText size={18} /> Policy
-                    </button>
-                    <button onClick={() => navigate('/contact')} className="flex items-center gap-2 hover:text-black">
-                      <Phone size={18} /> Contact
-                    </button>
-                    <hr className="border-gray-200" />
-                    <button onClick={logout} className="flex items-center gap-2 text-red-500 hover:text-red-600">
-                      <LogOut size={18} /> Logout
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Bottom Navigation */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-70 bg-white border-t border-gray-200 py-5 shadow-lg">
-        <div className="flex justify-between items-center px-6 relative">
-          {navLinks.slice(0, 3).map((link) => (
-            <NavLink
-              key={link.name}
-              to={link.requiresAuth && !token ? '/signin' : link.path}
-              className={({ isActive }) =>
-                `flex flex-col items-center text-xs ${isActive ? 'text-black font-semibold' : 'text-gray-600'}`
-              }
-            >
-              {link.icon}
-            </NavLink>
-          ))}
-
-          <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-4">
-            <Link
-              to="/lend"
-              className="flex flex-col items-center bg-black text-white p-4 rounded-full shadow-lg"
-            >
-              <PlusCircle size={28} />
-            </Link>
-          </div>
-
-          {navLinks.slice(2).map((link) => (
-            <NavLink
-              key={link.name}
-              to={link.requiresAuth && !token ? '/signin' : link.path}
-              className={({ isActive }) =>
-                `flex flex-col items-center text-xs ${isActive ? 'text-black font-semibold' : 'text-gray-600'}`
-              }
-            >
-              {link.icon}
-            </NavLink>
-          ))}
-        </div>
-      </div>
-    </nav>
+    </div>
   );
 };
 

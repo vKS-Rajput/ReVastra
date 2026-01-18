@@ -2,38 +2,39 @@ import React, { useContext, useEffect, useState } from 'react';
 import { toast } from "react-toastify";
 import axios from "axios";
 import { ShopContext } from '../context/ShopContext';
+import { Upload, CheckCircle, ChevronRight, ChevronLeft, MapPin, Phone, Info, DollarSign } from 'lucide-react';
+import Title from '../components/Title';
 
 const Lend = () => {
-  const { token, backEndURL } = useContext(ShopContext);
-  const [images, setImages] = useState([false, false, false, false]);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [category, setCategory] = useState("Men");
-  const [subCategory, setSubCategory] = useState("Topwear");
-  const [bestSeller, setBestSeller] = useState(false);
-  const [sizes, setSizes] = useState([]);
-  const [rentalPrice, setRentalPrice] = useState("");
-  const [charge, setCharge] = useState(0);
-  const [pickuplocation, setPickupLocation] = useState("");
-  const [contactno, setContactNo] = useState("");
+  const { token, backEndURL, navigate } = useContext(ShopContext);
+
+  const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    return () => {
-      images.forEach(image => image && URL.revokeObjectURL(image));
-    };
-  }, [images]);
+  // Form State
+  const [images, setImages] = useState([null, null, null, null]);
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    price: "",
+    category: "Men",
+    subCategory: "Topwear",
+    sizes: [],
+    pickuplocation: "",
+    contactno: "",
+    bestSeller: false
+  });
 
-  const onImageChange = (index, file) => {
-    const newImages = [...images];
-    newImages[index] = file;
-    setImages(newImages);
-  };
+  const [pricing, setPricing] = useState({
+    rentalPrice: "",
+    charge: 0,
+    earning: 0
+  });
 
+  // Calculate pricing automatically
   useEffect(() => {
-    if (price) {
-      const priceNum = parseFloat(price);
+    if (formData.price) {
+      const priceNum = parseFloat(formData.price);
       let rentalPercentage = 0.08;
       let chargePercentage = 0.05;
 
@@ -41,238 +42,299 @@ const Lend = () => {
       else if (priceNum > 1500 && priceNum <= 3000) chargePercentage = 0.20;
       else if (priceNum > 3000) chargePercentage = 0.25;
 
-      const calculatedRentalPrice = priceNum * rentalPercentage;
-      const calculatedCharge = calculatedRentalPrice * chargePercentage;
+      const calculatedRentalPrice = (priceNum * rentalPercentage).toFixed(2);
+      const calculatedCharge = (calculatedRentalPrice * chargePercentage).toFixed(2);
+      const calculatedEarning = (calculatedRentalPrice - calculatedCharge).toFixed(2);
 
-      setRentalPrice(calculatedRentalPrice.toFixed(2));
-      setCharge(calculatedCharge.toFixed(2));
+      setPricing({
+        rentalPrice: calculatedRentalPrice,
+        charge: calculatedCharge,
+        earning: calculatedEarning
+      });
     } else {
-      setRentalPrice("");
-      setCharge(0);
+      setPricing({ rentalPrice: "", charge: 0, earning: 0 });
     }
-  }, [price]);
+  }, [formData.price]);
+
+  // Clean up object URLs
+  useEffect(() => {
+    return () => {
+      images.forEach(image => image && URL.revokeObjectURL(URL.createObjectURL(image)));
+    };
+  }, []);
+
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const handleSizeChange = (size) => {
+    setFormData(prev => ({
+      ...prev,
+      sizes: prev.sizes.includes(size)
+        ? prev.sizes.filter(s => s !== size)
+        : [...prev.sizes, size]
+    }));
+  };
+
+  const handleImageChange = (index, file) => {
+    const newImages = [...images];
+    newImages[index] = file;
+    setImages(newImages);
+  };
+
+  const nextStep = () => {
+    if (currentStep === 1) {
+      // Validate Images
+      if (!images.some(img => img)) {
+        toast.error("Please upload at least one image");
+        return;
+      }
+    }
+    if (currentStep === 2) {
+      // Validate Details
+      if (!formData.name || !formData.description || formData.sizes.length === 0) {
+        toast.error("Please fill all details and select a size");
+        return;
+      }
+    }
+    setCurrentStep(prev => prev + 1);
+  };
+
+  const prevStep = () => setCurrentStep(prev => prev - 1);
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     if (isLoading) return;
 
-    if (images.every(image => !image)) {
-      toast.error("Please upload at least one image.");
-      return;
-    }
-
-    if (sizes.length === 0) {
-      toast.error("Please select at least one size.");
+    if (!token) {
+      toast.error("Please login to list a product");
+      navigate('/login');
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const formData = new FormData();
-      formData.append("name", name);
-      formData.append("description", description);
-      formData.append("price", price);
-      formData.append("category", category);
-      formData.append("rental_price", rentalPrice);
-      formData.append("subCategory", subCategory);
-      formData.append("sizes", JSON.stringify(sizes));
-      formData.append("pickuplocation", pickuplocation);
-      formData.append("contactno", contactno);
-      formData.append("bestSeller", bestSeller);
+      const submitData = new FormData();
+      Object.keys(formData).forEach(key => {
+        if (key === 'sizes') submitData.append(key, JSON.stringify(formData[key]));
+        else submitData.append(key, formData[key]);
+      });
+      submitData.append("rental_price", pricing.rentalPrice);
 
       images.forEach((image, index) => {
-        if (image) formData.append(`image${index + 1}`, image);
+        if (image) submitData.append(`image${index + 1}`, image);
       });
 
-      const response = await axios.post(`${backEndURL}/api/product/add`, formData, {
+      const response = await axios.post(`${backEndURL}/api/product/add`, submitData, {
         headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`, // Corrected header
         },
       });
 
       if (response.data.success) {
-        toast.success("✅ Product uploaded successfully!");
-        setName('');
-        setDescription('');
-        setImages([false, false, false, false]);
-        setPrice('');
-        setRentalPrice('');
-        setCharge(0);
-        setContactNo('');
-        setPickupLocation('');
-        setSizes([]);
-        setBestSeller(false);
+        toast.success("Product listed successfully!");
+        navigate('/collection');
       } else {
         toast.error(response.data.message);
       }
     } catch (error) {
-      console.error("Error occurred:", error);
-      toast.error(error.response?.data?.message || "An error occurred. Please try again.");
+      console.error(error);
+      toast.error(error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  return (
-    <form
-      onSubmit={onSubmitHandler}
-      className="flex flex-col w-full items-center mt-20 gap-6 p-6 bg-white shadow-xl rounded-lg max-w-4xl mx-auto hover:shadow-2xl transition-shadow duration-300"
-    >
-      <div className="w-full">
-        <p className="text-lg font-bold mb-4">Upload Product Images</p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {images.map((image, index) => (
-            <label
-              key={index}
-              htmlFor={`image${index + 1}`}
-              className="border-dashed border-2 border-gray-300 p-4 rounded-lg cursor-pointer hover:border-red-500 transition-colors duration-300 flex justify-center items-center min-h-[120px]"
-            >
-              {!image ? (
-                <div className="flex flex-col items-center text-gray-400">
-                  <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  <span className="text-sm mt-1">Add Image</span>
-                </div>
-              ) : (
-                <img
-                  className="w-24 h-24 object-cover rounded-md"
-                  src={URL.createObjectURL(image)}
-                  alt="Upload Preview"
-                />
-              )}
-              <input
-                onChange={(e) => onImageChange(index, e.target.files[0])}
-                type="file"
-                id={`image${index + 1}`}
-                hidden
-                accept="image/*"
-              />
-            </label>
-          ))}
-        </div>
-      </div>
+  const StepIndicator = () => (
+    <div className="flex justify-between mb-8 relative">
+      <div className="absolute top-1/2 left-0 w-full h-1 bg-neutral-200 -z-10 rounded-full"></div>
+      <div className={`absolute top-1/2 left-0 h-1 bg-primary-500 -z-10 rounded-full transition-all duration-300`}
+        style={{ width: `${((currentStep - 1) / 3) * 100}%` }}></div>
 
-      <div className="w-full">
-        <p className="text-lg font-bold mb-4">Product Details</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <input
-            onChange={(e) => setName(e.target.value)}
-            value={name}
-            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
-            type="text"
-            placeholder="Product Name"
-            required
-          />
-          <input
-            onChange={(e) => setPrice(e.target.value)}
-            value={price}
-            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
-            type="number"
-            placeholder="Price (e.g., 250)"
-            required
-          />
-
-          <div className="p-4 border rounded-lg bg-gray-200 text-gray-800 shadow-md w-full text-center">
-            <p className="text-lg font-semibold text-[#da4c58]">Rental Price Breakdown</p>
-            <div className="flex justify-between items-center mt-2">
-              <span className="text-md font-medium">Rental Price:</span>
-              <span className="text-lg font-bold text-black">₹{rentalPrice}</span>
-            </div>
-            <div className="flex justify-between items-center mt-1">
-              <span className="text-md font-medium">Service Charge:</span>
-              <span className="text-lg font-bold text-red-600">₹{charge}</span>
-            </div>
-            <hr className="my-2 border-gray-300" />
-            <div className="flex justify-between items-center text-lg font-bold">
-              <span className="text-gray-700">Estimated Earning:</span>
-              <span className="text-green-500">₹{(parseFloat(rentalPrice) - parseFloat(charge)).toFixed(2)}</span>
-            </div>
+      {[1, 2, 3, 4].map((step) => (
+        <div key={step} className={`flex flex-col items-center gap-2 bg-neutral-50 px-2`}>
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300
+                    ${step <= currentStep ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/30' : 'bg-neutral-200 text-neutral-500'}`}>
+            {step < currentStep ? <CheckCircle size={16} /> : step}
           </div>
-
-          <input
-            onChange={(e) => setPickupLocation(e.target.value)}
-            value={pickuplocation}
-            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
-            type="text"
-            placeholder="Pickup Location"
-            required
-          />
-          <input
-            onChange={(e) => setContactNo(e.target.value)}
-            value={contactno}
-            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
-            type="text"
-            placeholder="Contact Number..."
-            required
-          />
-          <select
-            onChange={(e) => setCategory(e.target.value)}
-            value={category}
-            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
-            required
-          >
-            <option value="Men">Men</option>
-            <option value="Women">Women</option>
-          </select>
-          <select
-            onChange={(e) => setSubCategory(e.target.value)}
-            value={subCategory}
-            className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
-            required
-          >
-            <option value="Topwear">Top Wear</option>
-            <option value="Bottomwear">Bottom Wear</option>
-          </select>
+          <span className={`text-xs font-medium ${step <= currentStep ? 'text-primary-600' : 'text-neutral-400'}`}>
+            {step === 1 ? "Photos" : step === 2 ? "Details" : step === 3 ? "Pricing" : "Review"}
+          </span>
         </div>
-        <textarea
-          onChange={(e) => setDescription(e.target.value)}
-          value={description}
-          className="w-full px-4 py-2 mt-4 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
-          placeholder="Write Product Description"
-          required
-        />
-      </div>
+      ))}
+    </div>
+  );
 
-      <div className="w-full">
-        <p className="text-lg font-bold mb-4">Available Sizes</p>
-        <div className="flex gap-4">
-          {['S', 'M', 'L', 'XL', 'XXL'].map((size) => (
-            <div
-              key={size}
-              onClick={() => setSizes((prev) => prev.includes(size) ? prev.filter((item) => item !== size) : [...prev, size])}
-              className={`${sizes.includes(size) ? "bg-[#E63946] text-white" : "bg-gray-200"} px-4 py-2 cursor-pointer rounded-md hover:bg-[#E63946] hover:text-white transition-colors duration-300`}
-            >
-              {size}
+  return (
+    <div className="container-custom py-10 min-h-[80vh]">
+      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-soft p-8 border border-neutral-100">
+        <div className="mb-6 text-center">
+          <Title text1={"LIST YOUR"} text2={"ITEM"} />
+          <p className="text-neutral-500 text-sm mt-[-10px]">Rent out your fashion and earn money.</p>
+        </div>
+
+        <StepIndicator />
+
+        <form onSubmit={onSubmitHandler} className="mt-8">
+          {/* Step 1: Photos */}
+          {currentStep === 1 && (
+            <div className="animate-fade-in space-y-6">
+              <h3 className="text-xl font-display font-semibold text-neutral-800">Upload Photos</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {images.map((img, index) => (
+                  <label key={index} className={`aspect-square border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all hover:bg-neutral-50
+                                    ${img ? 'border-primary-500 bg-primary-50/10' : 'border-neutral-300 text-neutral-400'}`}>
+                    {img ? (
+                      <img src={URL.createObjectURL(img)} alt="Preview" className="w-full h-full object-cover rounded-xl" />
+                    ) : (
+                      <>
+                        <Upload size={24} className="mb-2" />
+                        <span className="text-xs font-medium">Add Photo</span>
+                      </>
+                    )}
+                    <input type="file" hidden accept="image/*" onChange={(e) => handleImageChange(index, e.target.files[0])} />
+                  </label>
+                ))}
+              </div>
             </div>
-          ))}
-        </div>
-      </div>
+          )}
 
-      <div className="flex items-center gap-3 w-full">
-        <input
-          onChange={() => setBestSeller((prev) => !prev)}
-          checked={bestSeller}
-          type="checkbox"
-          id="bestseller"
-        />
-        <label className="cursor-pointer text-gray-700" htmlFor="bestseller">
-          Add to Best Sellers
-        </label>
-      </div>
+          {/* Step 2: Details */}
+          {currentStep === 2 && (
+            <div className="animate-fade-in space-y-4">
+              <h3 className="text-xl font-display font-semibold text-neutral-800">Item Details</h3>
+              <div className="space-y-4">
+                <input name="name" value={formData.name} onChange={handleInputChange} placeholder="Product Name" className="input-field" />
+                <textarea name="description" value={formData.description} onChange={handleInputChange} placeholder="Description" rows={3} className="input-field" />
 
-      <div className="flex justify-center w-full">
-        <button
-          type="submit"
-          disabled={isLoading}
-          className={`w-64 py-3 mt-6 font-bold rounded-md ${isLoading ? "bg-gray-400 cursor-not-allowed" : "bg-[#E63946] hover:bg-[#D7263D]"}`}
-        >
-          {isLoading ? "Uploading..." : "Add Product"}
-        </button>
+                <div className="grid grid-cols-2 gap-4">
+                  <select name="category" value={formData.category} onChange={handleInputChange} className="input-field">
+                    <option value="Men">Men</option>
+                    <option value="Women">Women</option>
+                  </select>
+                  <select name="subCategory" value={formData.subCategory} onChange={handleInputChange} className="input-field">
+                    <option value="Topwear">Topwear</option>
+                    <option value="Bottomwear">Bottomwear</option>
+                  </select>
+                </div>
+
+                <div>
+                  <p className="mb-2 font-medium text-neutral-700">Select Sizes</p>
+                  <div className="flex gap-2 flex-wrap">
+                    {['S', 'M', 'L', 'XL', 'XXL'].map(size => (
+                      <button type="button" key={size} onClick={() => handleSizeChange(size)}
+                        className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${formData.sizes.includes(size) ? 'bg-primary-500 text-white border-primary-500' : 'bg-white border-neutral-200 text-neutral-600 hover:border-primary-300'
+                          }`}>
+                        {size}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Pricing & Location */}
+          {currentStep === 3 && (
+            <div className="animate-fade-in space-y-6">
+              <h3 className="text-xl font-display font-semibold text-neutral-800">Pricing & Contact</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-neutral-600 mb-1 block">Original Price (MRP)</label>
+                    <div className="relative">
+                      <DollarSign size={16} className="absolute left-3 top-3.5 text-neutral-400" />
+                      <input type="number" name="price" value={formData.price} onChange={handleInputChange} placeholder="0.00" className="input-field pl-10" />
+                    </div>
+                  </div>
+                  <div className="p-4 bg-primary-50 rounded-xl border border-primary-100">
+                    <h4 className="font-semibold text-primary-700 mb-2 flex items-center gap-2"><Info size={16} /> Earning Estimator</h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-neutral-600">Rental Price:</span>
+                        <span className="font-bold">₹{pricing.rentalPrice || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-neutral-600">Platform Fee:</span>
+                        <span className="text-red-500">-₹{pricing.charge}</span>
+                      </div>
+                      <div className="h-[1px] bg-primary-200 my-2"></div>
+                      <div className="flex justify-between font-bold text-lg">
+                        <span className="text-primary-800">You Earn:</span>
+                        <span className="text-green-600">₹{pricing.earning}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-neutral-600 mb-1 block">Pickup Location</label>
+                    <div className="relative">
+                      <MapPin size={16} className="absolute left-3 top-3.5 text-neutral-400" />
+                      <input type="text" name="pickuplocation" value={formData.pickuplocation} onChange={handleInputChange} placeholder="Your Address / Hostel" className="input-field pl-10" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-neutral-600 mb-1 block">Contact Number</label>
+                    <div className="relative">
+                      <Phone size={16} className="absolute left-3 top-3.5 text-neutral-400" />
+                      <input type="text" name="contactno" value={formData.contactno} onChange={handleInputChange} placeholder="+91 99999 99999" className="input-field pl-10" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Step 4: Review */}
+          {currentStep === 4 && (
+            <div className="animate-fade-in space-y-6 text-center">
+              <div className="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle size={32} />
+              </div>
+              <h3 className="text-2xl font-display font-bold text-neutral-800">Ready to List?</h3>
+              <p className="text-neutral-500 max-w-md mx-auto">
+                Please review your details before submitting. Your item "{formData.name}" will be listed for rent at <span className="font-bold text-neutral-800">₹{pricing.rentalPrice}</span>/day.
+              </p>
+
+              <div className="bg-neutral-50 p-6 rounded-xl text-left max-w-md mx-auto border border-neutral-100 mt-6">
+                <h4 className="font-bold text-neutral-800 mb-2">Summary</h4>
+                <ul className="text-sm space-y-2 text-neutral-600">
+                  <li>• Category: {formData.category} / {formData.subCategory}</li>
+                  <li>• Sizes: {formData.sizes.join(', ')}</li>
+                  <li>• Location: {formData.pickuplocation}</li>
+                </ul>
+              </div>
+            </div>
+          )}
+
+          {/* Navigation Buttons */}
+          <div className="flex justify-between mt-10 pt-6 border-t border-neutral-100">
+            <button type="button" onClick={prevStep} disabled={currentStep === 1}
+              className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors
+                        ${currentStep === 1 ? 'opacity-0 pointer-events-none' : 'text-neutral-600 hover:bg-neutral-50'}`}>
+              <ChevronLeft size={20} /> Back
+            </button>
+
+            {currentStep < 4 ? (
+              <button type="button" onClick={nextStep} className="btn-primary flex items-center gap-2">
+                Next <ChevronRight size={20} />
+              </button>
+            ) : (
+              <button type="submit" disabled={isLoading} className="btn-primary bg-green-600 hover:bg-green-700 shadow-green-200">
+                {isLoading ? 'Listing Item...' : 'Confirm & List'}
+              </button>
+            )}
+          </div>
+        </form>
       </div>
-    </form>
+    </div>
   );
 };
 

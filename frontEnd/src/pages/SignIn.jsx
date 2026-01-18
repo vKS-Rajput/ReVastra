@@ -2,119 +2,164 @@ import React, { useContext, useEffect, useState } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import Title from '../components/Title';
 
 const SignIn = () => {
   const [currentState, setCurrentState] = useState('Login');
-  const { token, setToken, user, setUser, navigate, backEndURL } = useContext(ShopContext);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const { token, setToken, setUser, navigate, backEndURL } = useContext(ShopContext);
+
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: ''
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Handle Input Change
+  const onChangeHandler = (e) => {
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
+    if (isLoading) return;
+    setIsLoading(true);
+
     try {
       if (currentState === 'Sign Up') {
-        const response = await axios.post(backEndURL + '/api/user/register', { name, email, password });
+        const response = await axios.post(backEndURL + '/api/user/register', formData);
 
         if (response.data.success) {
           setToken(response.data.token);
-          setUser(response.data.user); // Store user data in context
+          setUser(response.data.user);
           localStorage.setItem('token', response.data.token);
-          localStorage.setItem('user', JSON.stringify(response.data.user)); // Store user data in localStorage
+          localStorage.setItem('user', JSON.stringify(response.data.user));
           toast.success("Account created successfully!");
-          navigate('/'); // Navigate to home page
+          navigate('/');
         } else {
           toast.error(response.data.message);
         }
       } else {
-        const response = await axios.post(backEndURL + '/api/user/login', { email, password });
+        const response = await axios.post(backEndURL + '/api/user/login', {
+          email: formData.email,
+          password: formData.password
+        });
 
         if (response.data.success) {
           setToken(response.data.token);
-          setUser(response.data.user); // Store user data in context
+          setUser(response.data.user);
           localStorage.setItem('token', response.data.token);
-          localStorage.setItem('user', JSON.stringify(response.data.user)); // Store user data in localStorage
+          localStorage.setItem('user', JSON.stringify(response.data.user));
           toast.success("Logged in successfully!");
-          navigate('/'); // Navigate to home page
+          navigate('/');
         } else {
           toast.error(response.data.message);
         }
       }
     } catch (error) {
       console.error(error);
-      toast.error("Something went wrong. Please try again.");
+      toast.error(error.response?.data?.message || "An error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-    if (storedToken && storedUser && storedUser !== 'undefined') {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+    if (token) {
       navigate('/');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Run only on mount to check for stored credentials
+  }, [token, navigate]);
 
   return (
-    <form
-      onSubmit={onSubmitHandler}
-      className='flex flex-col items-center w-[90%] sm:max-w-[400px] m-auto mt-24 p-6 bg-white rounded-lg shadow-lg gap-4 text-gray-800'
-    >
-      <div className='inline-flex items-center gap-2 mb-4'>
-        <p className='text-3xl font-semibold text-gray-800'>{currentState}</p>
-        <hr className='border-none h-[1.5px] w-8 bg-gray-600' />
-      </div>
+    <div className='min-h-[80vh] flex items-center justify-center py-10 px-4'>
+      <div className="bg-white rounded-2xl shadow-strong w-full max-w-md p-8 sm:p-10 border border-neutral-100 relative overflow-hidden">
 
-      {currentState === 'Sign Up' && (
-        <input
-          onChange={(e) => setName(e.target.value)}
-          value={name}
-          type='text'
-          className='w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#E63946] transition-all'
-          placeholder='Name'
-          required
-        />
-      )}
+        {/* Decorative Background Blur */}
+        <div className="absolute -top-20 -right-20 w-60 h-60 bg-primary-100 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+        <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-accent-purple/10 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
 
-      <input
-        onChange={(e) => setEmail(e.target.value)}
-        value={email}
-        type='email'
-        className='w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#E63946] transition-all'
-        placeholder='Email'
-        required
-      />
-
-      <input
-        onChange={(e) => setPassword(e.target.value)}
-        value={password}
-        type='password'
-        className='w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#E63946] transition-all'
-        placeholder='Password'
-        required
-      />
-
-      <div className='w-full flex justify-between text-sm mt-[-8px] text-gray-600'>
-        <p className='cursor-pointer hover:text-[#E63946] transition-colors'>Forgot Password?</p>
-        {currentState === 'Login' ? (
-          <p onClick={() => setCurrentState('Sign Up')} className='cursor-pointer hover:text-[#E63946] transition-colors'>
-            Create Account
+        <div className="text-center mb-8 relative z-10">
+          <h2 className="text-3xl font-display font-bold text-neutral-800 mb-2">{currentState}</h2>
+          <p className="text-neutral-500 text-sm">
+            {currentState === 'Login' ? 'Welcome back! Please login to continue.' : 'Create an account to get started.'}
           </p>
-        ) : (
-          <p onClick={() => setCurrentState('Login')} className='cursor-pointer hover:text-[#E63946] transition-colors'>
-            Login Here
-          </p>
-        )}
-      </div>
+        </div>
 
-      <button
-        className='w-full bg-[#E63946] text-white font-semibold px-8 py-3 mt-4 rounded-md shadow-md hover:bg-[#D62839] transition-colors duration-300'
-      >
-        {currentState === 'Login' ? 'Sign In' : 'Sign Up'}
-      </button>
-    </form>
+        <form onSubmit={onSubmitHandler} className="space-y-4 relative z-10">
+
+          {currentState === 'Sign Up' && (
+            <div className="relative group">
+              <User size={20} className="absolute left-3 top-3.5 text-neutral-400 group-focus-within:text-primary-500 transition-colors" />
+              <input
+                name='name'
+                value={formData.name}
+                onChange={onChangeHandler}
+                type="text"
+                placeholder="Full Name"
+                className="input-field pl-10"
+                required
+              />
+            </div>
+          )}
+
+          <div className="relative group">
+            <Mail size={20} className="absolute left-3 top-3.5 text-neutral-400 group-focus-within:text-primary-500 transition-colors" />
+            <input
+              name='email'
+              value={formData.email}
+              onChange={onChangeHandler}
+              type="email"
+              placeholder="Email Address"
+              className="input-field pl-10"
+              required
+            />
+          </div>
+
+          <div className="relative group">
+            <Lock size={20} className="absolute left-3 top-3.5 text-neutral-400 group-focus-within:text-primary-500 transition-colors" />
+            <input
+              name='password'
+              value={formData.password}
+              onChange={onChangeHandler}
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              className="input-field pl-10 pr-10"
+              required
+            />
+            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3.5 text-neutral-400 hover:text-neutral-600">
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+
+          <div className='flex justify-between items-center text-sm text-neutral-500 mt-2'>
+            {currentState === 'Login' && (
+              <Link to="/forgot-password" className='hover:text-primary-500 transition-colors'>Forgot Password?</Link>
+            )}
+          </div>
+
+          <button type='submit' disabled={isLoading}
+            className='w-full btn-primary flex items-center justify-center gap-2 mt-4'>
+            {isLoading ? 'Processing...' : (
+              <>
+                {currentState === 'Login' ? 'Sign In' : 'Create Account'}
+                <ArrowRight size={18} />
+              </>
+            )}
+          </button>
+        </form>
+
+        <div className="mt-8 text-center text-sm text-neutral-600 relative z-10">
+          {currentState === 'Login' ? (
+            <p>Don't have an account? <span onClick={() => setCurrentState('Sign Up')} className="font-bold text-primary-600 cursor-pointer hover:underline">Sign Up</span></p>
+          ) : (
+            <p>Already have an account? <span onClick={() => setCurrentState('Login')} className="font-bold text-primary-600 cursor-pointer hover:underline">Login</span></p>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 

@@ -100,7 +100,7 @@ const adminLogin = async (req, res) => {
             const token = jwt.sign(email + password, process.env.JWT_SECRET);
             res.json({ success: true, token })
         } else {
-            res.json({ success: false, message: "Invalid Cradintials" })
+            res.json({ success: false, message: "Invalid Credentials" })
         }
     } catch (error) {
         console.error(error);
@@ -108,4 +108,103 @@ const adminLogin = async (req, res) => {
     }
 };
 
-export { loginUser, registerUser, adminLogin, getUserProfile };
+// Apply for Seller
+const applyForSeller = async (req, res) => {
+    try {
+        const userId = req.user.id; // From auth middleware
+        const { shopName, shopDescription, bankingInfo, address } = req.body;
+
+        if (!shopName || !bankingInfo || !address) {
+            return res.status(400).json({ success: false, message: "Missing required seller details." });
+        }
+
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found." });
+        }
+
+        user.isSeller = true;
+        user.sellerProfile = {
+            shopName,
+            shopDescription,
+            bankingInfo,
+            address
+        };
+
+        await user.save();
+
+        res.json({ success: true, message: "Congratulations! You are now a seller. 🚀", user });
+
+    } catch (error) {
+        console.error("Seller application error:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// Get All Sellers (Admin)
+const getAllSellers = async (req, res) => {
+    try {
+        // Find all users who are sellers
+        const sellers = await userModel.find({ isSeller: true }).select('-password');
+
+        // Improve: In a real app, you'd aggregate this with product/order counts directly in DB
+        // keeping it simple for now, can be enriched in frontend or separate stats call
+
+        res.json({ success: true, sellers });
+    } catch (error) {
+        console.error("Get sellers error:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// Ban Seller (Admin)
+const banSeller = async (req, res) => {
+    try {
+        const { userId, isBanned, banReason } = req.body;
+
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found." });
+        }
+
+        user.isBanned = isBanned;
+        user.banReason = isBanned ? banReason : "";
+
+        // Improve: Also update their products status to 'unavailable' if banned, or handle in product listing
+
+        await user.save();
+
+        res.json({ success: true, message: isBanned ? "Seller banned successfully." : "Seller unbanned successfully." });
+
+    } catch (error) {
+        console.error("Ban seller error:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// Update User Profile
+const updateUserProfile = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { name, phone, address } = req.body;
+
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found." });
+        }
+
+        if (name) user.name = name;
+        if (phone) user.phone = phone; // Assuming phone field exists in schema or flexible schema
+        if (address) user.address = address; // Update address object
+
+        await user.save();
+
+        res.json({ success: true, message: "Profile updated successfully.", user });
+
+    } catch (error) {
+        console.error("Update profile error:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export { loginUser, registerUser, adminLogin, getUserProfile, applyForSeller, getAllSellers, banSeller, updateUserProfile };

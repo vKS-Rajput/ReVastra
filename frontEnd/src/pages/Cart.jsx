@@ -2,11 +2,11 @@ import React, { useContext, useEffect, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
 import Title from "../components/Title";
 import CartTotal from "../components/CartTotal";
+import { Trash2, ShoppingBag, ArrowRight, ShieldCheck, Clock } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Cart = () => {
-  const { products, currency, cartItems, updateDuration, navigate } =
-    useContext(ShopContext);
-
+  const { products, currency, cartItems, updateDuration, navigate } = useContext(ShopContext);
   const [cartData, setCartData] = useState([]);
 
   useEffect(() => {
@@ -28,109 +28,95 @@ const Cart = () => {
   }, [cartItems, products]);
 
   return (
-    <div className="border-t pt-20 bg-gray-50 min-h-screen">
-      <div className="text-2xl mb-6 text-center">
+    <div className="container-custom pt-10 pb-20 min-h-[80vh]">
+      <div className="mb-10 text-center">
         <Title text1={"YOUR"} text2={"CART"} />
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-0">
-        {cartData.map((item, index) => {
-          const productData = products.find(
-            (product) => product._id === item._id
-          );
+      {cartData.length === 0 ? (
+        <div className="text-center py-20 bg-neutral-50 rounded-2xl border border-neutral-100">
+          <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-soft">
+            <ShoppingBag size={32} className="text-neutral-400" />
+          </div>
+          <h3 className="text-2xl font-display font-bold text-neutral-800 mb-2">Your cart is empty</h3>
+          <p className="text-neutral-500 mb-8">Looks like you haven't added any items yet.</p>
+          <Link to="/collection" className="btn-primary inline-flex items-center gap-2">
+            Start Renting <ArrowRight size={18} />
+          </Link>
+        </div>
+      ) : (
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
 
-          return (
-            <div
-              key={index}
-              className="py-6 border-t border-gray-300 grid grid-cols-1 sm:grid-cols-[4fr_2fr_1fr] items-center gap-6"
-            >
-              {/* Product Image and Details */}
-              <div className="flex items-start gap-6">
-                <img
-                  className="w-20 h-20 object-cover rounded-lg shadow"
-                  src={productData.image[0]}
-                  alt={productData.name}
-                />
-                <div>
-                  <p className="text-lg font-semibold text-gray-800">
-                    {productData.name}
-                  </p>
-                  <div className="flex items-center gap-4 mt-2 text-gray-600">
-                    <p className="text-base">
-                      {currency}
-                      {productData.rental_price}
-                    </p>
-                    <p className="px-4 py-1 border rounded-lg bg-gray-100 text-sm">
-                      {item.size}
-                    </p>
+          {/* Cart Items */}
+          <div className="flex-1 space-y-6">
+            {cartData.map((item, index) => {
+              const productData = products.find((product) => product._id === item._id);
+              if (!productData) return null;
+
+              return (
+                <div key={index} className="bg-white p-4 sm:p-6 rounded-2xl shadow-soft border border-neutral-100 flex flex-col sm:flex-row items-start sm:items-center gap-6 group hover:shadow-medium transition-all duration-300">
+
+                  {/* Image */}
+                  <div className="w-24 h-24 sm:w-32 sm:h-32 bg-neutral-100 rounded-xl overflow-hidden shrink-0">
+                    <img className="w-full h-full object-cover" src={productData.image[0]} alt={productData.name} />
+                  </div>
+
+                  {/* Details */}
+                  <div className="flex-1 min-w-0 w-full">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-display font-bold text-lg text-neutral-800 truncate pr-4">{productData.name}</h3>
+                      <button onClick={() => updateDuration(item._id, item.size, 0)} className="text-neutral-400 hover:text-red-500 transition-colors">
+                        <Trash2 size={20} />
+                      </button>
+                    </div>
+
+                    <div className="flex flex-wrap gap-4 text-sm text-neutral-600 mb-4">
+                      <div className="bg-neutral-50 px-3 py-1 rounded-lg border border-neutral-100">Size: <span className="font-semibold text-neutral-800">{item.size}</span></div>
+                      <div className="bg-neutral-50 px-3 py-1 rounded-lg border border-neutral-100">Price: <span className="font-semibold text-primary-600">{currency}{productData.rental_price}/day</span></div>
+                    </div>
+
+                    {/* Duration Control */}
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-medium text-neutral-500 flex items-center gap-1"><Clock size={14} /> Duration:</span>
+                      <div className="flex items-center border border-neutral-200 rounded-lg overflow-hidden">
+                        <button onClick={() => updateDuration(item._id, item.size, Math.max(1, item.duration - 1))} className="px-3 py-1 hover:bg-neutral-50 text-neutral-600">-</button>
+                        <input
+                          className="w-12 text-center py-1 text-sm font-semibold outline-none"
+                          type="number" min={1} value={item.duration}
+                          onChange={(e) => updateDuration(item._id, item.size, Number(e.target.value))}
+                        />
+                        <button onClick={() => updateDuration(item._id, item.size, item.duration + 1)} className="px-3 py-1 hover:bg-neutral-50 text-neutral-600">+</button>
+                      </div>
+                      <span className="text-sm text-neutral-500">days</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              );
+            })}
 
-              {/* Quantity Section */}
-              <div className="text-center">
-                <p className="text-sm font-medium text-gray-600 mb-2">Duration</p>
-                <div className="flex items-center justify-center gap-2">
-                  <input
-                    onChange={(e) =>
-                      e.target.value === "" || e.target.value === "0"
-                        ? null
-                        : updateDuration(
-                          item._id,
-                          item.size,
-                          Number(e.target.value)
-                        )
-                    }
-                    className="border w-16 text-center px-2 py-1 rounded-lg shadow-sm"
-                    type="number"
-                    min={1}
-                    defaultValue={item.duration}
-                  />
-                  <span className="text-gray-700 text-sm font-medium">days</span>
-                </div>
-              </div>
-
-              {/* Remove Button */}
-              <div className="text-center mt-2 sm:mt-0">
-                <p
-                  onClick={() => updateDuration(item._id, item.size, 0)}
-                  className="bg-red-100 text-red-500 cursor-pointer hover:bg-red-500 hover:text-white transition-colors duration-200 rounded-md px-3 py-1 text-sm sm:text-base"
-                >
-                  Remove
-                </p>
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-5 flex gap-4 items-start">
+              <ShieldCheck className="text-blue-500 shrink-0 mt-0.5" size={24} />
+              <div className="text-sm text-blue-800">
+                <p className="font-bold mb-1">Open Box Delivery & Security</p>
+                <p className="opacity-80">All items are verified at delivery. You must provide a valid ID proof and sign the digital contract upon receipt.</p>
               </div>
             </div>
-          );
-        })}
-      </div>
+          </div>
 
-      {/* Cart Total and Checkout */}
-      {cartData.length > 0 && (
-        <div className="flex justify-center my-20">
-          <div className="w-full sm:w-[700px] bg-white shadow-lg rounded-lg p-8">
-            <CartTotal />
-
-            <div className="w-full text-center mt-8">
-              <button
-                onClick={() => navigate("/placeorder")}
-                className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold text-lg rounded-full px-10 py-4 shadow-md hover:shadow-lg transition-all duration-300"
-              >
-                PROCEED TO CHECKOUT
+          {/* Checkout Summary */}
+          <div className="lg:w-96 shrink-0">
+            <div className="bg-white p-6 rounded-2xl shadow-soft border border-neutral-100 sticky top-24">
+              <Title text1="ORDER" text2="SUMMARY" />
+              <div className="mt-6">
+                <CartTotal />
+              </div>
+              <button onClick={() => navigate("/placeorder")} className="w-full btn-primary mt-8 flex items-center justify-center gap-2 group">
+                Proceed to Checkout <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
           </div>
         </div>
       )}
-      {/* Contract & Delivery Process */}
-      <div className="mt-8 p-5 border-2 border-red-500 bg-red-100 rounded-lg">
-        <h2 className="text-xl font-bold  text-red-700">Important Note: Contract & Delivery Process</h2>
-        <ul className="list-disc pl-5 text-gray-700 mt-2">
-          <li>Users sign a contract upon delivery stating they will comply with policies.</li>
-          <li>Delivery personnel verify product condition with video/photo proof.</li>
-          <li><strong>Open Box Delivery:</strong> The product is checked at the time of delivery.</li>
-          <li>User must provide a photo with the product or valid ID as proof of receipt.</li>
-        </ul>
-      </div>
     </div>
   );
 };

@@ -5,6 +5,7 @@ import { assets } from "../assets/assets";
 import { ShopContext } from "../context/ShopContext";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { MapPin, Phone, CreditCard, Wallet, AlertCircle, Info, Truck } from "lucide-react";
 
 const PlaceOrder = () => {
   const [method, setMethod] = useState("cod");
@@ -19,6 +20,7 @@ const PlaceOrder = () => {
     washingFee,
     products,
   } = useContext(ShopContext);
+
   const [formData, setFormData] = useState({
     fullName: "",
     hostel: "",
@@ -27,6 +29,8 @@ const PlaceOrder = () => {
     phone: "",
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const onChangeHandler = (event) => {
     const { name, value } = event.target;
     setFormData((data) => ({ ...data, [name]: value }));
@@ -34,6 +38,9 @@ const PlaceOrder = () => {
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
+    if (isLoading) return;
+    setIsLoading(true);
+
     try {
       let orderItems = [];
 
@@ -79,8 +86,7 @@ const PlaceOrder = () => {
         }
 
         case "razorpay": {
-          // Razorpay is not configured yet
-          toast.error("Razorpay payment is not available yet. Please use Cash on Delivery.");
+          toast.error("Razorpay payment coming soon. Please use Cash on Delivery.");
           break;
         }
 
@@ -90,140 +96,98 @@ const PlaceOrder = () => {
     } catch (error) {
       console.log(error);
       toast.error(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const initPay = (order) => {
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-      amount: order.amount,
-      currency: order.currency,
-      name: "Order Payment",
-      description: "Order Payment",
-      order_id: order.id,
-      receipt: order.receipt,
-      handler: async (response) => {
-        try {
-          const { data } = await axios.post(
-            backEndURL + "/api/order/verifyRazorpay",
-            response,
-            { headers: { token } }
-          );
-          if (data.success) {
-            navigate("/orders");
-            setCartItems({});
-          }
-        } catch (error) {
-          console.log(error);
-          toast.error(error.message);
-        }
-      },
-    };
-    const rzp = new window.Razorpay(options);
-    rzp.open();
-  };
-
   return (
-    <form
-      onSubmit={onSubmitHandler}
-      className="mt-20 flex flex-col gap-6 pt-8 p-4 sm:p-6 bg-gradient-to-r from-blue-50 to-gray-100 rounded-lg shadow-lg w-full max-w-3xl mx-auto"
-    >
-      {/* Delivery Info */}
-      <div className="bg-white p-4 sm:p-6 rounded-md shadow-md">
-        <Title text1="Delivery" text2="Information" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-          <input
-            required
-            name="fullName"
-            value={formData.fullName}
-            onChange={onChangeHandler}
-            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] w-full"
-            placeholder="Full Name"
-          />
-          <input
-            required
-            name="hostel"
-            value={formData.hostel}
-            onChange={onChangeHandler}
-            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] w-full"
-            placeholder="Hostel Type"
-          />
-          <input
-            required
-            name="block"
-            value={formData.block}
-            onChange={onChangeHandler}
-            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] w-full"
-            placeholder="Block"
-          />
-          <input
-            name="room"
-            value={formData.room}
-            onChange={onChangeHandler}
-            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] w-full"
-            placeholder="Room No."
-          />
-          <input
-            required
-            name="phone"
-            value={formData.phone}
-            onChange={onChangeHandler}
-            className="border rounded-md p-3 focus:ring-2 focus:ring-[#E63946] w-full sm:col-span-2"
-            placeholder="Phone Number"
-          />
-        </div>
-      </div>
+    <div className="container-custom py-10 min-h-[80vh]">
+      <form onSubmit={onSubmitHandler} className="flex flex-col lg:flex-row gap-10">
 
-      {/* Payment Method */}
-      <div className="bg-white p-4 sm:p-6 rounded-md shadow-md">
-        <Title text1="Payment" text2="Method" />
-        <div className="flex flex-col sm:flex-row gap-4 mt-4">
-          {[{ id: "razorpay", label: "Razorpay", logo: assets.razorpay_logo }, { id: "cod", label: "Cash on Delivery" }].map((option) => (
-            <div
-              key={option.id}
-              onClick={() => setMethod(option.id)}
-              className={`flex items-center gap-3 p-4 border rounded-lg cursor-pointer shadow-sm transition-transform transform hover:scale-105 w-full ${method === option.id ? "border-[#E63946] bg-blue-50" : "border-gray-300"
-                }`}
-            >
-              <span className={`w-4 h-4 border rounded-full flex items-center justify-center ${method === option.id ? "bg-[#E63946]" : ""}`}></span>
-              {option.logo ? <img className="h-6" src={option.logo} alt={option.label} /> : <p className="text-sm font-medium">{option.label}</p>}
+        {/* Left Side: Form */}
+        <div className="flex-1 space-y-8">
+
+          {/* Delivery Information */}
+          <div>
+            <h3 className="section-title mb-6 flex items-center gap-2 font-display text-xl font-semibold text-neutral-800">
+              <MapPin className="text-primary-500" /> Delivery Information
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <input required name="fullName" value={formData.fullName} onChange={onChangeHandler}
+                  className="input-field" placeholder="Full Name" />
+              </div>
+              <input required name="hostel" value={formData.hostel} onChange={onChangeHandler}
+                className="input-field" placeholder="Hostel (e.g., Block A)" />
+              <input required name="block" value={formData.block} onChange={onChangeHandler}
+                className="input-field" placeholder="Block No." />
+              <input required name="room" value={formData.room} onChange={onChangeHandler}
+                className="input-field" placeholder="Room No." />
+              <input required name="phone" value={formData.phone} onChange={onChangeHandler}
+                className="input-field" placeholder="Phone Number" />
             </div>
-          ))}
+          </div>
+
+          {/* Payment Method */}
+          <div>
+            <h3 className="section-title mb-6 flex items-center gap-2 font-display text-xl font-semibold text-neutral-800">
+              <CreditCard className="text-primary-500" /> Payment Method
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div onClick={() => setMethod('razorpay')}
+                className={`p-4 border rounded-xl cursor-pointer flex items-center gap-3 transition-all duration-300
+                            ${method === 'razorpay' ? 'border-primary-500 bg-primary-50 ring-1 ring-primary-500' : 'border-neutral-200 hover:border-neutral-300'}`}>
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center
+                                ${method === 'razorpay' ? 'border-primary-500' : 'border-neutral-300'}`}>
+                  {method === 'razorpay' && <div className="w-2.5 h-2.5 bg-primary-500 rounded-full"></div>}
+                </div>
+                <img src={assets.razorpay_logo} alt="Razorpay" className="h-6" />
+              </div>
+
+              <div onClick={() => setMethod('cod')}
+                className={`p-4 border rounded-xl cursor-pointer flex items-center gap-3 transition-all duration-300
+                            ${method === 'cod' ? 'border-primary-500 bg-primary-50 ring-1 ring-primary-500' : 'border-neutral-200 hover:border-neutral-300'}`}>
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center
+                                ${method === 'cod' ? 'border-primary-500' : 'border-neutral-300'}`}>
+                  {method === 'cod' && <div className="w-2.5 h-2.5 bg-primary-500 rounded-full"></div>}
+                </div>
+                <span className="font-medium text-neutral-700">Cash on Delivery</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Important Information */}
+          <div className="bg-neutral-50 p-6 rounded-xl border border-neutral-200 space-y-4">
+            <div className="flex gap-3">
+              <AlertCircle className="text-red-500 shrink-0" size={20} />
+              <p className="text-sm text-neutral-600"><span className="font-bold text-neutral-800">Important:</span> No delivery outside campus limits. Orders must be received within college premises.</p>
+            </div>
+            <div className="flex gap-3">
+              <Truck className="text-primary-500 shrink-0" size={20} />
+              <p className="text-sm text-neutral-600"><span className="font-bold text-neutral-800">Open Box Delivery:</span> Products will be verified at the time of delivery. ID proof required.</p>
+            </div>
+          </div>
+
         </div>
-      </div>
 
-      {/* Cart Summary */}
-      <div className="bg-white p-4 sm:p-6 rounded-md shadow-md flex flex-col items-center">
-        <CartTotal />
-        <button
-          type="submit"
-          className="mt-6 w-full bg-[#E63946] text-white font-bold py-3 rounded-lg shadow-md hover:bg-red-600 transition duration-300"
-        >
-          Place Order
-        </button>
-      </div>
-
-      {/* Note */}
-      <div className="mt-6 text-center">
-        <div className="inline-block bg-blue-50 border-l-4 border-red-500 p-4 rounded-md shadow-md max-w-lg w-full">
-          <p className="text-sm text-red-800 font-medium">
-            <strong className="block text-red-900">Important Note:</strong>
-            No delivery outside the campus. Please order within the college campus.
-          </p>
+        {/* Right Side: Order Summary */}
+        <div className="lg:w-96 shrink-0">
+          <div className="bg-white p-6 rounded-2xl shadow-soft border border-neutral-100 sticky top-24">
+            <Title text1="CART" text2="TOTALS" />
+            <CartTotal />
+            <button type="submit" disabled={isLoading} className="w-full btn-primary mt-6 group flex items-center justify-center gap-2">
+              {isLoading ? 'Processing...' : 'Place Order'}
+            </button>
+            <div className="mt-4 flex items-center justify-center gap-2 text-xs text-neutral-400">
+              <Info size={14} />
+              <span>Secure Checkout</span>
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Contract Info */}
-      <div className="mt-8 p-5 border-2 border-red-500 bg-red-100 rounded-lg max-w-lg mx-auto">
-        <h2 className="text-lg font-bold text-red-700">Contract & Delivery Process</h2>
-        <ul className="list-disc pl-5 text-gray-700 mt-2 text-sm">
-          <li>Users sign a contract upon delivery acknowledging the policies.</li>
-          <li>Delivery personnel verify product condition with video/photo proof.</li>
-          <li><strong>Open Box Delivery:</strong> Products are checked at delivery time.</li>
-          <li>Users must provide a photo with the product or valid ID as proof of receipt.</li>
-        </ul>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 };
 

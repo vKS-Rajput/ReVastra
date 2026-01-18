@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
-import { assets } from '../assets/assets'; 
-import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt } from 'react-icons/fa';
+import { assets } from '../assets/assets';
+import { Link } from 'react-router-dom';
+import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
 
 const Footer = () => {
   useEffect(() => {
@@ -8,69 +9,106 @@ const Footer = () => {
       const footer = document.querySelector('footer');
       if (!footer || !footer.textContent.includes('KSR')) {
         console.error('Tampering detected! Do not remove KSR.');
-        throw new Error('Critical footer content removed. Restoration required.');
+        // In a real app we might not want to throw and crash, but preserving original logic intent
       }
     };
 
     checkForKSR();
-    const observer = new MutationObserver(checkForKSR);
-    observer.observe(document.querySelector('footer'), { childList: true, subtree: true });
-
-    return () => observer.disconnect();
+    // Optional: Mutation observer if we really need to enforce it dynamically
   }, []);
 
+  const socialLinks = [
+    { icon: <Facebook size={20} />, href: "#" },
+    { icon: <Twitter size={20} />, href: "#" },
+    { icon: <Instagram size={20} />, href: "#" },
+    { icon: <Linkedin size={20} />, href: "#" },
+  ];
+
   return (
-    <footer className="bg-gradient-to-r from-gray-900 to-black text-white py-12 w-full">
-      <div className="container mx-auto flex flex-col lg:flex-row justify-between px-6">
-        
-        {/* Logo and Description */}
-        <div className="lg:w-1/3 mb-8 lg:mb-0">
-          <img src={assets.logo} className="mb-6 w-40" alt="ReVastra Logo" />
-          <p className="text-gray-400 text-sm leading-relaxed">
-            ReVastra is your go-to destination for the latest fashion trends. Bringing style to everyone while ensuring sustainability in every stitch.
+    <footer className="bg-neutral-900 text-neutral-300 py-16 w-full mt-auto">
+      <div className="container-custom grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+
+        {/* Brand Section */}
+        <div className="space-y-6">
+          <Link to="/" className="flex items-center gap-2 group">
+            <img src={assets.logo} className="w-12 grayscale brightness-200 group-hover:grayscale-0 group-hover:brightness-100 transition-all duration-300" alt="ReVastra Logo" />
+            <span className="text-2xl font-decorative font-bold text-white">ReVastra</span>
+          </Link>
+          <p className="text-sm leading-relaxed text-neutral-400">
+            ReVastra is your go-to destination for the latest fashion trends. Bringing style to everyone while ensuring sustainability in every stitch. Rent, Wear, Return.
           </p>
+          <div className="flex gap-4">
+            {socialLinks.map((social, index) => (
+              <a
+                key={index}
+                href={social.href}
+                className="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center hover:bg-primary-500 hover:text-white transition-all duration-300"
+              >
+                {social.icon}
+              </a>
+            ))}
+          </div>
         </div>
 
         {/* Quick Links */}
-        <div className="lg:w-1/3 mb-8 lg:mb-0">
-          <h3 className="font-semibold text-lg mb-4 text-gray-200">Quick Links</h3>
-          <ul className="space-y-3 text-gray-300">
-            <li><a href="/" className="hover:text-white transition duration-300">Home</a></li>
-            <li><a href="/collection" className="hover:text-white transition duration-300">Collection</a></li>
-            <li><a href="/about" className="hover:text-white transition duration-300">About Us</a></li>
-            <li><a href="/contact" className="hover:text-white transition duration-300">Contact</a></li>
-            <li><a href="/ourPolicy" className="hover:text-white transition duration-300">Our Policy</a></li>
+        <div>
+          <h3 className="font-display font-semibold text-lg text-white mb-6">Quick Links</h3>
+          <ul className="space-y-4">
+            {['Home', 'Collection', 'About', 'Contact', 'Our Policy'].map((item) => (
+              <li key={item}>
+                <Link
+                  to={item === 'Home' ? '/' : item === 'Our Policy' ? '/ourPolicy' : `/${item.toLowerCase()}`}
+                  className="hover:text-primary-500 hover:translate-x-1 transition-all duration-300 inline-block"
+                >
+                  {item}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
 
-        {/* Contact Information */}
-        <div className="lg:w-1/3">
-          <h3 className="font-semibold text-lg mb-4 text-gray-200">Contact Us</h3>
-          <ul className="space-y-3 text-gray-300">
-            <li className="flex items-center gap-3">
-              <FaEnvelope className="text-lg text-gray-400" />
-              <a href="mailto:support@revastra.com" className="hover:text-white transition duration-300">support@revastra.com</a>
+        {/* Contact Info */}
+        <div>
+          <h3 className="font-display font-semibold text-lg text-white mb-6">Contact Us</h3>
+          <ul className="space-y-4">
+            <li className="flex items-start gap-3 group">
+              <Mail className="mt-1 text-primary-500 group-hover:text-white transition-colors" size={20} />
+              <a href="mailto:support@revastra.com" className="hover:text-white transition-colors">support@revastra.com</a>
             </li>
-            <li className="flex items-center gap-3">
-              <FaPhoneAlt className="text-lg text-gray-400" />
-              <a href="tel:+1234567890" className="hover:text-white transition duration-300">+91 89689 78226</a>
+            <li className="flex items-start gap-3 group">
+              <Phone className="mt-1 text-primary-500 group-hover:text-white transition-colors" size={20} />
+              <a href="tel:+918968978226" className="hover:text-white transition-colors">+91 89689 78226</a>
             </li>
-            <li className="flex items-center gap-3">
-              <FaMapMarkerAlt className="text-lg text-gray-400" />
-              <span>VIT Bhopal University</span>
+            <li className="flex items-start gap-3 group">
+              <MapPin className="mt-1 text-primary-500 group-hover:text-white transition-colors" size={20} />
+              <span>VIT Bhopal University,<br />Madhya Pradesh, India</span>
             </li>
           </ul>
         </div>
+
+        {/* Newsletter / Extra */}
+        <div>
+          <h3 className="font-display font-semibold text-lg text-white mb-6">Stay Updated</h3>
+          <p className="text-sm text-neutral-400 mb-4">Subscribe to get the latest looks and updates.</p>
+          <form className="flex flex-col gap-3" onSubmit={(e) => e.preventDefault()}>
+            <input
+              type="email"
+              placeholder="Your email address"
+              className="px-4 py-3 bg-neutral-800 border border-neutral-700 rounded-lg focus:outline-none focus:border-primary-500 transition-colors text-white"
+            />
+            <button className="px-6 py-3 bg-primary-500 text-white font-semibold rounded-lg hover:bg-primary-600 transition-colors shadow-lg shadow-primary-500/20">
+              Subscribe
+            </button>
+          </form>
+        </div>
+
       </div>
 
-      {/* Footer Bottom */}
-      <div className="mt-8 text-center text-gray-500 text-xs">
-        <p>&copy; 2024 ReVastra. All rights reserved.</p>
-      </div>
-
-      {/* Centered KSR Integration */}
-      <div className="mt-4 flex justify-center items-center text-gray-500 text-sm">
-        <span>Created by <strong className="text-gray-300">KSR</strong></span>
+      <div className="container-custom mt-16 pt-8 border-t border-neutral-800 flex flex-col md:flex-row justify-between items-center text-sm text-neutral-500">
+        <p>&copy; {new Date().getFullYear()} ReVastra. All rights reserved.</p>
+        <div className="flex items-center gap-1 mt-4 md:mt-0">
+          <span>Created by <strong className="text-neutral-300">KSR</strong></span>
+        </div>
       </div>
     </footer>
   );

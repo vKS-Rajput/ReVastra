@@ -1,10 +1,9 @@
 import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
-import razorpay from "razorpay";
 
 // Global Variables
-const currency = "inr";
-const deliveryCharge = 10;
+// const currency = "inr";
+// const deliveryCharge = 10;
 
 // Razorpay Initialization (if required in future)
 // let razorpayInstance;
@@ -192,4 +191,66 @@ const updateStatus = async (req, res) => {
   }
 };
 
-export { placeOrder, allOrders, updateStatus, userOrder, userEarning };
+// Get Seller Orders (Incoming Rentals) - Sanitized (No Buyer Info)
+const getSellerOrders = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Find all orders that satisfy criteria
+    // This is a bit complex in NoSQL without optimized schema for "Seller Orders"
+    // We find all orders, then filter items that belong to this seller
+
+    // Optimization: In production, OrderItem should have 'sellerId'
+    // For now, we fetch all orders and filter manually or use massive aggregation
+
+    const productModel = (await import("../models/productmodel.js")).default;
+
+    // 1. Get IDs of products owned by this seller
+    const sellerProducts = await productModel.find({ userId }).select('_id');
+    const sellerProductIds = sellerProducts.map(p => p._id.toString());
+
+    if (sellerProductIds.length === 0) {
+      return res.json({ success: true, orders: [] });
+    }
+
+    // 2. Find orders containing these products
+    // match orders where items.id is in sellerProductIds (assuming items store product _id)
+    // items structure in orderModel: [{ _id, name, price, image, size, quantity }]
+
+    const allOrders = await orderModel.find({});
+
+    const sellerOrders = [];
+
+    allOrders.forEach(order => {
+      order.items.forEach(item => {
+        if (sellerProductIds.includes(item._id)) {
+          // 3. Construct Sanitized Order Object
+          sellerOrders.push({
+            orderId: order._id,
+            productName: item.name,
+            productImage: item.image?.[0] || '',
+            size: item.size,
+            quantity: item.quantity,
+            duration: item.duration || 1, // Rental days
+            orderDate: order.date,
+            status: order.status,
+            payment: order.payment,
+            // NO BUYER ADDRESS or NAME
+            message: "Please pack this item and mark as ready."
+          });
+        }
+      });
+    });
+
+    // Sort by date desc
+    sellerOrders.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+
+    res.json({ success: true, orders: sellerOrders });
+
+  } catch (error) {
+    console.error("Get seller orders error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export { placeOrder, allOrders, updateStatus, userOrder, userEarning, getSellerOrders };

@@ -1,32 +1,40 @@
-import React, { useEffect, useState } from 'react'
-import { Route, Routes } from 'react-router-dom'
-import Home from './pages/Home'
-import Collection from './pages/Collection'
-import About from './pages/About'
-import Contact from './pages/Contact'
-import Cart from './pages/Cart'
-import Orders from './pages/Orders'
-import Product from './pages/Product'
-import SignIn from './pages/SignIn'
-import PlaceOrder from './pages/PlaceOrder'
+import React, { useEffect, useState, Suspense, lazy } from 'react'
+import { Route, Routes, useLocation } from 'react-router-dom'
 import NavBar from './components/NavBar'
 import Footer from './components/Footer'
 import SearchBar from './components/SearchBar'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import Lend from './pages/Lend'
-import Earning from './pages/Earning'
-import Profile from './pages/Profile'
 import OurPolicy from '../src/components/OurPolicy'
-import MyProducts from './pages/MyProducts'
+import { AnimatePresence } from 'framer-motion'
+import PageTransition from './components/PageTransition'
+import { ProductSkeleton } from './components/Skeleton'
+import { backEndURL } from './config'
 
+// Lazy Load Pages
+const Home = lazy(() => import('./pages/Home'));
+const Collection = lazy(() => import('./pages/Collection'));
+const About = lazy(() => import('./pages/About'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Cart = lazy(() => import('./pages/Cart'));
+const Orders = lazy(() => import('./pages/Orders'));
+const Product = lazy(() => import('./pages/Product'));
+const SignIn = lazy(() => import('./pages/SignIn'));
+const PlaceOrder = lazy(() => import('./pages/PlaceOrder'));
+const Lend = lazy(() => import('./pages/Lend'));
+const Earning = lazy(() => import('./pages/Earning'));
+const Profile = lazy(() => import('./pages/Profile'));
+const MyProducts = lazy(() => import('./pages/MyProducts'));
+const Wishlist = lazy(() => import('./pages/Wishlist'));
+const BecomeSeller = lazy(() => import('./pages/BecomeSeller'));
+const SellerOrders = lazy(() => import('./pages/SellerOrders'));
 
-export const backEndURL = import.meta.env.VITE_BACKEND_URL
 const currency = "₹"
 
 const App = () => {
 
   const [token] = useState(localStorage.getItem('token') ? localStorage.getItem('token') : ''); // State to handle login token
+  const location = useLocation();
 
   useEffect(() => {
     localStorage.setItem('token', token)
@@ -50,22 +58,29 @@ const App = () => {
         toastId="unique-toast"
       />
 
-      <Routes>
-        <Route path='/' element={<Home />} />
-        <Route path='/collection' element={<Collection />} />
-        <Route path='/lend' element={<Lend />} />
-        <Route path='/about' element={<About />} />
-        <Route path='/contact' element={<Contact />} />
-        <Route path='/cart' element={<Cart />} />
-        <Route path='/orders' element={<Orders />} />
-        <Route path='/profile' element={<Profile />} />
-        <Route path='/my_earning' element={<Earning />} />
-        <Route path='/product/:productId' element={<Product />} />
-        <Route path='/signIn' element={<SignIn />} />
-        <Route path='/ourPolicy' element={<OurPolicy />} />
-        <Route path='/placeorder' element={<PlaceOrder />} />
-        <Route path='/myProducts' element={<MyProducts />} />
-      </Routes>
+      <AnimatePresence mode="wait">
+        <Suspense fallback={<div className="container-custom py-20"><ProductSkeleton /></div>}>
+          <Routes location={location} key={location.pathname}>
+            <Route path='/' element={<PageTransition><Home /></PageTransition>} />
+            <Route path='/collection' element={<PageTransition><Collection /></PageTransition>} />
+            <Route path='/lend' element={<PageTransition><Lend /></PageTransition>} />
+            <Route path='/about' element={<PageTransition><About /></PageTransition>} />
+            <Route path='/contact' element={<PageTransition><Contact /></PageTransition>} />
+            <Route path='/cart' element={<PageTransition><Cart /></PageTransition>} />
+            <Route path='/orders' element={<PageTransition><Orders /></PageTransition>} />
+            <Route path='/profile' element={<PageTransition><Profile /></PageTransition>} />
+            <Route path='/earning' element={<PageTransition><Earning /></PageTransition>} />
+            <Route path='/product/:productId' element={<PageTransition><Product /></PageTransition>} />
+            <Route path='/signIn' element={<PageTransition><SignIn /></PageTransition>} />
+            <Route path='/ourPolicy' element={<PageTransition><OurPolicy /></PageTransition>} />
+            <Route path='/placeorder' element={<PageTransition><PlaceOrder /></PageTransition>} />
+            <Route path='/myProducts' element={<PageTransition><MyProducts /></PageTransition>} />
+            <Route path='/wishlist' element={<PageTransition><Wishlist /></PageTransition>} />
+            <Route path='/become-seller' element={<PageTransition><BecomeSeller /></PageTransition>} />
+            <Route path='/seller-orders' element={<PageTransition><SellerOrders /></PageTransition>} />
+          </Routes>
+        </Suspense>
+      </AnimatePresence>
 
 
       <Footer />

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from './components/Navbar';
-import Dashboard from './components/Sidebar'; // Import Dashboard
+import Dashboard from './pages/Dashboard';
 import { Route, Routes } from 'react-router-dom';
 import Add from './pages/Add';
 import List from './pages/List';
 import Orders from './pages/Orders';
+import Sellers from './pages/Sellers';
 import Login from './components/Login';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -34,6 +35,7 @@ const App = () => {
               <Route path="/add" element={<Add token={token} />} />
               <Route path="/list" element={<List token={token} />} />
               <Route path="/orders" element={<Orders token={token} />} />
+              <Route path="/sellers" element={<Sellers token={token} />} />
             </Routes>
           </div>
         </>

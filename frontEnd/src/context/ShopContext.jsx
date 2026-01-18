@@ -2,66 +2,77 @@ import { createContext, useEffect, useMemo, useState, useCallback } from "react"
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import useLocalStorage from "../hooks/useLocalStorage";
+import { currency, delivery_fee, washingFee, backEndURL } from "../config";
 
 export const ShopContext = createContext();
 
 const ShopContextProvider = ({ children }) => {
-    const currency = "₹";
-    const delivery_fee = 10;
-    const washingFee = 25;
-    const backEndURL = import.meta.env.VITE_BACKEND_URL;
+    // Constants imported from config.js
 
-    // Initialize token from localStorage immediately
-    const [token, setToken] = useState(() => {
-        const storedToken = localStorage.getItem("token");
-        return storedToken && storedToken !== "undefined" && storedToken !== "null" ? storedToken : '';
-    });
+    // Persistent State using custom hook
+    // Note: useLocalStorage handles JSON parsing/stringifying automatically
 
-    // Initialize user from localStorage immediately
-    const [user, setUser] = useState(() => {
-        const storedUser = localStorage.getItem("user");
-        try {
-            return storedUser && storedUser !== "undefined" && storedUser !== "null"
-                ? JSON.parse(storedUser)
-                : null;
-        } catch {
-            return null;
-        }
-    });
+    // Token is stored as a raw string usually, but our hook stringifies everything. 
+    // If backend expects raw string, we might need to be careful. 
+    // However, existing logic was localStorage.getItem("token") which returns string.
+    // If we use JSON.stringify("tokenstring"), it becomes "\"tokenstring\"".
+    // Wait, the hook uses JSON.parse. If "token" is stored as plain string "abc", JSON.parse("abc") throws error?
+    // "abc" is not valid JSON. valid JSON string is "\"abc\"".
+    // EXISTING LOGIC: localStorage.getItem("token") -> returns "abc"
+    // My hook: JSON.parse("abc") -> ERROR.
+
+    // FIX: The hook should handle non-JSON strings gracefully or I should only use it for JSON data.
+    // user, wishlist, includeWashing ARE JSON.
+    // token is simple string.
+
+    // Let's keep token as is or update duplication manually for token, but use hook for others.
+
+    const [token, setToken] = useState(() => localStorage.getItem("token") || "");
+
+    // User Object
+    const [user, setUser] = useLocalStorage("user", null);
+
+    // Wishlist
+    const [wishlist, setWishlist] = useLocalStorage("wishlist", []);
+
+    // Include Washing
+    const [includeWashing, setIncludeWashing] = useLocalStorage("includeWashing", false);
 
     const [search, setSearch] = useState('');
     const [products, setProducts] = useState([]);
     const [showSearch, setShowSearch] = useState(true);
     const [cartItems, setCartItems] = useState({});
-    const [includeWashing, setIncludeWashing] = useState(() => {
-        const storedValue = localStorage.getItem("includeWashing");
-        return storedValue && storedValue !== "undefined" ? JSON.parse(storedValue) : false;
-    });
 
     const navigate = useNavigate();
 
-    // Sync token to localStorage when it changes
+    // Sync token manually since it might not be JSON
     useEffect(() => {
-        if (token) {
-            localStorage.setItem("token", token);
-        }
+        if (token) localStorage.setItem("token", token);
+        else localStorage.removeItem("token");
     }, [token]);
 
-    // Sync user to localStorage when it changes
-    useEffect(() => {
-        if (user) {
-            localStorage.setItem("user", JSON.stringify(user));
-        }
-    }, [user]);
+    // useLocalStorage hook handles syncing for user, wishlist, includeWashing automatically on change.
 
     // Toggle washing fee
     const toggleWashingFee = useCallback(() => {
-        setIncludeWashing((prev) => {
-            const newState = !prev;
-            localStorage.setItem("includeWashing", JSON.stringify(newState));
-            return newState;
+        setIncludeWashing((prev) => !prev);
+    }, [setIncludeWashing]);
+
+    // Wishlist Functions
+    const addToWishlist = useCallback((itemId) => {
+        setWishlist((prev) => {
+            if (prev.includes(itemId)) {
+                toast.info("Removed from Wishlist");
+                return prev.filter(id => id !== itemId);
+            } else {
+                toast.success("Added to Wishlist");
+                return [...prev, itemId];
+            }
         });
     }, []);
+
+    const isInWishlist = useCallback((itemId) => wishlist.includes(itemId), [wishlist]);
 
     // Add item to cart
     const addToCart = useCallback(async (itemId, size) => {
@@ -148,24 +159,21 @@ const ShopContextProvider = ({ children }) => {
         if (!tokenToUse) return;
 
         try {
-            console.log("Fetching profile from:", `${backEndURL}/api/user/profile`);
             const { data } = await axios.get(`${backEndURL}/api/user/profile`, {
                 headers: { Authorization: `Bearer ${tokenToUse}` },
             });
 
             if (data.success) {
                 setUser(data.user);
-                localStorage.setItem("user", JSON.stringify(data.user));
+                // localStorage.setItem("user", JSON.stringify(data.user)); // Handled by hook
             }
         } catch (error) {
             console.error("Profile fetch error:", error.response?.data || error.message);
-            // Don't show toast for 401 errors on initial load - token might be expired
             if (error.response?.status === 401) {
-                // Token is invalid, clear it
                 setToken('');
                 setUser(null);
                 localStorage.removeItem("token");
-                localStorage.removeItem("user");
+                // localStorage.removeItem("user"); // Handled by hook setting null
             }
         }
     }, [token, backEndURL]);
@@ -174,14 +182,14 @@ const ShopContextProvider = ({ children }) => {
     // Logout function
     const logout = () => {
         setToken('');
-        setUser(null);
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+        setUser(null); // hook updates localStorage
+        // localStorage.removeItem("token"); // handled by useEffect
+        // localStorage.removeItem("user"); // handled by hook
         navigate('/');
         toast.success("Logged out successfully.");
     };
 
-    // Initial fetch: products only (token is already loaded from localStorage)
+    // Initial fetch
     useEffect(() => {
         getProductData();
     }, [getProductData]);
@@ -204,7 +212,7 @@ const ShopContextProvider = ({ children }) => {
         setShowSearch,
         getCartAmount,
         cartItems,
-        setCartItems,  // ✅ Add this line
+        setCartItems,
         addToCart,
         backEndURL,
         getCartCount,
@@ -219,7 +227,10 @@ const ShopContextProvider = ({ children }) => {
         toggleWashingFee,
         fetchUserProfile,
         logout,
-    }), [products, currency, delivery_fee, search, showSearch, cartItems, addToCart, backEndURL, getCartAmount, getCartCount, updateDuration, token, user, washingFee, navigate, includeWashing, toggleWashingFee, fetchUserProfile, logout]);
+        wishlist,
+        addToWishlist,
+        isInWishlist
+    }), [products, currency, delivery_fee, search, showSearch, cartItems, addToCart, backEndURL, getCartAmount, getCartCount, updateDuration, token, user, washingFee, navigate, includeWashing, toggleWashingFee, fetchUserProfile, logout, wishlist, addToWishlist, isInWishlist]);
 
     return <ShopContext.Provider value={value}>{children}</ShopContext.Provider>;
 };

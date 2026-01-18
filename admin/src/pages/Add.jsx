@@ -5,10 +5,8 @@ import { backEndURL } from "../App";
 import { toast } from "react-toastify";
 
 const Add = ({ token }) => {
-  const [image1, setImage1] = useState(false);
-  const [image2, setImage2] = useState(false);
-  const [image3, setImage3] = useState(false);
-  const [image4, setImage4] = useState(false);
+  // Use array instead of separate state variables - avoids eval()
+  const [images, setImages] = useState([null, null, null, null]);
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -20,20 +18,27 @@ const Add = ({ token }) => {
   const [rental_price, setRentalPrice] = useState("");
   const [pickuplocation, setPickupLocation] = useState("");
   const [contactno, setContactNo] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Cleanup object URLs on unmount
   useEffect(() => {
     return () => {
-      image1 && URL.revokeObjectURL(image1);
-      image2 && URL.revokeObjectURL(image2);
-      image3 && URL.revokeObjectURL(image3);
-      image4 && URL.revokeObjectURL(image4);
+      images.forEach(image => image && URL.revokeObjectURL(URL.createObjectURL(image)));
     };
-  }, [image1, image2, image3, image4]);
+  }, []);
+
+  // Handle image change for specific index
+  const handleImageChange = (index, file) => {
+    const newImages = [...images];
+    newImages[index] = file;
+    setImages(newImages);
+  };
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
 
-    if (!image1 && !image2 && !image3 && !image4) {
+    const hasImage = images.some(img => img !== null);
+    if (!hasImage) {
       toast.error("Please upload at least one image.");
       return;
     }
@@ -42,6 +47,8 @@ const Add = ({ token }) => {
       toast.error("Please select at least one size.");
       return;
     }
+
+    setIsSubmitting(true);
 
     try {
       const formData = new FormData();
@@ -55,31 +62,39 @@ const Add = ({ token }) => {
       formData.append("sizes", JSON.stringify(sizes));
       formData.append("pickuplocation", pickuplocation);
       formData.append("contactno", contactno);
-      if (image1) formData.append("image1", image1);
-      if (image2) formData.append("image2", image2);
-      if (image3) formData.append("image3", image3);
-      if (image4) formData.append("image4", image4);
+      formData.append("bestSeller", bestSeller);
 
-      const response = await axios.post(backEndURL + "/api/product/add", formData, { headers: { token } });
+      // Append images with correct field names
+      images.forEach((image, index) => {
+        if (image) {
+          formData.append(`image${index + 1}`, image);
+        }
+      });
+
+      const response = await axios.post(backEndURL + "/api/product/add", formData, {
+        headers: { token }
+      });
 
       if (response.data.success) {
-        toast.success(response.data.success);
+        toast.success("Product added successfully!");
+        // Reset form
         setName("");
         setDescription("");
-        setImage1(false);
-        setImage2(false);
-        setImage3(false);
-        setImage4(false);
+        setImages([null, null, null, null]);
         setPrice("");
         setRentalPrice("");
         setPickupLocation("");
         setContactNo("");
+        setSizes([]);
+        setBestSeller(false);
       } else {
         toast.error(response.data.message);
       }
     } catch (error) {
       console.error("Error occurred:", error);
       toast.error(error.response?.data?.message || error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -92,7 +107,7 @@ const Add = ({ token }) => {
       <div className="w-full">
         <p className="text-lg font-bold mb-4">Upload Product Images</p>
         <div className="flex flex-wrap justify-center gap-4">
-          {[setImage1, setImage2, setImage3, setImage4].map((setImage, index) => (
+          {images.map((image, index) => (
             <label
               key={index}
               htmlFor={`image${index + 1}`}
@@ -100,13 +115,14 @@ const Add = ({ token }) => {
             >
               <img
                 className="w-24 h-24 object-cover rounded-md"
-                src={!eval(`image${index + 1}`) ? assets.upload_area : URL.createObjectURL(eval(`image${index + 1}`))}
-                alt="Upload Preview"
+                src={image ? URL.createObjectURL(image) : assets.upload_area}
+                alt={`Upload Preview ${index + 1}`}
               />
               <input
-                onChange={(e) => setImage(e.target.files[0])}
+                onChange={(e) => handleImageChange(index, e.target.files[0])}
                 type="file"
                 id={`image${index + 1}`}
+                accept="image/*"
                 hidden
               />
             </label>
@@ -161,6 +177,7 @@ const Add = ({ token }) => {
           />
           <select
             onChange={(e) => setCategory(e.target.value)}
+            value={category}
             className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
             required
           >
@@ -169,6 +186,7 @@ const Add = ({ token }) => {
           </select>
           <select
             onChange={(e) => setSubCategory(e.target.value)}
+            value={subCategory}
             className="px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#E63946] outline-none"
             required
           >
@@ -200,8 +218,8 @@ const Add = ({ token }) => {
                 )
               }
               className={`${sizes.includes(size)
-                  ? "bg-[#E63946] text-white"
-                  : "bg-gray-200"
+                ? "bg-[#E63946] text-white"
+                : "bg-gray-200"
                 } px-4 py-2 cursor-pointer rounded-md hover:bg-[#E63946] hover:text-white transition-colors duration-300`}
             >
               {size}
@@ -227,9 +245,13 @@ const Add = ({ token }) => {
       <div className="flex justify-center w-full">
         <button
           type="submit"
-          className="w-full sm:w-64 py-3 mt-6 bg-[#E63946] text-white font-bold rounded-md hover:bg-[#D7263D] transition-colors duration-300"
+          disabled={isSubmitting}
+          className={`w-full sm:w-64 py-3 mt-6 font-bold rounded-md transition-colors duration-300 ${isSubmitting
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-[#E63946] text-white hover:bg-[#D7263D]"
+            }`}
         >
-          Add Product
+          {isSubmitting ? "Adding..." : "Add Product"}
         </button>
       </div>
     </form>
@@ -237,3 +259,4 @@ const Add = ({ token }) => {
 };
 
 export default Add;
+

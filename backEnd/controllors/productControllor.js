@@ -2,6 +2,7 @@ import { v2 as cloudinary } from "cloudinary";
 import productModel from "../models/productmodel.js";
 import userModel from "../models/userModel.js";
 
+
 const addProduct = async (req, res) => {
   try {
     const userId = req.user.id; // ✅ Extract userId from middleware
@@ -87,7 +88,14 @@ const addProduct = async (req, res) => {
 
 const listProduct = async (req, res) => {
   try {
-    const products = await productModel.find({});
+    // Fetches all banned users
+    const bannedUsers = await userModel.find({ isBanned: true }).select('_id');
+    const bannedUserIds = bannedUsers.map(u => u._id.toString());
+
+    // Filter out products where userId is in the banned list
+    // check if userId is string or ObjectId in productModel. It is String based on schema view.
+    const products = await productModel.find({ userId: { $nin: bannedUserIds } });
+
     res.json({ success: true, products });
   } catch (error) {
     console.error(error);
@@ -126,12 +134,9 @@ const singleProduct = async (req, res) => {
 const myProducts = async (req, res) => {
   try {
     const userId = req.user.id; // ✅ Access user ID from authUser middleware
-    console.log("🔎 User ID from auth middleware:", userId);
-
     const products = await productModel.find({ userId });
 
     // Always return 200 with products array (even if empty)
-    console.log(`✅ Found ${products.length} products for user:`, userId);
     res.json({ success: true, products });
   } catch (error) {
     console.error("❌ Error fetching user's products:", error);

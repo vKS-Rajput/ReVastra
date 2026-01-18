@@ -2,140 +2,209 @@ import React, { useContext, useEffect, useState } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
 import ProductItems from '../components/ProductItems';
+import Title from '../components/Title';
+import { Filter, X, ChevronDown } from 'lucide-react';
+import { ProductSkeleton } from '../components/Skeleton';
 
 const Collection = () => {
-  const { products, search } = useContext(ShopContext);
+  const { products, search, showSearch } = useContext(ShopContext);
   const [showFilter, setShowFilter] = useState(false);
   const [filterProducts, setFilterProducts] = useState([]);
   const [category, setCategory] = useState([]);
   const [subCategory, setSubCategory] = useState([]);
+  const [priceRanges, setPriceRanges] = useState([]);
+  const [sortType, setSortType] = useState('relevant');
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Toggle Category Selection
   const toggleCategory = (e) => {
     if (category.includes(e.target.value)) {
-      setCategory((prev) => prev.filter((item) => item !== e.target.value));
+      setCategory(prev => prev.filter(item => item !== e.target.value));
     } else {
-      setCategory((prev) => [...prev, e.target.value]);
+      setCategory(prev => [...prev, e.target.value]);
     }
   };
 
-  // Toggle Subcategory Selection
-  const subToggleCategory = (e) => {
+  const toggleSubCategory = (e) => {
     if (subCategory.includes(e.target.value)) {
-      setSubCategory((prev) => prev.filter((item) => item !== e.target.value));
+      setSubCategory(prev => prev.filter(item => item !== e.target.value));
     } else {
-      setSubCategory((prev) => [...prev, e.target.value]);
+      setSubCategory(prev => [...prev, e.target.value]);
     }
   };
 
-  // Apply Filters
-  const applyFilter = () => {
-    let productCopy = products.slice();
+  const togglePriceRange = (e, min, max) => {
+    if (e.target.checked) {
+      setPriceRanges(prev => [...prev, { min, max }]);
+    } else {
+      setPriceRanges(prev => prev.filter(range => range.min !== min || range.max !== max));
+    }
+  };
 
-    if (search) {
-      productCopy = productCopy.filter(item => item.name.toLowerCase().includes(search.toLowerCase()));
+  const applyFilter = () => {
+    let productsCopy = products.slice();
+
+    if (showSearch && search) {
+      productsCopy = productsCopy.filter(item => item.name.toLowerCase().includes(search.toLowerCase()));
     }
 
     if (category.length > 0) {
-      productCopy = productCopy.filter((item) => category.includes(item.category));
+      productsCopy = productsCopy.filter(item => category.includes(item.category));
     }
+
     if (subCategory.length > 0) {
-      productCopy = productCopy.filter((item) => subCategory.includes(item.subCategory));
+      productsCopy = productsCopy.filter(item => subCategory.includes(item.subCategory));
     }
-    setFilterProducts(productCopy);
+
+    if (priceRanges.length > 0) {
+      productsCopy = productsCopy.filter(item => {
+        return priceRanges.some(range => item.rental_price >= range.min && item.rental_price <= range.max);
+      });
+    }
+
+    setFilterProducts(productsCopy);
+  };
+
+  const sortProduct = () => {
+    let fpCopy = filterProducts.slice();
+
+    switch (sortType) {
+      case 'low-high':
+        setFilterProducts(fpCopy.sort((a, b) => (a.rental_price - b.rental_price))); // Sort by rental price
+        break;
+      case 'high-low':
+        setFilterProducts(fpCopy.sort((a, b) => (b.rental_price - a.rental_price)));
+        break;
+      default:
+        applyFilter();
+        break;
+    }
   };
 
   useEffect(() => {
-    applyFilter();
-  }, [category, subCategory, search, products]);
+    // Simulate loading or wait for products
+    if (products.length > 0) {
+      applyFilter();
+      setIsLoading(false);
+    } else {
+      // Fallback or still loading if products are being fetched asynchronously
+      // In this context, products might be empty initially
+      const timer = setTimeout(() => setIsLoading(false), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [category, subCategory, search, showSearch, products, priceRanges]);
+
+  useEffect(() => {
+    sortProduct();
+  }, [sortType]);
 
   return (
-    <div className='flex flex-col sm:flex-row gap-6 sm:gap-10  border-t border-gray-200'>
-      {/* Filter Options */}
-      <div className="min-w-60 sm:w-1/4 bg-white shadow-lg rounded-xl p-6">
-        <p
-          onClick={() => setShowFilter(!showFilter)}
-          className="flex items-center justify-between cursor-pointer text-lg font-semibold text-gray-800 mb-4"
-        >
-          FILTER
-          <img
-            src={assets.dropdown_icon}
-            className={`h-5 transform transition-transform duration-300 sm:hidden ${showFilter ? 'rotate-180' : ''}`}
-            alt="dropdown icon"
-          />
-        </p>
+    <div className='container-custom pt-10 pb-20 border-t border-neutral-200'>
 
-        {/* Category Filter */}
-        <div className={`overflow-hidden transition-all duration-300 ease-in-out ${showFilter ? 'max-h-screen' : 'max-h-0'} sm:max-h-screen`}>
-          <div className="border-b border-gray-300 pb-4">
-            <p className="text-sm font-medium text-gray-700 mb-3">CATEGORIES</p>
-            <div className="flex flex-col gap-3">
-              <label className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-md">
-                <input
-                  className="w-4 h-4 accent-blue-600"
-                  type="checkbox"
-                  value="Men"
-                  onChange={toggleCategory}
-                />
-                <span className="text-gray-700 font-medium">Men</span>
-              </label>
-              <label className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-md">
-                <input
-                  className="w-4 h-4 accent-blue-600"
-                  type="checkbox"
-                  value="Women"
-                  onChange={toggleCategory}
-                />
-                <span className="text-gray-700 font-medium">Women</span>
-              </label>
-            </div>
-          </div>
-
-          {/* Sub Category Filter */}
-          <div className="mt-5">
-            <p className="text-sm font-medium text-gray-700 mb-3">TYPE</p>
-            <div className="flex flex-col gap-3">
-              <label className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-md">
-                <input
-                  className="w-4 h-4 accent-blue-600"
-                  type="checkbox"
-                  value="Topwear"
-                  onChange={subToggleCategory}
-                />
-                <span className="text-gray-700 font-medium">Top Wear</span>
-              </label>
-              <label className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-md">
-                <input
-                  className="w-4 h-4 accent-blue-600"
-                  type="checkbox"
-                  value="Bottomwear"
-                  onChange={subToggleCategory}
-                />
-                <span className="text-gray-700 font-medium">Bottom Wear</span>
-              </label>
-            </div>
-          </div>
-        </div>
+      {/* Sticky Filter Toggle for Mobile */}
+      <div className="flex sm:hidden justify-between items-center mb-6 sticky top-[70px] z-30 bg-white/80 backdrop-blur-md p-4 rounded-xl shadow-soft border border-neutral-100">
+        <p className='font-display font-semibold text-lg text-neutral-800'>Filters</p>
+        <button onClick={() => setShowFilter(!showFilter)} className="p-2 bg-neutral-100 rounded-full hover:bg-neutral-200 transition-colors">
+          {showFilter ? <X size={20} /> : <Filter size={20} />}
+        </button>
       </div>
 
-      {/* Product Side */}
-      <div className="flex-1">
-        {/* Product Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filterProducts.length > 0 ? (
-            filterProducts.map((item, index) => (
-              <ProductItems
-                key={index}
-                id={item._id}
-                image={item.image}
-                name={item.name}
-                price={item.price}
-                rental_price={item.rental_price}
-              />
-            ))
-          ) : (
-            <p className="col-span-full text-center text-gray-600">No products found.</p>
-          )}
+      <div className='flex flex-col sm:flex-row gap-8'>
+
+        {/* Filter Sidebar */}
+        <div className={`min-w-64 bg-white p-6 rounded-2xl shadow-soft border border-neutral-100 h-fit sticky top-24 transition-all duration-300 ease-in-out
+                ${showFilter ? 'max-h-[1000px] opacity-100 mb-6' : 'max-h-0 opacity-0 overflow-hidden mb-0'} sm:max-h-screen sm:opacity-100 sm:block sm:mb-0 z-20`}>
+
+          <div className="flex items-center gap-2 mb-6">
+            <Filter size={18} className="text-primary-500" />
+            <p className='text-lg font-display font-bold text-neutral-800'>Filters</p>
+          </div>
+
+          {/* Categories */}
+          <div className='mb-6'>
+            <p className='text-sm font-bold text-neutral-800 uppercase tracking-wider mb-3'>Categories</p>
+            <div className='space-y-2'>
+              {['Men', 'Women', 'Kids'].map((cat) => (
+                <label key={cat} className='flex items-center gap-3 cursor-pointer group'>
+                  <input className='w-4 h-4 accent-primary-500 rounded border-gray-300' type="checkbox" value={cat} onChange={toggleCategory} />
+                  <span className='text-neutral-600 group-hover:text-primary-500 transition-colors'>{cat}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="h-[1px] bg-neutral-100 my-4"></div>
+
+          {/* SubCategories */}
+          <div>
+            <p className='text-sm font-bold text-neutral-800 uppercase tracking-wider mb-3 dark:text-neutral-200'>Type</p>
+            <div className='space-y-2'>
+              {['Topwear', 'Bottomwear', 'Winterwear'].map((sub) => (
+                <label key={sub} className='flex items-center gap-3 cursor-pointer group'>
+                  <input className='w-4 h-4 accent-primary-500 rounded border-gray-300' type="checkbox" value={sub} onChange={toggleSubCategory} />
+                  <span className='text-neutral-600 dark:text-neutral-400 group-hover:text-primary-500 transition-colors'>{sub}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="h-[1px] bg-neutral-100 my-4 dark:bg-neutral-800"></div>
+
+          {/* Price Range */}
+          <div>
+            <p className='text-sm font-bold text-neutral-800 uppercase tracking-wider mb-3 dark:text-neutral-200'>Price Range</p>
+            <div className='space-y-2'>
+              {[
+                { label: 'Under ₹500', min: 0, max: 500 },
+                { label: '₹500 - ₹1000', min: 500, max: 1000 },
+                { label: '₹1000 - ₹2000', min: 1000, max: 2000 },
+                { label: 'Over ₹2000', min: 2000, max: 100000 }
+              ].map((range, index) => (
+                <label key={index} className='flex items-center gap-3 cursor-pointer group'>
+                  <input
+                    className='w-4 h-4 accent-primary-500 rounded border-gray-300'
+                    type="checkbox"
+                    onChange={(e) => togglePriceRange(e, range.min, range.max)}
+                  />
+                  <span className='text-neutral-600 dark:text-neutral-400 group-hover:text-primary-500 transition-colors'>{range.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+        </div>
+
+        {/* Product Grid Area */}
+        <div className='flex-1'>
+          <div className='flex flex-col sm:flex-row justify-between items-center mb-8 gap-4'>
+            <Title text1={'ALL'} text2={'COLLECTIONS'} />
+            {/* Sort Dropdown */}
+            <div className="relative">
+              <select onChange={(e) => setSortType(e.target.value)}
+                className='border border-neutral-200 text-sm px-4 py-2.5 rounded-lg focus:outline-none focus:border-primary-500 bg-white shadow-sm cursor-pointer hover:border-neutral-300 transition-colors appearance-none pr-10'>
+                <option value="relevant">Sort by: Relevant</option>
+                <option value="low-high">Sort by: Low to High</option>
+                <option value="high-low">Sort by: High to Low</option>
+              </select>
+              <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
+            </div>
+          </div>
+
+          <div className='grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10'>
+            {isLoading ? (
+              Array(8).fill(0).map((_, i) => <ProductSkeleton key={i} />)
+            ) : (
+              filterProducts.length > 0 ? (
+                filterProducts.map((item, index) => (
+                  <ProductItems key={index} name={item.name} id={item._id} price={item.price} rental_price={item.rental_price} image={item.image} date={item.date} bestseller={item.bestseller} />
+                ))
+              ) : (
+                <div className="col-span-full py-20 text-center">
+                  <p className="text-neutral-400 text-lg">No products found matching your criteria.</p>
+                  <button onClick={() => { setCategory([]); setSubCategory([]); }} className="mt-4 text-primary-500 font-medium hover:underline">Clear Filters</button>
+                </div>
+              )
+            )}
+          </div>
         </div>
       </div>
     </div>
