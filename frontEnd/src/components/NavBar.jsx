@@ -42,14 +42,14 @@ const NavBar = () => {
       <div className="container-custom flex items-center justify-between font-medium">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group">
-          <img src={assets.logo} className="w-10 transition-transform duration-300 group-hover:scale-110" alt="Logo" />
-          <span className="text-2xl font-decorative font-bold bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent">
+          <img src={assets.logo} className="w-8 sm:w-10 transition-transform duration-300 group-hover:scale-110" alt="Logo" />
+          <span className="text-xl sm:text-2xl font-decorative font-bold bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent hidden sm:block">
             ReVastra
           </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <ul className="hidden sm:flex gap-8 text-neutral-600 dark:text-neutral-300">
+        <ul className="hidden md:flex gap-8 text-neutral-600 dark:text-neutral-300">
           {["HOME", "COLLECTION", "LEND", "ABOUT", "CONTACT"].map((item) => (
             <NavLink
               key={item}
@@ -69,7 +69,7 @@ const NavBar = () => {
         </ul>
 
         {/* Icons Section */}
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-2 sm:gap-5">
           {/* Theme Toggle */}
           <ThemeToggle />
 
@@ -78,18 +78,18 @@ const NavBar = () => {
             onClick={() => setShowSearch(!showSearch)}
             className="text-neutral-700 hover:text-primary-500 transition-colors"
           >
-            <Search size={22} strokeWidth={2} />
+            <Search size={22} strokeWidth={2} className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
 
           {/* User Profile */}
           <div className="group relative">
             {token ? (
               <button className="text-neutral-700 hover:text-primary-500 transition-colors pt-1">
-                <User size={22} strokeWidth={2} />
+                <User size={22} strokeWidth={2} className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
             ) : (
               <Link to="/login" className="text-neutral-700 hover:text-primary-500 transition-colors">
-                <User size={22} strokeWidth={2} />
+                <User size={22} strokeWidth={2} className="w-5 h-5 sm:w-6 sm:h-6" />
               </Link>
             )}
 
@@ -144,11 +144,11 @@ const NavBar = () => {
             )}
           </div>
 
-          {/* Wishlist Icon */}
+          {/* Wishlist Icon - Hide on very small screens if needed, or keep smaller */}
           <Link to="/wishlist" className="relative text-neutral-700 dark:text-neutral-300 hover:text-primary-500 dark:hover:text-primary-400 transition-colors">
-            <Heart size={22} strokeWidth={2} />
+            <Heart size={22} strokeWidth={2} className="w-5 h-5 sm:w-6 sm:h-6" />
             {wishlist.length > 0 && (
-              <span className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white dark:border-neutral-900 shadow-sm">
+              <span className="absolute -top-2 -right-2 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white dark:border-neutral-900 shadow-sm">
                 {wishlist.length}
               </span>
             )}
@@ -156,8 +156,8 @@ const NavBar = () => {
 
           {/* Cart Icon */}
           <Link to="/cart" className="relative text-neutral-700 dark:text-neutral-300 hover:text-primary-500 dark:hover:text-primary-400 transition-colors">
-            <ShoppingBag size={22} strokeWidth={2} />
-            <span className="absolute -top-2 -right-2 w-5 h-5 bg-primary-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white dark:border-neutral-900 shadow-sm">
+            <ShoppingBag size={22} strokeWidth={2} className="w-5 h-5 sm:w-6 sm:h-6" />
+            <span className="absolute -top-2 -right-2 w-4 h-4 sm:w-5 sm:h-5 bg-primary-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white dark:border-neutral-900 shadow-sm">
               {getCartCount()}
             </span>
           </Link>
@@ -165,9 +165,9 @@ const NavBar = () => {
           {/* Mobile Menu Icon */}
           <button
             onClick={() => setVisible(true)}
-            className="sm:hidden text-neutral-700 dark:text-neutral-300 hover:text-primary-500 transition-colors"
+            className="md:hidden text-neutral-700 dark:text-neutral-300 hover:text-primary-500 transition-colors"
           >
-            <Menu size={24} />
+            <Menu size={24} className="w-6 h-6" />
           </button>
         </div>
 

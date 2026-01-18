@@ -71,7 +71,7 @@ const App = () => {
             <Route path='/profile' element={<PageTransition><Profile /></PageTransition>} />
             <Route path='/earning' element={<PageTransition><Earning /></PageTransition>} />
             <Route path='/product/:productId' element={<PageTransition><Product /></PageTransition>} />
-            <Route path='/signIn' element={<PageTransition><SignIn /></PageTransition>} />
+            <Route path='/login' element={<PageTransition><SignIn /></PageTransition>} />
             <Route path='/ourPolicy' element={<PageTransition><OurPolicy /></PageTransition>} />
             <Route path='/placeorder' element={<PageTransition><PlaceOrder /></PageTransition>} />
             <Route path='/myProducts' element={<PageTransition><MyProducts /></PageTransition>} />
