@@ -74,7 +74,8 @@ const SignIn = () => {
   }, [token, navigate]);
 
   return (
-    <div className='min-h-[80vh] flex items-center justify-center py-10 px-4'>
+  return (
+    <div className='min-h-screen flex items-center justify-center py-20 px-4 pt-24'>
       <div className="bg-white rounded-2xl shadow-strong w-full max-w-md p-8 sm:p-10 border border-neutral-100 relative overflow-hidden">
 
         {/* Decorative Background Blur */}
