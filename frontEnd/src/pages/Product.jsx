@@ -32,7 +32,7 @@ const Product = () => {
   };
 
   return productData ? (
-    <div className="mx-auto justify-center px-4 sm:px-6 lg:px-8 py-8" style={{ marginTop: '60px' }}>
+    <div className="mx-auto justify-center px-4 sm:px-6 lg:px-8 py-8" style={{ marginTop: '10px' }}>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         {/* Product Images */}
         <div className=" justify-center flex flex-col sm:flex-row gap-4">
@@ -90,9 +90,8 @@ const Product = () => {
                 <button
                   key={index}
                   onClick={() => setSize(item)}
-                  className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
-                    item === size ? 'bg-red-600 text-white border-red-600' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                  }`}
+                  className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${item === size ? 'bg-red-600 text-white border-red-600' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                    }`}
                 >
                   {item}
                 </button>
@@ -104,11 +103,10 @@ const Product = () => {
           <button
             onClick={handleAddToCart}
             disabled={productData.status !== 'available'}
-            className={`w-full py-3 rounded-xl text-lg font-semibold transition-all ${
-              productData.status === 'available'
+            className={`w-full py-3 rounded-xl text-lg font-semibold transition-all ${productData.status === 'available'
                 ? 'bg-red-500 text-white hover:bg-red-600'
                 : 'bg-gray-300 text-gray-600 cursor-not-allowed'
-            }`}
+              }`}
           >
             {productData.status === 'available' ? 'Add to Cart' : 'Out of Stock'}
           </button>

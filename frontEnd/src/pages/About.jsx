@@ -4,7 +4,7 @@ import { assets } from '../assets/assets'
 
 const About = () => {
   return (
-    <div className='bg-gradient-to-b from-blue-50 to-blue-100' style={{ marginTop: '80px' }}>
+    <div className='bg-gradient-to-b from-blue-50 to-blue-100' >
       {/* Title Section */}
       <div className='text-3xl font-bold text-center pt-8 pb-6 border-t'>
         <Title text1={'ABOUT'} text2={'US'} />
