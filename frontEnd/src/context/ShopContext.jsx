@@ -180,14 +180,16 @@ const ShopContextProvider = ({ children }) => {
 
 
     // Logout function
-    const logout = () => {
+    const logout = useCallback(() => {
         setToken('');
-        setUser(null); // hook updates localStorage
-        // localStorage.removeItem("token"); // handled by useEffect
-        // localStorage.removeItem("user"); // handled by hook
-        navigate('/');
+        setUser(null);
+        setCartItems({});
+        setWishlist([]); // Clear wishlist on logout
+        localStorage.removeItem("token");
+        // user, includeWashing etc handled by useLocalStorage hook updates
+        navigate('/login'); // Redirect to login page
         toast.success("Logged out successfully.");
-    };
+    }, [navigate, setUser, setWishlist, setToken, setCartItems]);
 
     // Initial fetch
     useEffect(() => {

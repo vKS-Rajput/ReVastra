@@ -16,15 +16,9 @@ const NavBar = () => {
     token,
     setToken,
     setCartItems,
-    wishlist
+    wishlist,
+    logout
   } = useContext(ShopContext);
-
-  const logout = () => {
-    navigate("/login");
-    localStorage.removeItem("token");
-    setToken("");
-    setCartItems({});
-  };
 
   // Handle scroll effect for glassmorphism
   useEffect(() => {
