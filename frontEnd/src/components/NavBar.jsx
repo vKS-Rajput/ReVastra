@@ -70,13 +70,15 @@ const NavBar = () => {
 
         {/* Icons Section */}
         <div className="flex items-center gap-2 sm:gap-5">
-          {/* Theme Toggle */}
-          <ThemeToggle />
+          {/* Theme Toggle - Hide on mobile to save space */}
+          <div className="hidden sm:block">
+            <ThemeToggle />
+          </div>
 
-          {/* Search Icon */}
+          {/* Search Icon - Hide on mobile */}
           <button
             onClick={() => setShowSearch(!showSearch)}
-            className="text-neutral-700 hover:text-primary-500 transition-colors"
+            className="hidden sm:block text-neutral-700 hover:text-primary-500 transition-colors"
           >
             <Search size={22} strokeWidth={2} className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
@@ -144,7 +146,7 @@ const NavBar = () => {
             )}
           </div>
 
-          {/* Wishlist Icon - Hide on very small screens if needed, or keep smaller */}
+          {/* Wishlist Icon */}
           <Link to="/wishlist" className="relative text-neutral-700 dark:text-neutral-300 hover:text-primary-500 dark:hover:text-primary-400 transition-colors">
             <Heart size={22} strokeWidth={2} className="w-5 h-5 sm:w-6 sm:h-6" />
             {wishlist.length > 0 && (
@@ -170,47 +172,47 @@ const NavBar = () => {
             <Menu size={24} className="w-6 h-6" />
           </button>
         </div>
+      </div>
 
-        {/* Mobile Sidebar Menu */}
-        <div
-          className={`absolute top-0 right-0 bottom-0 overflow-hidden bg-white/95 backdrop-blur-xl transition-all duration-300 shadow-2xl z-50 ${visible ? "w-full" : "w-0"
-            }`}
-        >
-          <div className="flex flex-col text-neutral-600 h-full">
-            <div
-              onClick={() => setVisible(false)}
-              className="flex items-center gap-4 p-5 cursor-pointer border-b border-neutral-100 hover:bg-neutral-50 transition-colors"
-            >
-              <div className="h-8 w-8 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-500">
-                <X size={20} />
-              </div>
-              <p className="font-semibold text-lg">Back</p>
+      {/* Mobile Sidebar Menu - Fixed overlay for full screen */}
+      <div
+        className={`fixed top-0 right-0 h-screen overflow-hidden bg-white dark:bg-neutral-900 backdrop-blur-xl transition-all duration-300 shadow-2xl z-[100] ${visible ? "w-full" : "w-0"
+          }`}
+      >
+        <div className="flex flex-col text-neutral-600 h-full">
+          <div
+            onClick={() => setVisible(false)}
+            className="flex items-center gap-4 p-5 cursor-pointer border-b border-neutral-100 hover:bg-neutral-50 transition-colors"
+          >
+            <div className="h-8 w-8 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-500">
+              <X size={20} />
             </div>
+            <p className="font-semibold text-lg">Back</p>
+          </div>
 
-            <div className="flex flex-col p-4 gap-2">
-              {["HOME", "COLLECTION", "LEND", "ABOUT", "CONTACT"].map((item) => (
-                <NavLink
-                  key={item}
-                  onClick={() => setVisible(false)}
-                  to={item === "HOME" ? "/" : `/${item.toLowerCase()}`}
-                  className={({ isActive }) =>
-                    `py-4 px-6 border rounded-lg text-lg font-medium transition-all duration-200 ${isActive
-                      ? "bg-primary-50 border-primary-100 text-primary-600"
-                      : "border-transparent hover:bg-neutral-50"
-                    }`
-                  }
-                >
-                  {item}
-                </NavLink>
-              ))}
-            </div>
+          <div className="flex flex-col p-4 gap-2">
+            {["HOME", "COLLECTION", "LEND", "ABOUT", "CONTACT"].map((item) => (
+              <NavLink
+                key={item}
+                onClick={() => setVisible(false)}
+                to={item === "HOME" ? "/" : `/${item.toLowerCase()}`}
+                className={({ isActive }) =>
+                  `py-4 px-6 border rounded-lg text-lg font-medium transition-all duration-200 ${isActive
+                    ? "bg-primary-50 border-primary-100 text-primary-600"
+                    : "border-transparent hover:bg-neutral-50"
+                  }`
+                }
+              >
+                {item}
+              </NavLink>
+            ))}
+          </div>
 
-            {/* Mobile Footer Area */}
-            <div className="mt-auto p-6 bg-neutral-50 border-t border-neutral-100">
-              <Link to="/login" onClick={() => setVisible(false)} className="btn-primary w-full block text-center">
-                {token ? "My Profile" : "Login / Sign Up"}
-              </Link>
-            </div>
+          {/* Mobile Footer Area */}
+          <div className="mt-auto p-6 bg-neutral-50 border-t border-neutral-100">
+            <Link to="/login" onClick={() => setVisible(false)} className="btn-primary w-full block text-center">
+              {token ? "My Profile" : "Login / Sign Up"}
+            </Link>
           </div>
         </div>
       </div>
