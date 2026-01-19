@@ -2,6 +2,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
 import { toast } from 'react-toastify';
+import { Truck, ShieldCheck, Clock, CheckCircle } from 'lucide-react';
+import Title from '../components/Title';
 
 const Product = () => {
   const { productId } = useParams();
@@ -32,114 +34,162 @@ const Product = () => {
   };
 
   return productData ? (
-    <div className="mx-auto justify-center px-4 sm:px-6 lg:px-8 py-8" style={{ marginTop: '10px' }}>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        {/* Product Images */}
-        <div className=" justify-center flex flex-col sm:flex-row gap-4">
-          <div className="flex sm:flex-col overflow-x-auto sm:overflow-y-auto sm:w-24 w-full sm:h-[450px] gap-2">
-            {productData.image.map((item, index) => (
-              <img
-                key={index}
-                src={item}
-                onClick={() => setImage(item)}
-                className={`w-20 h-20 object-cover rounded-lg cursor-pointer border transition-transform duration-300 hover:scale-105 ${image === item ? 'border-gray-500' : 'border-gray-300'}`}
-                alt={`Thumbnail ${index + 1}`}
-              />
-            ))}
-          </div>
-          <div className="w-auto ">
-            <img
-              src={image}
-              alt="Selected product"
-              className="w-full  h-auto object-contain rounded-2xl shadow-lg transition-transform duration-300 hover:scale-105"
-            />
-          </div>
-        </div>
+    <div className="pt-10 transition-opacity ease-in duration-500 opacity-100 min-h-screen">
+      <div className='container-custom'>
 
-        {/* Product Info */}
-        <div className="rounded-2xl shadow-2xl p-8 bg-white">
-          <h1 className="font-bold text-4xl text-gray-800 mb-4">{productData.name}</h1>
-          <p className={`text-lg font-medium mb-4 ${productData.status === 'available' ? 'text-green-600' : 'text-red-600'}`}>
-            {productData.status === 'available' ? '✔ Available' : '✖ Out of Stock'}
-          </p>
+        {/* Breadcrumb / Layout Container */}
+        <div className='flex flex-col lg:flex-row gap-12 lg:gap-16'>
 
-          <div className="mb-6">
-            <p className="text-lg text-gray-400 line-through">Original: {currency}{productData.price}</p>
-            <p className="text-3xl font-semibold text-red-500">
-              Rent: {currency}{productData.rental_price}
-              <span className="text-lg font-normal text-gray-600"> / day</span>
-            </p>
-            <p className="text-sm text-gray-600 mt-1">Low-cost rental option available</p>
-          </div>
-
-          {/* Description */}
-          <div className="mb-6">
-            <p className="text-lg font-semibold mb-3">Product Details</p>
-            <div className="h-auto overflow-y-auto pr-4 border-l-2 border-red-400 pl-4 rounded-md  space-y-2">
-              {productData.description.split('\n').map((line, index) => (
-                <p key={index} className="text-gray-700 text-sm leading-relaxed">{line}</p>
-              ))}
-            </div>
-          </div>
-
-          {/* Select Size */}
-          <div className="mb-6">
-            <p className="text-lg font-semibold mb-3">Select Size</p>
-            <div className="flex flex-wrap gap-3">
-              {productData.sizes.map((item, index) => (
-                <button
+          {/* ---------------- Left Side: Image Gallery ---------------- */}
+          <div className='flex-1 flex flex-col-reverse lg:flex-row gap-4'>
+            {/* Thumbnails */}
+            <div className='flex lg:flex-col overflow-x-auto lg:overflow-y-auto justify-between lg:justify-start lg:w-[15%] w-full gap-3 scrollbar-hide'>
+              {productData.image.map((item, index) => (
+                <img
                   key={index}
-                  onClick={() => setSize(item)}
-                  className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${item === size ? 'bg-red-600 text-white border-red-600' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                    }`}
-                >
-                  {item}
-                </button>
+                  src={item}
+                  onClick={() => setImage(item)}
+                  className={`w-[23%] lg:w-full h-auto aspect-[3/4] object-cover rounded-xl cursor-pointer border-2 transition-all duration-300 ${item === image ? 'border-primary-500 opacity-100 ring-2 ring-primary-500/20' : 'border-transparent opacity-70 hover:opacity-100'}`}
+                  alt={`Thumbnail ${index + 1}`}
+                />
               ))}
+            </div>
+
+            {/* Main Image */}
+            <div className='w-full lg:w-[85%] relative group'>
+              <div className="aspect-[3/4] w-full bg-neutral-100 dark:bg-neutral-800 rounded-2xl overflow-hidden shadow-soft">
+                <img
+                  src={image}
+                  alt={productData.name}
+                  className='w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105'
+                />
+              </div>
             </div>
           </div>
 
-          {/* Add to Cart Button */}
-          <button
-            onClick={handleAddToCart}
-            disabled={productData.status !== 'available'}
-            className={`w-full py-3 rounded-xl text-lg font-semibold transition-all ${productData.status === 'available'
-                ? 'bg-red-500 text-white hover:bg-red-600'
-                : 'bg-gray-300 text-gray-600 cursor-not-allowed'
-              }`}
-          >
-            {productData.status === 'available' ? 'Add to Cart' : 'Out of Stock'}
-          </button>
-        </div>
-      </div>
+          {/* ---------------- Right Side: Product Info ---------------- */}
+          <div className='flex-1 pb-16'>
+            <h1 className='font-display font-medium text-3xl sm:text-4xl text-neutral-800 dark:text-neutral-100 mb-2 mt-2 leading-tight'>
+              {productData.name}
+            </h1>
 
-      {/* Contract & Benefits Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-12">
-        <div className="p-6 border-2 border-red-400 bg-red-50 rounded-2xl shadow-lg">
-          <h2 className="text-xl font-bold text-red-700 mb-4">Important: Contract & Delivery Process</h2>
-          <ul className="list-disc pl-6 text-gray-700 space-y-3">
-            <li>Users sign a contract upon delivery confirming compliance with policies.</li>
-            <li>Delivery personnel verify product condition with video/photo proof.</li>
-            <li><strong>Open Box Delivery:</strong> Inspect product at delivery time.</li>
-            <li>Photo with product or valid ID required as proof of receipt.</li>
-          </ul>
+            {/* Status & Category */}
+            <div className="flex items-center gap-4 mb-6">
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${productData.status === 'available' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
+                {productData.status === 'available' ? <CheckCircle size={14} /> : null}
+                {productData.status === 'available' ? 'Available' : 'Out of Stock'}
+              </span>
+              <span className="text-sm text-neutral-500 dark:text-neutral-400 font-medium">{productData.category}</span>
+            </div>
+
+            {/* Price Section */}
+            <div className='bg-primary-50 dark:bg-primary-900/10 p-5 rounded-2xl border border-primary-100 dark:border-primary-900/30 mb-8'>
+              <div className="flex items-end gap-3 mb-1">
+                <p className='text-4xl font-bold text-primary-600 dark:text-primary-400'>
+                  {currency}{productData.rental_price}
+                </p>
+                <span className="text-lg font-medium text-neutral-500 dark:text-neutral-400 pb-1">/ day</span>
+              </div>
+              <p className='text-sm text-neutral-500 dark:text-neutral-400 font-medium line-through'>
+                Retail Price: {currency}{productData.price}
+              </p>
+            </div>
+
+            {/* Description */}
+            <p className='text-neutral-600 dark:text-neutral-300 leading-relaxed mb-8 text-base'>
+              {productData.description}
+            </p>
+
+            {/* Size Selector */}
+            <div className='flex flex-col gap-4 mb-8'>
+              <p className='font-semibold text-neutral-800 dark:text-neutral-200'>Select Size</p>
+              <div className='flex gap-3'>
+                {productData.sizes.map((item, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSize(item)}
+                    className={`w-12 h-12 rounded-xl border-2 flex items-center justify-center font-medium transition-all duration-200 ${item === size
+                      ? 'border-primary-500 bg-primary-500 text-white shadow-lg shadow-primary-500/30 scale-105'
+                      : 'border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:border-primary-400'
+                      }`}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Add to Cart Button */}
+            <button
+              onClick={handleAddToCart}
+              disabled={productData.status !== 'available'}
+              className={`w-full py-4 px-8 rounded-full text-lg font-bold uppercase tracking-wide transition-all duration-300 shadow-xl ${productData.status === 'available'
+                ? 'bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white hover:shadow-primary-500/40 hover:-translate-y-1'
+                : 'bg-neutral-300 dark:bg-neutral-700 text-neutral-500 cursor-not-allowed'
+                }`}
+            >
+              {productData.status === 'available' ? 'Add to Cart' : 'Currently Unavailable'}
+            </button>
+
+            <hr className='my-8 border-neutral-200 dark:border-neutral-800' />
+
+            {/* Benefits List */}
+            <div className='grid grid-cols-1 gap-4'>
+              <div className="flex items-start gap-4">
+                <div className="p-2 bg-neutral-100 dark:bg-neutral-800 rounded-lg text-neutral-600 dark:text-neutral-300">
+                  <Truck size={20} />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-neutral-800 dark:text-neutral-200 text-sm">Free Delivery & Pickup</h4>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">On all orders above {currency}500</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <div className="p-2 bg-neutral-100 dark:bg-neutral-800 rounded-lg text-neutral-600 dark:text-neutral-300">
+                  <ShieldCheck size={20} />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-neutral-800 dark:text-neutral-200 text-sm">Quality Verified</h4>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Dry cleaned and sanitized</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <div className="p-2 bg-neutral-100 dark:bg-neutral-800 rounded-lg text-neutral-600 dark:text-neutral-300">
+                  <Clock size={20} />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-neutral-800 dark:text-neutral-200 text-sm">Flexible Duration</h4>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Rent for 3, 5 or 7 days</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
 
-        <div className="p-6 border-2 border-green-400 bg-green-50 rounded-2xl shadow-lg">
-          <h2 className="text-xl font-bold text-green-700 mb-4">Why Rent With Us?</h2>
-          <ul className="space-y-3 text-gray-700">
-            <li>🚀 Quick & Hassle-Free Deliveries</li>
-            <li>✅ Verified & Quality Checked Products</li>
-            <li>🔄 Easy Returns & Refunds</li>
-            <li>💵 Budget-Friendly Rental Plans</li>
-          </ul>
+        {/* Bottom Section: Description & Reviews */}
+        <div className='mt-10'>
+          <div className='flex gap-6 border-b border-neutral-200 dark:border-neutral-800'>
+            <button className='pb-4 border-b-2 border-primary-500 text-primary-600 dark:text-primary-400 font-bold'>Description</button>
+            <button className='pb-4 border-b-2 border-transparent text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200 font-medium transition-colors'>Reviews (12)</button>
+          </div>
+          <div className='py-8 flex flex-col gap-6 text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed'>
+            <p>
+              Elevate your style with this premium rental piece from top designers.
+              Meticulously crafted to ensure you stand out at every occasion,
+              whether it's a wedding, party, or corporate event.
+            </p>
+            <p>
+              ReVastra ensures every item is professionally cleaned and quality checked before delivery.
+              Enjoy the luxury of high-end fashion without the commitment of ownership.
+            </p>
+          </div>
         </div>
+
       </div>
     </div>
   ) : (
-    <div className="flex justify-center items-center h-96">
-      <p className="text-lg font-medium text-gray-600">Loading product details...</p>
-    </div>
+    <div className='opacity-0'></div> // Invisible loading state to prevent flash
   );
 };
 

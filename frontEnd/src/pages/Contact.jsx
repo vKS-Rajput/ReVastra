@@ -1,147 +1,135 @@
 import React from 'react';
 import Title from '../components/Title';
-import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelopeOpenText } from 'react-icons/fa';
+import { MapPin, Phone, Mail, Send, Clock, Globe } from 'lucide-react';
 
 const Contact = () => {
   return (
-    <div className="bg-gradient-to-b from-white to-neutral-50 dark:from-neutral-900 dark:to-neutral-950 py-8 px-4 sm:px-8">
-      {/* Title Section */}
-      <div className="text-center text-3xl font-semibold text-neutral-800 dark:text-neutral-200 py-8">
-        <Title text1={'CONTACT'} text2={'US'} />
-      </div>
+    <div className='min-h-screen pb-20'>
+      {/* Hero Section */}
+      <div className="relative bg-neutral-900 text-white py-20 px-4 overflow-hidden">
+        <div className="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-transparent to-transparent"></div>
 
-      {/* Decorative Element (Gradient Background) */}
-      <div className="h-1 w-16 bg-gradient-to-r from-red-400 to-pink-600 rounded mb-6 mx-auto"></div>
-
-      {/* Contact Content */}
-      <div className="my-10 flex flex-col lg:flex-row gap-16 lg:px-16">
-        {/* Contact Details */}
-        <div className="flex flex-col justify-center items-start gap-8 lg:w-2/4">
-          <h3 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200 mb-4">Reach Out to Us</h3>
-          <p className="text-base leading-relaxed text-neutral-600 dark:text-neutral-400 mb-8">
-            We’re here to help! Get in touch through any of the methods below, and our team will respond as soon as possible.
+        <div className="container-custom relative z-10 text-center">
+          <h1 className="text-4xl sm:text-5xl font-display font-bold mb-4">Get in Touch</h1>
+          <p className="text-neutral-300 max-w-2xl mx-auto text-lg">
+            Have questions about renting or lending? We're here to help you every step of the way.
+            Reach out to our dedicated support team.
           </p>
-
-          {/* Address and Contact Info with Icons */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-4 bg-gradient-to-r from-blue-100 to-blue-50 dark:from-blue-900/30 dark:to-blue-800/20 p-5 rounded-lg shadow-md hover:shadow-xl transition-shadow">
-              <FaMapMarkerAlt className="text-blue-600 dark:text-blue-400 text-2xl" />
-              <span className="text-neutral-700 dark:text-neutral-300 font-medium">1234 Street Name, City, State, 12345</span>
-            </div>
-            <div className="flex items-center gap-4 bg-gradient-to-r from-green-100 to-green-50 dark:from-green-900/30 dark:to-green-800/20 p-5 rounded-lg shadow-md hover:shadow-xl transition-shadow">
-              <FaPhoneAlt className="text-green-600 dark:text-green-400 text-2xl" />
-              <span className="text-neutral-700 dark:text-neutral-300 font-medium">+1 (234) 567-890</span>
-            </div>
-            <div className="flex items-center gap-4 bg-gradient-to-r from-pink-100 to-pink-50 dark:from-pink-900/30 dark:to-pink-800/20 p-5 rounded-lg shadow-md hover:shadow-xl transition-shadow">
-              <FaEnvelopeOpenText className="text-pink-600 dark:text-pink-400 text-2xl" />
-              <span className="text-neutral-700 dark:text-neutral-300 font-medium">info@example.com</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Contact Form */}
-        <div className="w-full lg:w-2/4 mt-10 lg:mt-0">
-          <form className="space-y-6">
-            <div className="flex flex-col">
-              <label htmlFor="name" className="text-neutral-600 dark:text-neutral-400 text-lg">Name</label>
-              <input
-                type="text"
-                id="name"
-                className="border border-neutral-300 dark:border-neutral-600 rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-[#E63946] transition-colors bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200"
-                placeholder="Your Name"
-                required
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label htmlFor="email" className="text-neutral-600 dark:text-neutral-400 text-lg">Email</label>
-              <input
-                type="email"
-                id="email"
-                className="border border-neutral-300 dark:border-neutral-600 rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-[#E63946] transition-colors bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200"
-                placeholder="Your Email"
-                required
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label htmlFor="message" className="text-neutral-600 dark:text-neutral-400 text-lg">Message</label>
-              <textarea
-                id="message"
-                rows="6"
-                className="border border-neutral-300 dark:border-neutral-600 rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-[#E63946] transition-colors bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200"
-                placeholder="Your Message"
-                required
-              ></textarea>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-[#E63946] text-white py-4 rounded-lg hover:shadow-lg hover:bg-[#E63946] transition duration-300"
-            >
-              Send Message
-            </button>
-          </form>
         </div>
       </div>
 
-      {/* Job Contact Section */}
-      {/* <div className="my-16 px-4 lg:px-16">
-        <h3 className="text-xl font-semibold text-gray-800 mb-4">Contact for Job Inquiries</h3>
-        <p className="text-base leading-relaxed text-gray-600 mb-8">
-          Interested in joining our team? Fill out the form below to submit your resume or inquire about job opportunities.
-        </p>
-        <form className="space-y-6">
-          <div className="flex flex-col">
-            <label htmlFor="job-name" className="text-gray-600 text-lg">Name</label>
-            <input
-              type="text"
-              id="job-name"
-              className="border border-gray-300 rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-[#E63946] transition-colors"
-              placeholder="Your Name"
-              required
-            />
+      <div className='container-custom -mt-10 relative z-20'>
+        <div className='bg-white dark:bg-neutral-800 rounded-2xl shadow-xl border border-neutral-100 dark:border-neutral-700 overflow-hidden flex flex-col lg:flex-row'>
+
+          {/* Contact Info Sidebar */}
+          <div className='bg-primary-600 dark:bg-primary-700 text-white p-10 lg:w-1/3 flex flex-col justify-between relative overflow-hidden'>
+            <div className="absolute top-0 right-0 w-40 h-40 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-white opacity-5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+
+            <div className='relative z-10'>
+              <h3 className='text-2xl font-display font-bold mb-2'>Contact Information</h3>
+              <p className='text-primary-100 mb-8 max-w-xs'>Fill up the form and our Team will get back to you within 24 hours.</p>
+
+              <div className='space-y-6'>
+                <div className='flex items-start gap-4'>
+                  <Phone className='w-6 h-6 text-primary-200 mt-1' />
+                  <div>
+                    <h4 className='font-semibold text-white'>Phone</h4>
+                    <p className='text-primary-100'>+91 89689 78226</p>
+                  </div>
+                </div>
+
+                <div className='flex items-start gap-4'>
+                  <Mail className='w-6 h-6 text-primary-200 mt-1' />
+                  <div>
+                    <h4 className='font-semibold text-white'>Email</h4>
+                    <p className='text-primary-100'>support@revastra.com</p>
+                  </div>
+                </div>
+
+                <div className='flex items-start gap-4'>
+                  <MapPin className='w-6 h-6 text-primary-200 mt-1' />
+                  <div>
+                    <h4 className='font-semibold text-white'>Office</h4>
+                    <p className='text-primary-100 leading-snug'>
+                      VIT Bhopal University,<br />
+                      Madhya Pradesh, India
+                    </p>
+                  </div>
+                </div>
+
+                <div className='flex items-start gap-4'>
+                  <Clock className='w-6 h-6 text-primary-200 mt-1' />
+                  <div>
+                    <h4 className='font-semibold text-white'>Hours</h4>
+                    <p className='text-primary-100'>Mon - Fri: 9am - 6pm</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className='flex gap-4 mt-12 relative z-10'>
+              <Globe className='w-6 h-6 text-primary-200 opacity-50 hover:opacity-100 transition-opacity cursor-pointer' />
+              {/* Add social icons here if needed */}
+            </div>
           </div>
 
-          <div className="flex flex-col">
-            <label htmlFor="job-email" className="text-gray-600 text-lg">Email</label>
-            <input
-              type="email"
-              id="job-email"
-              className="border border-gray-300 rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-[#E63946] transition-colors"
-              placeholder="Your Email"
-              required
-            />
-          </div>
+          {/* Contact Form */}
+          <div className='p-10 lg:w-2/3 bg-white dark:bg-neutral-800'>
+            <form className='space-y-6'>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                <div className='space-y-2'>
+                  <label htmlFor="name" className='text-sm font-semibold text-neutral-700 dark:text-neutral-300 uppercase tracking-wide'>Name</label>
+                  <input
+                    type="text"
+                    id="name"
+                    className='w-full px-4 py-3 rounded-lg bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all text-neutral-800 dark:text-neutral-200'
+                    placeholder="John Doe"
+                    required
+                  />
+                </div>
+                <div className='space-y-2'>
+                  <label htmlFor="email" className='text-sm font-semibold text-neutral-700 dark:text-neutral-300 uppercase tracking-wide'>Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    className='w-full px-4 py-3 rounded-lg bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all text-neutral-800 dark:text-neutral-200'
+                    placeholder="john@example.com"
+                    required
+                  />
+                </div>
+              </div>
 
-          <div className="flex flex-col">
-            <label htmlFor="job-message" className="text-gray-600 text-lg">Your Message</label>
-            <textarea
-              id="job-message"
-              rows="6"
-              className="border border-gray-300 rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-[#E63946] transition-colors"
-              placeholder="Why you want to join us?"
-              required
-            ></textarea>
-          </div>
+              <div className='space-y-2'>
+                <label htmlFor="subject" className='text-sm font-semibold text-neutral-700 dark:text-neutral-300 uppercase tracking-wide'>Subject</label>
+                <input
+                  type="text"
+                  id="subject"
+                  className='w-full px-4 py-3 rounded-lg bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all text-neutral-800 dark:text-neutral-200'
+                  placeholder="How can we help?"
+                  required
+                />
+              </div>
 
-          <button
-            type="submit"
-            className="w-full bg-[#E63946] text-white py-4 rounded-lg hover:shadow-lg hover:bg-[#E63946] transition duration-300"
-          >
-            Submit Job Inquiry
-          </button>
-        </form>
-      </div> */}
+              <div className='space-y-2'>
+                <label htmlFor="message" className='text-sm font-semibold text-neutral-700 dark:text-neutral-300 uppercase tracking-wide'>Message</label>
+                <textarea
+                  id="message"
+                  rows="6"
+                  className='w-full px-4 py-3 rounded-lg bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all text-neutral-800 dark:text-neutral-200 resize-none'
+                  placeholder="Write your message..."
+                  required
+                ></textarea>
+              </div>
 
-      {/* Map Section */}
-      <div className="mt-16 px-4 lg:px-16">
-        <div className="bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-lg shadow-lg p-6 text-center">
-          <h3 className="text-xl font-semibold text-neutral-800 dark:text-neutral-200">Our Location</h3>
-          <p className="text-neutral-600 dark:text-neutral-400 mb-6">Visit us at our office for a friendly chat and personalized assistance.</p>
-          {/* Map Placeholder */}
-          <div className="w-full h-64 bg-neutral-200 dark:bg-neutral-700 rounded-lg">
-            <p className="text-neutral-400 dark:text-neutral-500 pt-24">[Map Placeholder]</p>
+              <button
+                type="submit"
+                className='inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-lg shadow-lg shadow-primary-500/30 transition-all transform hover:-translate-y-1 w-full sm:w-auto'
+              >
+                Send Message <Send size={18} />
+              </button>
+            </form>
           </div>
         </div>
       </div>
