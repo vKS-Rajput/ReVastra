@@ -106,9 +106,6 @@ const Footer = () => {
 
       <div className="container-custom mt-16 pt-8 border-t border-neutral-800 flex flex-col md:flex-row justify-between items-center text-sm text-neutral-500">
         <p>&copy; {new Date().getFullYear()} ReVastra. All rights reserved.</p>
-        <div className="flex items-center gap-1 mt-4 md:mt-0">
-          <span>Created by <strong className="text-neutral-300">KSR</strong></span>
-        </div>
       </div>
     </footer>
   );

@@ -14,16 +14,16 @@ const SearchBar = () => {
   const showSearchBar = location.pathname === '/collection';
 
   return showSearchBar ? (
-    <div className='border-t border-b bg-gray-50 text-center' >
-      <div className='inline-flex items-center justify-center border border-gray-400 px-5 py-2 my-5 mx-5 rounded-full w-3/4 sm:w-1/2'>
+    <div className='border-t border-b border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900 text-center' >
+      <div className='inline-flex items-center justify-center border border-neutral-300 dark:border-neutral-600 px-5 py-2 my-5 mx-5 rounded-full w-3/4 sm:w-1/2 bg-white dark:bg-neutral-800'>
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className='flex-1 outline-none bg-inherit text-sm'
+          className='flex-1 outline-none bg-transparent text-sm text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400 dark:placeholder:text-neutral-500'
           type="text"
           placeholder='Search'
         />
-        <img className='w-4' src={assets?.search_icon || 'fallback-icon.png'} alt="Search icon" />
+        <img className='w-4 dark:invert' src={assets?.search_icon || 'fallback-icon.png'} alt="Search icon" />
       </div>
     </div>
   ) : null;

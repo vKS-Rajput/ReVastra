@@ -10,6 +10,7 @@ import { AnimatePresence } from 'framer-motion'
 import PageTransition from './components/PageTransition'
 import { ProductSkeleton } from './components/Skeleton'
 import { backEndURL } from './config'
+import ProtectedRoute from './components/ProtectedRoute'
 
 // Lazy Load Pages
 const Home = lazy(() => import('./pages/Home'));
@@ -61,23 +62,26 @@ const App = () => {
       <AnimatePresence mode="wait">
         <Suspense fallback={<div className="container-custom py-20"><ProductSkeleton /></div>}>
           <Routes location={location} key={location.pathname}>
+            {/* Public Routes */}
             <Route path='/' element={<PageTransition><Home /></PageTransition>} />
             <Route path='/collection' element={<PageTransition><Collection /></PageTransition>} />
-            <Route path='/lend' element={<PageTransition><Lend /></PageTransition>} />
             <Route path='/about' element={<PageTransition><About /></PageTransition>} />
             <Route path='/contact' element={<PageTransition><Contact /></PageTransition>} />
-            <Route path='/cart' element={<PageTransition><Cart /></PageTransition>} />
-            <Route path='/orders' element={<PageTransition><Orders /></PageTransition>} />
-            <Route path='/profile' element={<PageTransition><Profile /></PageTransition>} />
-            <Route path='/earning' element={<PageTransition><Earning /></PageTransition>} />
             <Route path='/product/:productId' element={<PageTransition><Product /></PageTransition>} />
             <Route path='/login' element={<PageTransition><SignIn /></PageTransition>} />
             <Route path='/ourPolicy' element={<PageTransition><OurPolicy /></PageTransition>} />
-            <Route path='/placeorder' element={<PageTransition><PlaceOrder /></PageTransition>} />
-            <Route path='/myProducts' element={<PageTransition><MyProducts /></PageTransition>} />
-            <Route path='/wishlist' element={<PageTransition><Wishlist /></PageTransition>} />
-            <Route path='/become-seller' element={<PageTransition><BecomeSeller /></PageTransition>} />
-            <Route path='/seller-orders' element={<PageTransition><SellerOrders /></PageTransition>} />
+
+            {/* Protected Routes - Require Authentication */}
+            <Route path='/lend' element={<ProtectedRoute><PageTransition><Lend /></PageTransition></ProtectedRoute>} />
+            <Route path='/cart' element={<ProtectedRoute><PageTransition><Cart /></PageTransition></ProtectedRoute>} />
+            <Route path='/orders' element={<ProtectedRoute><PageTransition><Orders /></PageTransition></ProtectedRoute>} />
+            <Route path='/profile' element={<ProtectedRoute><PageTransition><Profile /></PageTransition></ProtectedRoute>} />
+            <Route path='/earning' element={<ProtectedRoute><PageTransition><Earning /></PageTransition></ProtectedRoute>} />
+            <Route path='/placeorder' element={<ProtectedRoute><PageTransition><PlaceOrder /></PageTransition></ProtectedRoute>} />
+            <Route path='/myProducts' element={<ProtectedRoute><PageTransition><MyProducts /></PageTransition></ProtectedRoute>} />
+            <Route path='/wishlist' element={<ProtectedRoute><PageTransition><Wishlist /></PageTransition></ProtectedRoute>} />
+            <Route path='/become-seller' element={<ProtectedRoute><PageTransition><BecomeSeller /></PageTransition></ProtectedRoute>} />
+            <Route path='/seller-orders' element={<ProtectedRoute><PageTransition><SellerOrders /></PageTransition></ProtectedRoute>} />
           </Routes>
         </Suspense>
       </AnimatePresence>

@@ -17,7 +17,7 @@ const ProductItems = ({ id, image, name, price, rental_price, bestseller, date }
 
     return (
         <Link
-            className='group bg-white rounded-xl overflow-hidden shadow-soft hover:shadow-medium border border-neutral-100 transition-all duration-300 transform hover:-translate-y-1 block'
+            className='group bg-white dark:bg-neutral-800 rounded-xl overflow-hidden shadow-soft hover:shadow-medium border border-neutral-100 dark:border-neutral-700 transition-all duration-300 transform hover:-translate-y-1 block'
             to={`/product/${id}`}
         >
             {/* Image Container */}
@@ -62,20 +62,20 @@ const ProductItems = ({ id, image, name, price, rental_price, bestseller, date }
 
             {/* Content */}
             <div className='p-4'>
-                <h3 className='text-neutral-800 font-medium text-base truncate mb-1 group-hover:text-primary-500 transition-colors'>{name}</h3>
+                <h3 className='text-neutral-800 dark:text-neutral-200 font-medium text-base truncate mb-1 group-hover:text-primary-500 transition-colors'>{name}</h3>
 
                 <div className='flex items-end justify-between mt-2'>
                     <div>
-                        <p className='text-xs text-neutral-500 uppercase tracking-wide font-semibold'>Rental Price</p>
+                        <p className='text-xs text-neutral-500 dark:text-neutral-400 uppercase tracking-wide font-semibold'>Rental Price</p>
                         <div className="flex items-baseline gap-1">
-                            <span className='text-lg font-bold text-primary-600'>{currency}{rental_price}</span>
-                            <span className="text-xs text-neutral-500">/day</span>
+                            <span className='text-lg font-bold text-primary-600 dark:text-primary-400'>{currency}{rental_price}</span>
+                            <span className="text-xs text-neutral-500 dark:text-neutral-400">/day</span>
                         </div>
                     </div>
                     {price && (
                         <div className="text-right">
-                            <p className='text-[10px] text-neutral-400'>Retail</p>
-                            <p className='text-xs text-neutral-400 line-through decoration-neutral-300'>{currency}{price}</p>
+                            <p className='text-[10px] text-neutral-400 dark:text-neutral-500'>Retail</p>
+                            <p className='text-xs text-neutral-400 dark:text-neutral-500 line-through decoration-neutral-300'>{currency}{price}</p>
                         </div>
                     )}
                 </div>

@@ -12,11 +12,11 @@ const LatestCollection = () => {
   }, [products]);
 
   return (
-    <div className="my-16 bg-gray-50 py-12">
+    <div className="my-16 bg-neutral-50 dark:bg-neutral-900/50 py-12">
       {/* Section Title */}
       <div className="text-center mb-12 px-4">
         <Title text1="Latest" text2="Collection" />
-        <p className="w-full md:w-3/4 lg:w-1/2 mx-auto text-sm sm:text-base md:text-lg text-gray-600 mt-4">
+        <p className="w-full md:w-3/4 lg:w-1/2 mx-auto text-sm sm:text-base md:text-lg text-neutral-600 dark:text-neutral-400 mt-4">
           Discover our newest products, crafted with care and designed to meet the latest trends. Explore and find your next favorite!
         </p>
       </div>
@@ -40,7 +40,7 @@ const LatestCollection = () => {
           ))}
         </div>
       ) : (
-        <div className="text-center text-gray-500 mt-8">
+        <div className="text-center text-neutral-500 dark:text-neutral-400 mt-8">
           <p>No products available in the latest collection.</p>
         </div>
       )}

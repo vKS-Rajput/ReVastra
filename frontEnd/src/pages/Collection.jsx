@@ -98,12 +98,12 @@ const Collection = () => {
   }, [sortType]);
 
   return (
-    <div className='container-custom pt-10 pb-20 border-t border-neutral-200'>
+    <div className='container-custom pt-10 pb-20 border-t border-neutral-200 dark:border-neutral-800'>
 
       {/* Sticky Filter Toggle for Mobile */}
-      <div className="flex sm:hidden justify-between items-center mb-6 sticky top-[70px] z-30 bg-white/80 backdrop-blur-md p-4 rounded-xl shadow-soft border border-neutral-100">
-        <p className='font-display font-semibold text-lg text-neutral-800'>Filters</p>
-        <button onClick={() => setShowFilter(!showFilter)} className="p-2 bg-neutral-100 rounded-full hover:bg-neutral-200 transition-colors">
+      <div className="flex sm:hidden justify-between items-center mb-6 sticky top-[70px] z-30 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md p-4 rounded-xl shadow-soft border border-neutral-100 dark:border-neutral-800">
+        <p className='font-display font-semibold text-lg text-neutral-800 dark:text-neutral-200'>Filters</p>
+        <button onClick={() => setShowFilter(!showFilter)} className="p-2 bg-neutral-100 dark:bg-neutral-800 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors">
           {showFilter ? <X size={20} /> : <Filter size={20} />}
         </button>
       </div>
@@ -111,28 +111,28 @@ const Collection = () => {
       <div className='flex flex-col sm:flex-row gap-8'>
 
         {/* Filter Sidebar */}
-        <div className={`min-w-64 bg-white p-6 rounded-2xl shadow-soft border border-neutral-100 h-fit sticky top-24 transition-all duration-300 ease-in-out
+        <div className={`min-w-64 bg-white dark:bg-neutral-800 p-6 rounded-2xl shadow-soft border border-neutral-100 dark:border-neutral-700 h-fit sticky top-24 transition-all duration-300 ease-in-out
                 ${showFilter ? 'max-h-[1000px] opacity-100 mb-6' : 'max-h-0 opacity-0 overflow-hidden mb-0'} sm:max-h-screen sm:opacity-100 sm:block sm:mb-0 z-20`}>
 
           <div className="flex items-center gap-2 mb-6">
             <Filter size={18} className="text-primary-500" />
-            <p className='text-lg font-display font-bold text-neutral-800'>Filters</p>
+            <p className='text-lg font-display font-bold text-neutral-800 dark:text-neutral-200'>Filters</p>
           </div>
 
           {/* Categories */}
           <div className='mb-6'>
-            <p className='text-sm font-bold text-neutral-800 uppercase tracking-wider mb-3'>Categories</p>
+            <p className='text-sm font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider mb-3'>Categories</p>
             <div className='space-y-2'>
               {['Men', 'Women', 'Kids'].map((cat) => (
                 <label key={cat} className='flex items-center gap-3 cursor-pointer group'>
                   <input className='w-4 h-4 accent-primary-500 rounded border-gray-300' type="checkbox" value={cat} onChange={toggleCategory} />
-                  <span className='text-neutral-600 group-hover:text-primary-500 transition-colors'>{cat}</span>
+                  <span className='text-neutral-600 dark:text-neutral-400 group-hover:text-primary-500 transition-colors'>{cat}</span>
                 </label>
               ))}
             </div>
           </div>
 
-          <div className="h-[1px] bg-neutral-100 my-4"></div>
+          <div className="h-[1px] bg-neutral-100 dark:bg-neutral-700 my-4"></div>
 
           {/* SubCategories */}
           <div>
@@ -180,7 +180,7 @@ const Collection = () => {
             {/* Sort Dropdown */}
             <div className="relative">
               <select onChange={(e) => setSortType(e.target.value)}
-                className='border border-neutral-200 text-sm px-4 py-2.5 rounded-lg focus:outline-none focus:border-primary-500 bg-white shadow-sm cursor-pointer hover:border-neutral-300 transition-colors appearance-none pr-10'>
+                className='border border-neutral-200 dark:border-neutral-700 text-sm px-4 py-2.5 rounded-lg focus:outline-none focus:border-primary-500 bg-white dark:bg-neutral-800 dark:text-neutral-200 shadow-sm cursor-pointer hover:border-neutral-300 dark:hover:border-neutral-600 transition-colors appearance-none pr-10'>
                 <option value="relevant">Sort by: Relevant</option>
                 <option value="low-high">Sort by: Low to High</option>
                 <option value="high-low">Sort by: High to Low</option>

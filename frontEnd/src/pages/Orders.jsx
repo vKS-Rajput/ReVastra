@@ -94,23 +94,23 @@ const Orders = () => {
 
   if (loading) {
     return (
-      <div className="border-t pt-24 bg-gray-50 flex justify-center items-center h-screen">
-        <p className="text-lg text-gray-600">Loading orders...</p>
+      <div className="border-t pt-24 bg-neutral-50 dark:bg-neutral-900 flex justify-center items-center h-screen">
+        <p className="text-lg text-neutral-600 dark:text-neutral-400">Loading orders...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="border-t pt-24 bg-gray-50 flex justify-center items-center h-screen">
-        <p className="text-lg text-red-600">{error}</p>
+      <div className="border-t pt-24 bg-neutral-50 dark:bg-neutral-900 flex justify-center items-center h-screen">
+        <p className="text-lg text-red-600 dark:text-red-400">{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="border-t pt-24 bg-gray-50">
-      <div className="text-2xl text-center font-semibold text-gray-800">
+    <div className="border-t pt-24 bg-neutral-50 dark:bg-neutral-900 min-h-screen">
+      <div className="text-2xl text-center font-semibold text-neutral-800 dark:text-neutral-200">
         <Title text1={'MY'} text2={'ORDERS'} />
       </div>
 
@@ -125,20 +125,20 @@ const Orders = () => {
           const totalPrice = itemRentalPrice * itemDuration + item.deliveryFee + washingFee;
 
           return (
-            <div key={index} className="bg-white shadow-lg rounded-lg p-6 flex flex-col justify-between">
+            <div key={index} className="bg-white dark:bg-neutral-800 shadow-lg rounded-lg p-6 flex flex-col justify-between">
               <div className="flex items-start gap-4 sm:gap-6 text-sm">
                 <img className="w-16 sm:w-20 rounded-md" src={item.image[0]} alt={item.name} />
                 <div>
-                  <p className="text-lg font-medium text-gray-800">{item.name}</p>
+                  <p className="text-lg font-medium text-neutral-800 dark:text-neutral-200">{item.name}</p>
                   <div className="flex items-center gap-2 sm:gap-3 mt-2">
-                    <p className="text-base font-semibold text-gray-700">
+                    <p className="text-base font-semibold text-neutral-700 dark:text-neutral-300">
                       {currency}
                       {item.rental_price} x {item.duration} days
                     </p>
-                    <p className="text-sm text-gray-500">Size: {item.size}</p>
+                    <p className="text-sm text-neutral-500 dark:text-neutral-400">Size: {item.size}</p>
                   </div>
-                  <p className="mt-2 text-sm text-gray-400">Date: {new Date(item.date).toDateString()}</p>
-                  <p className="mt-1 text-sm text-gray-400">Payment Method: {item.paymentMethod}</p>
+                  <p className="mt-2 text-sm text-neutral-400 dark:text-neutral-500">Date: {new Date(item.date).toDateString()}</p>
+                  <p className="mt-1 text-sm text-neutral-400 dark:text-neutral-500">Payment Method: {item.paymentMethod}</p>
 
                   {/* Show Return Date & Countdown if Delivered */}
                   {item.status === 'Delivered' ? (
@@ -149,7 +149,7 @@ const Orders = () => {
                       <CountdownTimer returnDateTime={returnDate} />
                     </>
                   ) : (
-                    <p className="mt-1 text-gray-400">
+                    <p className="mt-1 text-neutral-400 dark:text-neutral-500">
                       Estimated Return: <strong>{returnDate.toLocaleString()}</strong>
                     </p>
                   )}
@@ -157,7 +157,7 @@ const Orders = () => {
               </div>
 
               {/* Delivery Fee & Washing Fee Details */}
-              <div className="mt-4 border-t pt-4 text-sm text-gray-700">
+              <div className="mt-4 border-t dark:border-neutral-700 pt-4 text-sm text-neutral-700 dark:text-neutral-300">
                 <p className="flex justify-between">
                   <span>Rental Price:</span> <span>{currency}{item.rental_price * item.duration}.00</span>
                 </p>
@@ -178,17 +178,17 @@ const Orders = () => {
                 <div className="flex items-center gap-2">
                   <p
                     className={`min-w-2 h-2 rounded-full ${item.status === 'Delivered'
-                        ? 'bg-green-500'
-                        : item.status === 'Pending'
-                          ? 'bg-yellow-500'
-                          : 'bg-red-500'
+                      ? 'bg-green-500'
+                      : item.status === 'Pending'
+                        ? 'bg-yellow-500'
+                        : 'bg-red-500'
                       }`}
                   />
-                  <p className="text-sm font-medium text-gray-700">{item.status}</p>
+                  <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{item.status}</p>
                 </div>
                 <button
                   onClick={loadOrderData}
-                  className="mt-4 sm:mt-0 px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100 transition-all duration-200 w-full sm:w-auto"
+                  className="mt-4 sm:mt-0 px-4 py-2 border border-neutral-300 dark:border-neutral-600 text-sm font-medium rounded-md text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-all duration-200 w-full sm:w-auto"
                 >
                   Track Order
                 </button>

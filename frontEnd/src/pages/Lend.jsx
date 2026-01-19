@@ -160,12 +160,12 @@ const Lend = () => {
 
   const StepIndicator = () => (
     <div className="flex justify-between mb-8 relative">
-      <div className="absolute top-1/2 left-0 w-full h-1 bg-neutral-200 -z-10 rounded-full"></div>
+      <div className="absolute top-1/2 left-0 w-full h-1 bg-neutral-200 dark:bg-neutral-700 -z-10 rounded-full"></div>
       <div className={`absolute top-1/2 left-0 h-1 bg-primary-500 -z-10 rounded-full transition-all duration-300`}
         style={{ width: `${((currentStep - 1) / 3) * 100}%` }}></div>
 
       {[1, 2, 3, 4].map((step) => (
-        <div key={step} className={`flex flex-col items-center gap-2 bg-neutral-50 px-2`}>
+        <div key={step} className={`flex flex-col items-center gap-2 bg-neutral-50 dark:bg-neutral-800 px-2`}>
           <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300
                     ${step <= currentStep ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/30' : 'bg-neutral-200 text-neutral-500'}`}>
             {step < currentStep ? <CheckCircle size={16} /> : step}
@@ -180,10 +180,10 @@ const Lend = () => {
 
   return (
     <div className="container-custom py-10 min-h-[80vh]">
-      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-soft p-8 border border-neutral-100">
+      <div className="max-w-3xl mx-auto bg-white dark:bg-neutral-800 rounded-2xl shadow-soft p-8 border border-neutral-100 dark:border-neutral-700">
         <div className="mb-6 text-center">
           <Title text1={"LIST YOUR"} text2={"ITEM"} />
-          <p className="text-neutral-500 text-sm mt-[-10px]">Rent out your fashion and earn money.</p>
+          <p className="text-neutral-500 dark:text-neutral-400 text-sm mt-[-10px]">Rent out your fashion and earn money.</p>
         </div>
 
         <StepIndicator />
@@ -192,7 +192,7 @@ const Lend = () => {
           {/* Step 1: Photos */}
           {currentStep === 1 && (
             <div className="animate-fade-in space-y-6">
-              <h3 className="text-xl font-display font-semibold text-neutral-800">Upload Photos</h3>
+              <h3 className="text-xl font-display font-semibold text-neutral-800 dark:text-neutral-200">Upload Photos</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {images.map((img, index) => (
                   <label key={index} className={`aspect-square border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all hover:bg-neutral-50
@@ -215,7 +215,7 @@ const Lend = () => {
           {/* Step 2: Details */}
           {currentStep === 2 && (
             <div className="animate-fade-in space-y-4">
-              <h3 className="text-xl font-display font-semibold text-neutral-800">Item Details</h3>
+              <h3 className="text-xl font-display font-semibold text-neutral-800 dark:text-neutral-200">Item Details</h3>
               <div className="space-y-4">
                 <input name="name" value={formData.name} onChange={handleInputChange} placeholder="Product Name" className="input-field" />
                 <textarea name="description" value={formData.description} onChange={handleInputChange} placeholder="Description" rows={3} className="input-field" />
@@ -232,7 +232,7 @@ const Lend = () => {
                 </div>
 
                 <div>
-                  <p className="mb-2 font-medium text-neutral-700">Select Sizes</p>
+                  <p className="mb-2 font-medium text-neutral-700 dark:text-neutral-300">Select Sizes</p>
                   <div className="flex gap-2 flex-wrap">
                     {['S', 'M', 'L', 'XL', 'XXL'].map(size => (
                       <button type="button" key={size} onClick={() => handleSizeChange(size)}
@@ -250,17 +250,17 @@ const Lend = () => {
           {/* Step 3: Pricing & Location */}
           {currentStep === 3 && (
             <div className="animate-fade-in space-y-6">
-              <h3 className="text-xl font-display font-semibold text-neutral-800">Pricing & Contact</h3>
+              <h3 className="text-xl font-display font-semibold text-neutral-800 dark:text-neutral-200">Pricing & Contact</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium text-neutral-600 mb-1 block">Original Price (MRP)</label>
+                    <label className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-1 block">Original Price (MRP)</label>
                     <div className="relative">
                       <DollarSign size={16} className="absolute left-3 top-3.5 text-neutral-400" />
                       <input type="number" name="price" value={formData.price} onChange={handleInputChange} placeholder="0.00" className="input-field pl-10" />
                     </div>
                   </div>
-                  <div className="p-4 bg-primary-50 rounded-xl border border-primary-100">
+                  <div className="p-4 bg-primary-50 dark:bg-primary-900/20 rounded-xl border border-primary-100 dark:border-primary-800">
                     <h4 className="font-semibold text-primary-700 mb-2 flex items-center gap-2"><Info size={16} /> Earning Estimator</h4>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
@@ -282,14 +282,14 @@ const Lend = () => {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium text-neutral-600 mb-1 block">Pickup Location</label>
+                    <label className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-1 block">Pickup Location</label>
                     <div className="relative">
                       <MapPin size={16} className="absolute left-3 top-3.5 text-neutral-400" />
                       <input type="text" name="pickuplocation" value={formData.pickuplocation} onChange={handleInputChange} placeholder="Your Address / Hostel" className="input-field pl-10" />
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-neutral-600 mb-1 block">Contact Number</label>
+                    <label className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-1 block">Contact Number</label>
                     <div className="relative">
                       <Phone size={16} className="absolute left-3 top-3.5 text-neutral-400" />
                       <input type="text" name="contactno" value={formData.contactno} onChange={handleInputChange} placeholder="+91 99999 99999" className="input-field pl-10" />
@@ -306,14 +306,14 @@ const Lend = () => {
               <div className="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle size={32} />
               </div>
-              <h3 className="text-2xl font-display font-bold text-neutral-800">Ready to List?</h3>
-              <p className="text-neutral-500 max-w-md mx-auto">
+              <h3 className="text-2xl font-display font-bold text-neutral-800 dark:text-neutral-200">Ready to List?</h3>
+              <p className="text-neutral-500 dark:text-neutral-400 max-w-md mx-auto">
                 Please review your details before submitting. Your item "{formData.name}" will be listed for rent at <span className="font-bold text-neutral-800">₹{pricing.rentalPrice}</span>/day.
               </p>
 
-              <div className="bg-neutral-50 p-6 rounded-xl text-left max-w-md mx-auto border border-neutral-100 mt-6">
-                <h4 className="font-bold text-neutral-800 mb-2">Summary</h4>
-                <ul className="text-sm space-y-2 text-neutral-600">
+              <div className="bg-neutral-50 dark:bg-neutral-700 p-6 rounded-xl text-left max-w-md mx-auto border border-neutral-100 dark:border-neutral-600 mt-6">
+                <h4 className="font-bold text-neutral-800 dark:text-neutral-200 mb-2">Summary</h4>
+                <ul className="text-sm space-y-2 text-neutral-600 dark:text-neutral-400">
                   <li>• Category: {formData.category} / {formData.subCategory}</li>
                   <li>• Sizes: {formData.sizes.join(', ')}</li>
                   <li>• Location: {formData.pickuplocation}</li>
@@ -323,7 +323,7 @@ const Lend = () => {
           )}
 
           {/* Navigation Buttons */}
-          <div className="flex justify-between mt-10 pt-6 border-t border-neutral-100">
+          <div className="flex justify-between mt-10 pt-6 border-t border-neutral-100 dark:border-neutral-700">
             <button type="button" onClick={prevStep} disabled={currentStep === 1}
               className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors
                         ${currentStep === 1 ? 'opacity-0 pointer-events-none' : 'text-neutral-600 hover:bg-neutral-50'}`}>

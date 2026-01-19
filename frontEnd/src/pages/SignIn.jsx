@@ -75,15 +75,15 @@ const SignIn = () => {
 
   return (
     <div className='min-h-screen flex items-center justify-center py-20 px-4 pt-24'>
-      <div className="bg-white rounded-2xl shadow-strong w-full max-w-md p-8 sm:p-10 border border-neutral-100 relative overflow-hidden">
+      <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-strong w-full max-w-md p-8 sm:p-10 border border-neutral-100 dark:border-neutral-700 relative overflow-hidden">
 
         {/* Decorative Background Blur */}
-        <div className="absolute -top-20 -right-20 w-60 h-60 bg-primary-100 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
-        <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-accent-purple/10 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+        <div className="absolute -top-20 -right-20 w-60 h-60 bg-primary-100 dark:bg-primary-900/30 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+        <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-accent-purple/10 dark:bg-accent-purple/5 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
 
         <div className="text-center mb-8 relative z-10">
-          <h2 className="text-3xl font-display font-bold text-neutral-800 mb-2">{currentState}</h2>
-          <p className="text-neutral-500 text-sm">
+          <h2 className="text-3xl font-display font-bold text-neutral-800 dark:text-neutral-200 mb-2">{currentState}</h2>
+          <p className="text-neutral-500 dark:text-neutral-400 text-sm">
             {currentState === 'Login' ? 'Welcome back! Please login to continue.' : 'Create an account to get started.'}
           </p>
         </div>
@@ -134,11 +134,7 @@ const SignIn = () => {
             </button>
           </div>
 
-          <div className='flex justify-between items-center text-sm text-neutral-500 mt-2'>
-            {currentState === 'Login' && (
-              <Link to="/forgot-password" className='hover:text-primary-500 transition-colors'>Forgot Password?</Link>
-            )}
-          </div>
+
 
           <button type='submit' disabled={isLoading}
             className='w-full btn-primary flex items-center justify-center gap-2 mt-4'>
@@ -151,7 +147,7 @@ const SignIn = () => {
           </button>
         </form>
 
-        <div className="mt-8 text-center text-sm text-neutral-600 relative z-10">
+        <div className="mt-8 text-center text-sm text-neutral-600 dark:text-neutral-400 relative z-10">
           {currentState === 'Login' ? (
             <p>Don't have an account? <span onClick={() => setCurrentState('Sign Up')} className="font-bold text-primary-600 cursor-pointer hover:underline">Sign Up</span></p>
           ) : (

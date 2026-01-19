@@ -42,8 +42,7 @@ const NavBar = () => {
       <div className="container-custom flex items-center justify-between font-medium">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group">
-          <img src={assets.logo} className="w-8 sm:w-10 transition-transform duration-300 group-hover:scale-110" alt="Logo" />
-          <span className="text-xl sm:text-2xl font-decorative font-bold bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent hidden sm:block">
+          <span className="text-xl sm:text-2xl font-decorative font-bold bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent">
             ReVastra
           </span>
         </Link>

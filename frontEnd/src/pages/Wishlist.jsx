@@ -18,12 +18,12 @@ const Wishlist = () => {
             </div>
 
             {wishlistProducts.length === 0 ? (
-                <div className="text-center py-20 bg-neutral-50 rounded-2xl border border-neutral-100">
-                    <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-soft">
+                <div className="text-center py-20 bg-neutral-50 dark:bg-neutral-800 rounded-2xl border border-neutral-100 dark:border-neutral-700">
+                    <div className="w-20 h-20 bg-white dark:bg-neutral-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-soft">
                         <Heart size={32} className="text-neutral-400" />
                     </div>
-                    <h3 className="text-2xl font-display font-bold text-neutral-800 mb-2">Your wishlist is empty</h3>
-                    <p className="text-neutral-500 mb-8">Save items you love to revisit them later.</p>
+                    <h3 className="text-2xl font-display font-bold text-neutral-800 dark:text-neutral-200 mb-2">Your wishlist is empty</h3>
+                    <p className="text-neutral-500 dark:text-neutral-400 mb-8">Save items you love to revisit them later.</p>
                     <Link to="/collection" className="btn-primary inline-flex items-center gap-2">
                         Explore Collection <ArrowRight size={18} />
                     </Link>

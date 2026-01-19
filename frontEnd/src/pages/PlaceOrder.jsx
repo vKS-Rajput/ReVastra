@@ -1,11 +1,11 @@
 import React, { useContext, useState } from "react";
 import Title from "../components/Title";
 import CartTotal from "../components/CartTotal";
-import { assets } from "../assets/assets";
+
 import { ShopContext } from "../context/ShopContext";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { MapPin, Phone, CreditCard, Wallet, AlertCircle, Info, Truck } from "lucide-react";
+import { MapPin, CreditCard, AlertCircle, Info, Truck } from "lucide-react";
 
 const PlaceOrder = () => {
   const [method, setMethod] = useState("cod");
@@ -85,10 +85,7 @@ const PlaceOrder = () => {
           break;
         }
 
-        case "razorpay": {
-          toast.error("Razorpay payment coming soon. Please use Cash on Delivery.");
-          break;
-        }
+
 
         default:
           break;
@@ -131,41 +128,26 @@ const PlaceOrder = () => {
 
           {/* Payment Method */}
           <div>
-            <h3 className="section-title mb-6 flex items-center gap-2 font-display text-xl font-semibold text-neutral-800">
+            <h3 className="section-title mb-6 flex items-center gap-2 font-display text-xl font-semibold text-neutral-800 dark:text-neutral-200">
               <CreditCard className="text-primary-500" /> Payment Method
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div onClick={() => setMethod('razorpay')}
-                className={`p-4 border rounded-xl cursor-pointer flex items-center gap-3 transition-all duration-300
-                            ${method === 'razorpay' ? 'border-primary-500 bg-primary-50 ring-1 ring-primary-500' : 'border-neutral-200 hover:border-neutral-300'}`}>
-                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center
-                                ${method === 'razorpay' ? 'border-primary-500' : 'border-neutral-300'}`}>
-                  {method === 'razorpay' && <div className="w-2.5 h-2.5 bg-primary-500 rounded-full"></div>}
-                </div>
-                <img src={assets.razorpay_logo} alt="Razorpay" className="h-6" />
+            <div className="p-4 border rounded-xl border-primary-500 bg-primary-50 dark:bg-primary-900/20 ring-1 ring-primary-500 flex items-center gap-3">
+              <div className="w-5 h-5 rounded-full border-2 border-primary-500 flex items-center justify-center">
+                <div className="w-2.5 h-2.5 bg-primary-500 rounded-full"></div>
               </div>
-
-              <div onClick={() => setMethod('cod')}
-                className={`p-4 border rounded-xl cursor-pointer flex items-center gap-3 transition-all duration-300
-                            ${method === 'cod' ? 'border-primary-500 bg-primary-50 ring-1 ring-primary-500' : 'border-neutral-200 hover:border-neutral-300'}`}>
-                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center
-                                ${method === 'cod' ? 'border-primary-500' : 'border-neutral-300'}`}>
-                  {method === 'cod' && <div className="w-2.5 h-2.5 bg-primary-500 rounded-full"></div>}
-                </div>
-                <span className="font-medium text-neutral-700">Cash on Delivery</span>
-              </div>
+              <span className="font-medium text-neutral-700 dark:text-neutral-300">Cash on Delivery</span>
             </div>
           </div>
 
           {/* Important Information */}
-          <div className="bg-neutral-50 p-6 rounded-xl border border-neutral-200 space-y-4">
+          <div className="bg-neutral-50 dark:bg-neutral-800 p-6 rounded-xl border border-neutral-200 dark:border-neutral-700 space-y-4">
             <div className="flex gap-3">
               <AlertCircle className="text-red-500 shrink-0" size={20} />
-              <p className="text-sm text-neutral-600"><span className="font-bold text-neutral-800">Important:</span> No delivery outside campus limits. Orders must be received within college premises.</p>
+              <p className="text-sm text-neutral-600 dark:text-neutral-400"><span className="font-bold text-neutral-800 dark:text-neutral-200">Important:</span> No delivery outside campus limits. Orders must be received within college premises.</p>
             </div>
             <div className="flex gap-3">
               <Truck className="text-primary-500 shrink-0" size={20} />
-              <p className="text-sm text-neutral-600"><span className="font-bold text-neutral-800">Open Box Delivery:</span> Products will be verified at the time of delivery. ID proof required.</p>
+              <p className="text-sm text-neutral-600 dark:text-neutral-400"><span className="font-bold text-neutral-800 dark:text-neutral-200">Open Box Delivery:</span> Products will be verified at the time of delivery. ID proof required.</p>
             </div>
           </div>
 
@@ -173,7 +155,7 @@ const PlaceOrder = () => {
 
         {/* Right Side: Order Summary */}
         <div className="lg:w-96 shrink-0">
-          <div className="bg-white p-6 rounded-2xl shadow-soft border border-neutral-100 sticky top-24">
+          <div className="bg-white dark:bg-neutral-800 p-6 rounded-2xl shadow-soft border border-neutral-100 dark:border-neutral-700 sticky top-24">
             <Title text1="CART" text2="TOTALS" />
             <CartTotal />
             <button type="submit" disabled={isLoading} className="w-full btn-primary mt-6 group flex items-center justify-center gap-2">
