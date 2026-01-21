@@ -1,6 +1,6 @@
 import express from 'express';
 import { addReview, getSellerReviews, canReview, getSellerProfile } from '../controllors/reviewControllor.js';
-import authUser from '../middleware/auth.js';
+import authUser from '../middleware/userAuth.js';
 
 const reviewRouter = express.Router();
 
