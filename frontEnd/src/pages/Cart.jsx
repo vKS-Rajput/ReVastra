@@ -263,12 +263,12 @@ const Cart = () => {
                           {breakdown.map((dayData, i) => (
                             <div key={i} className="flex justify-between">
                               <span>
-                                Day {dayData.day}: {currency}{dayData.rate}
+                                Day {dayData.day}: +₹{dayData.addedAmount}
                                 {dayData.increasePercent && (
                                   <span className="text-amber-600 ml-1">(+{dayData.increasePercent}%)</span>
                                 )}
                               </span>
-                              <span>{currency}{dayData.rate}</span>
+                              <span>= ₹{dayData.runningTotal}</span>
                             </div>
                           ))}
                         </div>
