@@ -74,30 +74,35 @@ const ShopContextProvider = ({ children }) => {
 
     const isInWishlist = useCallback((itemId) => wishlist.includes(itemId), [wishlist]);
 
-    // Add item to cart
+    // Add item to cart - ONLY if authenticated
     const addToCart = useCallback(async (itemId, size) => {
         if (!size) {
             return toast.error("⚠️ Please select a product size before adding to cart!");
         }
 
+        // Check authentication FIRST - don't add locally if not logged in
+        if (!token) {
+            toast.error("⚠️ Please log in to add items to cart.");
+            navigate('/login');
+            return;
+        }
+
+        // User is authenticated - update local cart
         setCartItems((prev) => {
             const updatedCart = { ...prev, [itemId]: { ...prev[itemId], [size]: (prev[itemId]?.[size] || 0) + 1 } };
             return updatedCart;
         });
 
-        if (token) {
-            try {
-                await axios.post(`${backEndURL}/api/cart/add`, { itemId, size }, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-            } catch (error) {
-                console.error("API Error:", error);
-                toast.error(error.response?.data?.message || "Failed to update cart!");
-            }
-        } else {
-            toast.error("⚠️ User is not authenticated. Please log in.");
+        // Sync with backend
+        try {
+            await axios.post(`${backEndURL}/api/cart/add`, { itemId, size }, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+        } catch (error) {
+            console.error("API Error:", error);
+            toast.error(error.response?.data?.message || "Failed to update cart!");
         }
-    }, [token, backEndURL]);
+    }, [token, backEndURL, navigate]);
 
     // Get cart item count
     const getCartCount = useCallback(() =>

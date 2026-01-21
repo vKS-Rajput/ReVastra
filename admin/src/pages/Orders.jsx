@@ -3,6 +3,7 @@ import axios from 'axios';
 import { backEndURL, currency } from '../App';
 import { toast } from 'react-toastify';
 import { assets } from '../assets/assets';
+import { Calendar, Clock, Zap, Package } from 'lucide-react';
 
 const CountdownTimer = ({ returnDateTime }) => {
   const [timeLeft, setTimeLeft] = useState(null);
@@ -39,6 +40,16 @@ const CountdownTimer = ({ returnDateTime }) => {
       Timer: {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
     </p>
   );
+};
+
+// Format date for display
+const formatDate = (dateStr) => {
+  if (!dateStr) return 'Not set';
+  return new Date(dateStr).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
 };
 
 const Orders = ({ token }) => {
@@ -106,84 +117,141 @@ const Orders = ({ token }) => {
 
   return (
     <div className="bg-gradient-to-b from-blue-50 to-blue-100 min-h-screen px-10 py-12">
-      <h3 className="text-4xl font-bold text-center text-gray-900 mb-10">Your Orders</h3>
+      <h3 className="text-4xl font-bold text-center text-gray-900 mb-10">All Orders</h3>
       <div className="space-y-6">
         {orders.map((order, index) => (
           <div
             key={index}
-            className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition-shadow transform hover:scale-105 duration-300"
+            className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition-shadow"
           >
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8 items-center">
-              <img
-                className="w-24 h-24 object-contain rounded-xl transition-transform transform hover:scale-110"
-                src={assets.parcel_icon}
-                alt="Order Icon"
-              />
+            {/* Urgent Badge */}
+            {order.urgentOrder && (
+              <div className="mb-4 flex items-center gap-2 bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg w-fit">
+                <Zap size={18} className="text-yellow-600" />
+                <span className="font-bold text-sm">⚡ URGENT ORDER - {currency}{order.urgentFee || 50} priority fee</span>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6 items-start">
+              {/* Order Icon */}
+              <div className="flex justify-center">
+                <img
+                  className="w-20 h-20 object-contain rounded-xl"
+                  src={assets.parcel_icon}
+                  alt="Order Icon"
+                />
+              </div>
+
+              {/* Order Details */}
               <div>
                 <h4 className="text-lg font-semibold text-gray-800 mb-3">Order Details</h4>
                 {order.items.map((item, itemIndex) => (
-                  <div key={itemIndex} className="flex justify-between text-sm text-gray-600">
+                  <div key={itemIndex} className="flex justify-between text-sm text-gray-600 mb-1">
                     <p>{item.name} ({item.size})</p>
                     <button
                       onClick={() => copyToClipboard(item._id)}
-                      className="flex items-center gap-1 bg-gradient-to-r from-red-500 to-red-700 text-white text-xs px-3 py-1 rounded-lg shadow-md hover:from-red-600 hover:to-red-800 hover:scale-55 active:scale-75 transition-all duration-300"
+                      className="flex items-center gap-1 bg-gradient-to-r from-red-500 to-red-700 text-white text-xs px-2 py-0.5 rounded-lg shadow-md hover:from-red-600 hover:to-red-800 transition-all duration-300"
                     >
-                      📋 Copy ID
+                      📋 ID
                     </button>
-
                   </div>
                 ))}
-                <p className='mt-3 mb-2 font-medium'>Name: {order.address.fullName}</p>
-                <div>
-                  <p> Hostel: {order.address.hostel + ","}</p>
-                  <p> Block: {order.address.block}</p>
+                <p className='mt-3 font-medium'>Name: {order.address.fullName}</p>
+                <div className="text-sm text-gray-600">
+                  <p>Hostel: {order.address.hostel}, Block: {order.address.block}</p>
                   <p>Room: {order.address.room}</p>
+                  <p className="mt-1 font-medium">{order.address.phone}</p>
                 </div>
-                <p className="mt-2 text-gray-800 text-md font-medium">{order.address.phone}</p>
               </div>
+
+              {/* Rental Dates Section - NEW */}
               <div>
-                <h4 className="text-lg font-semibold text-gray-800 mb-3">Order Info</h4>
+                <h4 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                  <Calendar size={18} className="text-blue-500" /> Rental Dates
+                </h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500">Start:</span>
+                    <span className="font-medium text-gray-800">{formatDate(order.rentalStartDate)}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500">End:</span>
+                    <span className="font-medium text-gray-800">{formatDate(order.rentalEndDate)}</span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-2 pt-2 border-t">
+                    <span className="text-gray-500">Delivery:</span>
+                    <span className="font-medium text-blue-600">{formatDate(order.deliveryDate)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Order Info & Timer */}
+              <div>
+                <h4 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                  <Clock size={18} className="text-green-500" /> Order Info
+                </h4>
                 <p className="text-sm text-gray-600">Items: {order.items.length}</p>
                 <p className="text-sm text-gray-600">Payment: {order.payment ? 'Done' : 'Pending'}</p>
                 <p className="text-sm text-gray-600">
-                  Date: {new Date(order.date).toLocaleDateString()}
+                  Placed: {new Date(order.date).toLocaleDateString()}
                 </p>
                 {order.status === 'Delivered' && (
-                  <p className="mt-1 text-md text-bold text-red-500">
-                    Return Date:{' '}
-                    <strong>
-                      {new Date(
-                        calculateExpirationDate(order.date, order.items[0]?.duration || 1)
-                      ).toLocaleDateString()}
-                    </strong>
-                  </p>
-                )}
-                {order.status === 'Delivered' && (
-                  <CountdownTimer
-                    returnDateTime={calculateExpirationDate(order.date, order.items[0]?.duration || 1)}
-                  />
+                  <>
+                    <p className="mt-1 text-sm text-red-500">
+                      Return by:{' '}
+                      <strong>
+                        {new Date(
+                          calculateExpirationDate(order.date, order.items[0]?.duration || 1)
+                        ).toLocaleDateString()}
+                      </strong>
+                    </p>
+                    <CountdownTimer
+                      returnDateTime={calculateExpirationDate(order.date, order.items[0]?.duration || 1)}
+                    />
+                  </>
                 )}
               </div>
+
+              {/* Amount & Breakdown */}
               <div>
-                <h4 className="text-lg font-semibold text-gray-800 mb-3">Amount</h4>
-                <p className="text-xl font-bold text-gray-900">
-                  {currency}
-                  {order.amount}
+                <h4 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                  <Package size={18} className="text-purple-500" /> Amount
+                </h4>
+                <p className="text-2xl font-bold text-gray-900">
+                  {currency}{order.amount}
                 </p>
-              </div>
-              <div>
-                <h4 className="text-lg font-semibold text-gray-800 mb-3">Duration</h4>
-                <div className="space-y-3">
+
+                {/* Pricing Breakdown */}
+                {order.pricingBreakdown && order.pricingBreakdown.length > 0 && (
+                  <div className="mt-2 text-xs text-gray-500 space-y-1">
+                    {order.pricingBreakdown.map((item, idx) => (
+                      <div key={idx}>
+                        <p className="font-medium">{item.productName}</p>
+                        <p>{item.days} days = {currency}{item.total}</p>
+                      </div>
+                    ))}
+                    {order.urgentFee > 0 && (
+                      <p className="text-yellow-600 font-medium">
+                        +{currency}{order.urgentFee} urgent
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Duration per item */}
+                <div className="mt-3 space-y-1">
                   {order.items.map((item, itemIndex) => (
                     <div key={itemIndex} className="flex justify-between text-sm text-gray-600">
-                      <span className="font-semibold">{item.duration || 1} days</span>
+                      <span>{item.duration || 1} days</span>
                       {item.status === 'Date Over' && (
-                        <span className="text-red-500 font-semibold">Date Over</span>
+                        <span className="text-red-500 font-semibold">Overdue!</span>
                       )}
                     </div>
                   ))}
                 </div>
               </div>
+
+              {/* Status Selector */}
               <div>
                 <h4 className="text-lg font-semibold text-gray-800 mb-3">Status</h4>
                 <select

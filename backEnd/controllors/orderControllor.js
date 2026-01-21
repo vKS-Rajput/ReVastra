@@ -1,5 +1,6 @@
 import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
+import { calculateTieredPrice, isUrgentDelivery, calculateRentalDays, URGENT_FEE } from "../utils/pricingUtils.js";
 
 // Global Variables
 // const currency = "inr";
@@ -19,12 +20,29 @@ const placeOrder = async (req, res) => {
   try {
     // Get userId from auth middleware or from body (backward compatibility)
     const userId = req.user?.id || req.body.userId;
-    const { amount, items, address, washingFee, deliveryFee } = req.body;
+    const {
+      amount,
+      items,
+      address,
+      washingFee,
+      deliveryFee,
+      rentalStartDate,
+      rentalEndDate,
+      deliveryDate,
+      urgentOrder,
+      pricingBreakdown
+    } = req.body;
 
 
     // Ensure required fields are present
     if (!userId || !amount || !items || !address) {
       return res.json({ success: false, message: "All fields are required. Please log in." });
+    }
+
+    // Calculate urgent fee if applicable
+    let urgentFeeAmount = 0;
+    if (urgentOrder || (deliveryDate && isUrgentDelivery(Date.now(), deliveryDate))) {
+      urgentFeeAmount = URGENT_FEE;
     }
 
     const orderData = {
@@ -37,6 +55,13 @@ const placeOrder = async (req, res) => {
       paymentMethod: "COD",
       payment: false,
       date: Date.now(),
+      // New fields
+      rentalStartDate: rentalStartDate ? new Date(rentalStartDate) : null,
+      rentalEndDate: rentalEndDate ? new Date(rentalEndDate) : null,
+      deliveryDate: deliveryDate ? new Date(deliveryDate) : null,
+      urgentOrder: urgentOrder || false,
+      urgentFee: urgentFeeAmount,
+      pricingBreakdown: pricingBreakdown || null
     };
 
 

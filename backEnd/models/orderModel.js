@@ -9,7 +9,14 @@ const orderSchema = new mongoose.Schema({
     status: { type: String, required: true, default: 'Order Placed' },
     paymentMethod: { type: String, required: true },
     payment: { type: Boolean, required: true, default: false },
-    date: { type: Number, required: true, }
+    date: { type: Number, required: true, },
+    // New fields for enhanced rental system
+    rentalStartDate: { type: Date },
+    rentalEndDate: { type: Date },
+    deliveryDate: { type: Date },
+    urgentOrder: { type: Boolean, default: false },
+    urgentFee: { type: Number, default: 0 },
+    pricingBreakdown: { type: Object } // Stores tiered pricing details
 })
 
 const orderModel = mongoose.models.order || mongoose.model('order', orderSchema)

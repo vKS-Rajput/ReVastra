@@ -1,11 +1,11 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import Title from "../components/Title";
 import CartTotal from "../components/CartTotal";
 
 import { ShopContext } from "../context/ShopContext";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { MapPin, CreditCard, AlertCircle, Info, Truck } from "lucide-react";
+import { MapPin, CreditCard, AlertCircle, Info, Truck, Calendar, Zap, Clock } from "lucide-react";
 
 const PlaceOrder = () => {
   const [method, setMethod] = useState("cod");
@@ -19,6 +19,8 @@ const PlaceOrder = () => {
     delivery_fee,
     washingFee,
     products,
+    includeWashing,
+    currency
   } = useContext(ShopContext);
 
   const [formData, setFormData] = useState({
@@ -31,9 +33,40 @@ const PlaceOrder = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
+  // Rental info from Cart page
+  const [rentalInfo, setRentalInfo] = useState(null);
+
+  // Load rental info from session storage
+  useEffect(() => {
+    const storedInfo = sessionStorage.getItem('rentalInfo');
+    if (storedInfo) {
+      try {
+        setRentalInfo(JSON.parse(storedInfo));
+      } catch (e) {
+        console.error('Error parsing rental info:', e);
+      }
+    }
+  }, []);
+
   const onChangeHandler = (event) => {
     const { name, value } = event.target;
     setFormData((data) => ({ ...data, [name]: value }));
+  };
+
+  // Calculate total with tiered pricing
+  const calculateTotal = () => {
+    let subtotal = 0;
+
+    if (rentalInfo?.pricingBreakdown) {
+      rentalInfo.pricingBreakdown.forEach(item => {
+        subtotal += item.total;
+      });
+    } else {
+      subtotal = getCartAmount();
+    }
+
+    const urgentFee = rentalInfo?.urgentOrder ? 50 : 0;
+    return subtotal + delivery_fee + (includeWashing ? washingFee : 0) + urgentFee;
   };
 
   const onSubmitHandler = async (event) => {
@@ -53,6 +86,14 @@ const PlaceOrder = () => {
             if (itemInfo) {
               itemInfo.size = item;
               itemInfo.duration = cartItems[items][item];
+
+              // Add rental dates from rentalInfo
+              const key = `${items}-${item}`;
+              if (rentalInfo?.rentalDates?.[key]) {
+                itemInfo.rentalStartDate = rentalInfo.rentalDates[key].startDate;
+                itemInfo.rentalEndDate = rentalInfo.rentalDates[key].endDate;
+              }
+
               orderItems.push(itemInfo);
             }
           }
@@ -63,9 +104,15 @@ const PlaceOrder = () => {
         userId: JSON.parse(localStorage.getItem('user'))?._id,
         address: formData,
         items: orderItems,
-        amount: getCartAmount() + delivery_fee + washingFee,
+        amount: calculateTotal(),
         deliveryFee: delivery_fee,
-        washingFee: washingFee,
+        washingFee: includeWashing ? washingFee : 0,
+        // New rental fields
+        rentalStartDate: rentalInfo?.rentalStartDate,
+        rentalEndDate: rentalInfo?.rentalEndDate,
+        deliveryDate: rentalInfo?.deliveryDate,
+        urgentOrder: rentalInfo?.urgentOrder || false,
+        pricingBreakdown: rentalInfo?.pricingBreakdown
       };
 
       switch (method) {
@@ -77,6 +124,7 @@ const PlaceOrder = () => {
           );
           if (response.data.success) {
             setCartItems({});
+            sessionStorage.removeItem('rentalInfo');
             navigate("/orders");
             toast.success("Order placed successfully!");
           } else {
@@ -98,12 +146,62 @@ const PlaceOrder = () => {
     }
   };
 
+  // Format date for display
+  const formatDate = (dateStr) => {
+    if (!dateStr) return 'Not set';
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
   return (
     <div className="container-custom py-10 min-h-[80vh]">
       <form onSubmit={onSubmitHandler} className="flex flex-col lg:flex-row gap-10">
 
         {/* Left Side: Form */}
         <div className="flex-1 space-y-8">
+
+          {/* Rental Summary */}
+          {rentalInfo && (
+            <div className="bg-primary-50 dark:bg-primary-900/20 p-6 rounded-xl border border-primary-100 dark:border-primary-800">
+              <h3 className="section-title mb-4 flex items-center gap-2 font-display text-xl font-semibold text-primary-700 dark:text-primary-300">
+                <Clock className="text-primary-500" /> Rental Details
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <Calendar size={16} className="text-primary-500" />
+                  <div>
+                    <p className="text-neutral-500 dark:text-neutral-400">Rental Period</p>
+                    <p className="font-semibold text-neutral-800 dark:text-neutral-200">
+                      {formatDate(rentalInfo.rentalStartDate)} - {formatDate(rentalInfo.rentalEndDate)}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Truck size={16} className="text-primary-500" />
+                  <div>
+                    <p className="text-neutral-500 dark:text-neutral-400">Delivery Date</p>
+                    <p className="font-semibold text-neutral-800 dark:text-neutral-200">
+                      {formatDate(rentalInfo.deliveryDate)}
+                    </p>
+                  </div>
+                </div>
+                {rentalInfo.urgentOrder && (
+                  <div className="flex items-center gap-2">
+                    <Zap size={16} className="text-yellow-500" />
+                    <div>
+                      <p className="text-neutral-500 dark:text-neutral-400">Priority</p>
+                      <p className="font-semibold text-yellow-600 dark:text-yellow-400">
+                        ⚡ Urgent Delivery (+{currency}50)
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Delivery Information */}
           <div>
@@ -157,7 +255,11 @@ const PlaceOrder = () => {
         <div className="lg:w-96 shrink-0">
           <div className="bg-white dark:bg-neutral-800 p-6 rounded-2xl shadow-soft border border-neutral-100 dark:border-neutral-700 sticky top-24">
             <Title text1="CART" text2="TOTALS" />
-            <CartTotal />
+            <CartTotal
+              customSubtotal={rentalInfo?.pricingBreakdown?.reduce((sum, item) => sum + item.total, 0)}
+              urgentFee={rentalInfo?.urgentOrder ? 50 : 0}
+              pricingBreakdowns={rentalInfo?.pricingBreakdown || []}
+            />
             <button type="submit" disabled={isLoading} className="w-full btn-primary mt-6 group flex items-center justify-center gap-2">
               {isLoading ? 'Processing...' : 'Place Order'}
             </button>

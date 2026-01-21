@@ -37,6 +37,9 @@ productRouter.get('/my-product', authUser, myProducts)
 // ✅ User route: Delete user's own product
 productRouter.delete('/my-product/:id', authUser, removeUserProduct);
 
+// ✅ User route: Update status of user's own product (lender availability toggle)
+productRouter.patch('/status/:id', authUser, updateProductStatus);
+
 // Admin-only route to update product status
 productRouter.put('/update-status/:id', adminAuth, updateProductStatus);
 
