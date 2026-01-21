@@ -11,11 +11,22 @@ const userSchema = new mongoose.Schema({
     sellerProfile: {
         shopName: { type: String, default: "" },
         shopDescription: { type: String, default: "" },
-        bankingInfo: { type: Object, default: {} }, // { upiId, accountNo, ifsc }
-        address: { type: Object, default: {} } // { street, city, state, zip }
+        bankingInfo: { type: Object, default: {} },
+        address: { type: Object, default: {} },
+        // Verification & Trust System
+        isVerified: { type: Boolean, default: false },
+        verificationDate: { type: Date },
+        totalRentals: { type: Number, default: 0 },
+        avgResponseTime: { type: Number, default: 0 }, // in hours
+        memberSince: { type: Date, default: Date.now },
+        rating: {
+            average: { type: Number, default: 0 },
+            count: { type: Number, default: 0 }
+        }
     },
     isBanned: { type: Boolean, default: false },
-    banReason: { type: String, default: "" }
+    banReason: { type: String, default: "" },
+    createdAt: { type: Date, default: Date.now }
 }, { minimize: false })
 
 const userModel = mongoose.models.user || mongoose.model('user', userSchema);

@@ -1,19 +1,29 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import { Link } from 'react-router-dom';
-import { Heart, ArrowRight } from 'lucide-react';
+import { Heart, ArrowRight, BadgeCheck, Star, User } from 'lucide-react';
 
-const ProductItems = ({ id, image, name, price, rental_price, bestseller, date }) => {
+const ProductItems = ({ id, image, name, price, rental_price, bestseller, date, seller }) => {
     const { currency, addToWishlist, isInWishlist } = useContext(ShopContext);
 
-    // Simple check for "New" badge (e.g., added within last 7 days)
+    // Simple check for "New" badge
     const isNew = Date.now() - date < 7 * 24 * 60 * 60 * 1000;
     const isWishlisted = isInWishlist(id);
 
     const handleWishlistClick = (e) => {
-        e.preventDefault(); // Prevent navigation
+        e.preventDefault();
         addToWishlist(id);
     };
+
+    // Trust badge based on rentals
+    const getBadgeText = (rentals) => {
+        if (rentals >= 50) return '💎 Top';
+        if (rentals >= 25) return '🔥';
+        if (rentals >= 5) return '⭐';
+        return null;
+    };
+
+    const sellerBadge = seller?.totalRentals ? getBadgeText(seller.totalRentals) : null;
 
     return (
         <Link
@@ -63,6 +73,24 @@ const ProductItems = ({ id, image, name, price, rental_price, bestseller, date }
             {/* Content */}
             <div className='p-4'>
                 <h3 className='text-neutral-800 dark:text-neutral-200 font-medium text-base truncate mb-1 group-hover:text-primary-500 transition-colors'>{name}</h3>
+
+                {/* Seller Info */}
+                {seller && (
+                    <div className='flex items-center gap-2 mb-2 text-xs'>
+                        <div className='flex items-center gap-1 text-neutral-500 dark:text-neutral-400'>
+                            <User size={12} />
+                            <span className='truncate max-w-[100px]'>{seller.shopName || seller.name || 'Seller'}</span>
+                            {seller.isVerified && <BadgeCheck size={12} className="text-blue-500" />}
+                        </div>
+                        {seller.rating?.average > 0 && (
+                            <div className='flex items-center gap-0.5 text-yellow-600'>
+                                <Star size={10} className="fill-current" />
+                                <span>{seller.rating.average.toFixed(1)}</span>
+                            </div>
+                        )}
+                        {sellerBadge && <span className='text-[10px]'>{sellerBadge}</span>}
+                    </div>
+                )}
 
                 <div className='flex items-end justify-between mt-2'>
                     <div>

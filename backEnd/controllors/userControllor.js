@@ -207,4 +207,32 @@ const updateUserProfile = async (req, res) => {
     }
 };
 
-export { loginUser, registerUser, adminLogin, getUserProfile, applyForSeller, getAllSellers, banSeller, updateUserProfile };
+// Verify Seller (Admin)
+const verifySeller = async (req, res) => {
+    try {
+        const { userId, isVerified } = req.body;
+
+        const user = await userModel.findById(userId);
+        if (!user || !user.isSeller) {
+            return res.status(404).json({ success: false, message: "Seller not found." });
+        }
+
+        user.sellerProfile.isVerified = isVerified;
+        if (isVerified) {
+            user.sellerProfile.verificationDate = new Date();
+        }
+
+        await user.save();
+
+        res.json({
+            success: true,
+            message: isVerified ? "Seller verified successfully! ✓" : "Seller verification removed."
+        });
+
+    } catch (error) {
+        console.error("Verify seller error:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export { loginUser, registerUser, adminLogin, getUserProfile, applyForSeller, getAllSellers, banSeller, updateUserProfile, verifySeller };
