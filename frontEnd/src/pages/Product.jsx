@@ -24,7 +24,7 @@ const Product = () => {
     if (size) {
       try {
         await addToCart(productData._id, size);
-        toast.success(`${productData.name} added to cart!`);
+        // Success toast is now handled by ShopContext or not shown if not logged in
       } catch (error) {
         toast.error('Failed to add item to cart. Please try again.');
       }
@@ -167,11 +167,10 @@ const Product = () => {
           </div>
         </div>
 
-        {/* Bottom Section: Description & Reviews */}
+        {/* Bottom Section: Description */}
         <div className='mt-10'>
           <div className='flex gap-6 border-b border-neutral-200 dark:border-neutral-800'>
             <button className='pb-4 border-b-2 border-primary-500 text-primary-600 dark:text-primary-400 font-bold'>Description</button>
-            <button className='pb-4 border-b-2 border-transparent text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200 font-medium transition-colors'>Reviews (12)</button>
           </div>
           <div className='py-8 flex flex-col gap-6 text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed'>
             <p>

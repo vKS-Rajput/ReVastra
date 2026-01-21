@@ -12,6 +12,7 @@ import {
   getMinStartDate,
   getMinEndDate,
   isUrgentDelivery,
+  calculateSecurityDeposit,
   URGENT_FEE
 } from "../utils/pricingUtils";
 
@@ -95,9 +96,10 @@ const Cart = () => {
     return urgentOrder || (deliveryDate && isUrgentDelivery(new Date(), deliveryDate));
   }, [urgentOrder, deliveryDate]);
 
-  // Calculate total amount with tiered pricing
+  // Calculate total amount with tiered pricing and security deposit
   const calculateTotal = useMemo(() => {
     let subtotal = 0;
+    let totalSecurityDeposit = 0;
     const allBreakdowns = [];
 
     cartData.forEach(item => {
@@ -106,19 +108,26 @@ const Cart = () => {
 
       const days = getRentalDays(item._id, item.size);
       const { total, breakdown } = calculateTieredPrice(productData.rental_price, days);
+      const securityDeposit = calculateSecurityDeposit(productData.price);
+
       subtotal += total;
+      totalSecurityDeposit += securityDeposit;
+
       allBreakdowns.push({
         productName: productData.name,
         size: item.size,
         days,
         total,
-        breakdown
+        breakdown,
+        securityDeposit,
+        productPrice: productData.price
       });
     });
 
     return {
       subtotal,
       urgentFee: isUrgent ? URGENT_FEE : 0,
+      securityDeposit: totalSecurityDeposit,
       breakdowns: allBreakdowns
     };
   }, [cartData, products, rentalDates, isUrgent]);
@@ -328,6 +337,7 @@ const Cart = () => {
                 <CartTotal
                   customSubtotal={calculateTotal.subtotal}
                   urgentFee={calculateTotal.urgentFee}
+                  securityDeposit={calculateTotal.securityDeposit}
                   pricingBreakdowns={calculateTotal.breakdowns}
                 />
               </div>

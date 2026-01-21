@@ -2,18 +2,22 @@ import React, { useContext, useState } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import { FaInfoCircle } from 'react-icons/fa';
 import Title from './Title';
-import { Zap } from 'lucide-react';
+import { Zap, Shield } from 'lucide-react';
 
-const CartTotal = ({ customSubtotal, urgentFee = 0, pricingBreakdowns = [] }) => {
+const CartTotal = ({ customSubtotal, urgentFee = 0, securityDeposit = 0, pricingBreakdowns = [] }) => {
   const { currency, delivery_fee, getCartAmount, washingFee, includeWashing, toggleWashingFee } = useContext(ShopContext);
   const [showInfo, setShowInfo] = useState(false);
   const [showBreakdown, setShowBreakdown] = useState(false);
+  const [showDepositInfo, setShowDepositInfo] = useState(false);
 
   // Use custom subtotal from Cart.jsx if provided (tiered pricing), otherwise use simple calculation
   const subtotal = customSubtotal !== undefined ? customSubtotal : getCartAmount();
 
-  // Calculate total price dynamically
-  const totalPrice = subtotal + delivery_fee + (includeWashing ? washingFee : 0) + urgentFee;
+  // Calculate total price dynamically (excluding security deposit - it's refundable)
+  const rentalTotal = subtotal + delivery_fee + (includeWashing ? washingFee : 0) + urgentFee;
+
+  // Total to pay now (rental + deposit)
+  const totalToPay = rentalTotal + securityDeposit;
 
   return (
     <div className="w-full bg-white dark:bg-neutral-800 shadow-md rounded-lg p-6 relative">
@@ -121,11 +125,52 @@ const CartTotal = ({ customSubtotal, urgentFee = 0, pricingBreakdowns = [] }) =>
           )}
         </div>
 
-        {/* Total */}
-        <div className="flex justify-between items-center pt-2">
-          <p className="text-lg font-bold text-neutral-800 dark:text-neutral-200">Total</p>
-          <p className="text-lg font-bold transition-transform transform hover:scale-105 text-[#E63946]">
-            {currency} {totalPrice.toFixed(0)}
+        {/* Rental Total */}
+        <div className="flex justify-between items-center border-b dark:border-neutral-700 pb-2">
+          <p className="text-neutral-700 dark:text-neutral-300 font-semibold">Rental Total</p>
+          <p className="font-bold text-neutral-800 dark:text-neutral-200">{currency} {rentalTotal.toFixed(0)}</p>
+        </div>
+
+        {/* Security Deposit */}
+        {securityDeposit > 0 && (
+          <div className="flex justify-between items-center border-b dark:border-neutral-700 pb-2 relative">
+            <div className="flex items-center gap-1">
+              <Shield size={14} className="text-blue-500" />
+              <p className="text-blue-600 dark:text-blue-400 font-medium">Security Deposit</p>
+              <FaInfoCircle
+                className="text-blue-400 text-xs cursor-pointer hover:text-blue-600"
+                onClick={() => setShowDepositInfo(!showDepositInfo)}
+              />
+            </div>
+            <p className="font-semibold text-blue-600 dark:text-blue-400">{currency} {securityDeposit.toFixed(0)}</p>
+
+            {showDepositInfo && (
+              <div className="absolute right-0 top-8 w-64 p-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg shadow-lg text-blue-800 dark:text-blue-200 text-xs z-10">
+                <strong>🔒 Refundable Security Deposit</strong>
+                <p className="mt-1">40% of product value, held during rental period. Fully refunded within 3-5 days after successful return of item in good condition.</p>
+                <button
+                  className="text-blue-600 mt-2 text-xs underline"
+                  onClick={() => setShowDepositInfo(false)}
+                >
+                  Got it
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Total to Pay */}
+        <div className="flex justify-between items-center pt-2 bg-gradient-to-r from-primary-50 to-transparent dark:from-primary-900/20 -mx-2 px-2 py-3 rounded-lg">
+          <div>
+            <p className="text-lg font-bold text-neutral-800 dark:text-neutral-200">Total to Pay</p>
+            {securityDeposit > 0 && (
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                (incl. {currency}{securityDeposit.toFixed(0)} refundable deposit)
+              </p>
+            )}
+          </div>
+          <p className="text-xl font-bold text-[#E63946]">
+            {currency} {totalToPay.toFixed(0)}
           </p>
         </div>
       </div>

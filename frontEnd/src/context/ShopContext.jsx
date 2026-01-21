@@ -98,6 +98,7 @@ const ShopContextProvider = ({ children }) => {
             await axios.post(`${backEndURL}/api/cart/add`, { itemId, size }, {
                 headers: { Authorization: `Bearer ${token}` },
             });
+            toast.success("✓ Added to cart!");
         } catch (error) {
             console.error("API Error:", error);
             toast.error(error.response?.data?.message || "Failed to update cart!");
