@@ -288,12 +288,12 @@ const Cart = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <label className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-2 block">
-                    When should we deliver?
+                    When should we deliver? <span className="text-xs text-neutral-400">(Next day onwards)</span>
                   </label>
                   <DatePicker
                     selected={deliveryDate}
                     onChange={setDeliveryDate}
-                    minDate={new Date()}
+                    minDate={(() => { const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1); return tomorrow; })()}
                     maxDate={getRentalDateRange().startDate}
                     placeholderText="Select delivery date"
                     dateFormat="MMM d, yyyy"
