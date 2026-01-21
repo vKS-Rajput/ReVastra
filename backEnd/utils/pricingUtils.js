@@ -1,9 +1,13 @@
 /**
- * Pricing utility functions for tiered rental pricing (Backend)
+ * Pricing utility functions for DAILY COMPOUNDING rental pricing (Backend)
  * 
- * Pricing Structure:
- * - Days 1-3: Base rental price (same for all 3 days)
- * - Days 4+: +15% over base (average of 10-20%)
+ * Pricing Structure (each day increases from previous day):
+ * - Day 1: Base rental price
+ * - Day 2: Day 1 price + 10%
+ * - Day 3: Day 2 price + 10%
+ * - Day 4: Day 3 price + 20%
+ * - Day 5: Day 4 price + 20%
+ * - Day 6+: Previous day + 30%
  * 
  * Security Deposit: 40% of product's original price (refundable)
  */
@@ -14,13 +18,12 @@ export const URGENT_THRESHOLD_DAYS = 2; // Orders with delivery < 2 days are urg
 export const SECURITY_DEPOSIT_PERCENTAGE = 0.40; // 40% of product price
 
 /**
- * Calculate tiered rental price
- * Days 1-3: Base price (same rate)
- * Days 4+: +15% over base
+ * Calculate daily compounding rental price
+ * Each day's price increases from the previous day
  * 
- * @param {number} basePrice - Daily rental price
+ * @param {number} basePrice - Daily rental price for Day 1
  * @param {number} rentalDays - Total rental days
- * @returns {object} - Breakdown of pricing
+ * @returns {object} - Breakdown of pricing per day
  */
 export const calculateTieredPrice = (basePrice, rentalDays) => {
     if (rentalDays <= 0 || basePrice <= 0) {
@@ -29,34 +32,35 @@ export const calculateTieredPrice = (basePrice, rentalDays) => {
 
     let total = 0;
     const breakdown = [];
+    let currentDayPrice = basePrice;
 
-    // Days 1-3: Base price (same flat rate)
-    const baseDays = Math.min(rentalDays, 3);
-    if (baseDays > 0) {
-        const baseTotal = basePrice * baseDays;
-        total += baseTotal;
-        breakdown.push({
-            label: baseDays === 1 ? `Day 1` : `Days 1-${baseDays}`,
-            days: baseDays,
-            rate: basePrice,
-            subtotal: baseTotal,
-            tier: 'base'
-        });
-    }
+    for (let day = 1; day <= rentalDays; day++) {
+        let increasePercent = 0;
 
-    // Days 4+: +15% over base
-    const extendedDays = Math.max(rentalDays - 3, 0);
-    if (extendedDays > 0) {
-        const extendedRate = Math.round(basePrice * 1.15);
-        const extendedTotal = extendedRate * extendedDays;
-        total += extendedTotal;
+        if (day === 1) {
+            // Day 1: Base price, no increase
+            currentDayPrice = basePrice;
+        } else if (day <= 3) {
+            // Days 2-3: +10% from previous day
+            increasePercent = 10;
+            currentDayPrice = Math.round(currentDayPrice * 1.10);
+        } else if (day <= 5) {
+            // Days 4-5: +20% from previous day
+            increasePercent = 20;
+            currentDayPrice = Math.round(currentDayPrice * 1.20);
+        } else {
+            // Days 6+: +30% from previous day
+            increasePercent = 30;
+            currentDayPrice = Math.round(currentDayPrice * 1.30);
+        }
+
+        total += currentDayPrice;
+
         breakdown.push({
-            label: extendedDays === 1 ? `Day ${rentalDays}` : `Days 4-${rentalDays}`,
-            days: extendedDays,
-            rate: extendedRate,
-            subtotal: extendedTotal,
-            tier: 'extended',
-            percentage: '+15%'
+            day,
+            rate: currentDayPrice,
+            increasePercent: day === 1 ? null : increasePercent,
+            tier: day <= 3 ? 'base' : (day <= 5 ? 'extended' : 'long')
         });
     }
 

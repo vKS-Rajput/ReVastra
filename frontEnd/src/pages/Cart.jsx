@@ -258,12 +258,17 @@ const Cart = () => {
                           <span className="text-lg font-bold text-primary-600 dark:text-primary-400">{currency}{total}</span>
                         </div>
 
-                        {/* Tiered Breakdown */}
-                        <div className="space-y-1 text-xs text-neutral-500 dark:text-neutral-400">
-                          {breakdown.map((tier, i) => (
+                        {/* Per-Day Pricing Breakdown */}
+                        <div className="space-y-1 text-xs text-neutral-500 dark:text-neutral-400 max-h-32 overflow-y-auto">
+                          {breakdown.map((dayData, i) => (
                             <div key={i} className="flex justify-between">
-                              <span>{tier.label} ({tier.days}d × {currency}{tier.rate}{tier.percentage ? ` ${tier.percentage}` : ''})</span>
-                              <span>{currency}{tier.subtotal}</span>
+                              <span>
+                                Day {dayData.day}: {currency}{dayData.rate}
+                                {dayData.increasePercent && (
+                                  <span className="text-amber-600 ml-1">(+{dayData.increasePercent}%)</span>
+                                )}
+                              </span>
+                              <span>{currency}{dayData.rate}</span>
                             </div>
                           ))}
                         </div>

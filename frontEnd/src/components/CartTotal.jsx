@@ -46,20 +46,19 @@ const CartTotal = ({ customSubtotal, urgentFee = 0, securityDeposit = 0, pricing
               </button>
 
               {showBreakdown && (
-                <div className="mt-2 space-y-3 p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                <div className="mt-2 space-y-3 p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg max-h-40 overflow-y-auto">
                   {pricingBreakdowns.map((item, idx) => (
                     <div key={idx} className="text-xs">
                       <p className="font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                        {item.productName} ({item.size}) - {item.days} days
+                        {item.productName} ({item.size}) - {item.days} days = {currency}{item.total}
                       </p>
                       <div className="space-y-0.5 text-neutral-500 dark:text-neutral-400 pl-2">
-                        {item.breakdown.map((tier, i) => (
+                        {item.breakdown.map((dayData, i) => (
                           <div key={i} className="flex justify-between">
                             <span>
-                              {tier.label}: {tier.days}d × {currency}{tier.rate}
-                              {tier.percentage && <span className="text-amber-600"> ({tier.percentage})</span>}
+                              Day {dayData.day}: {currency}{dayData.rate}
+                              {dayData.increasePercent && <span className="text-amber-600 ml-1">(+{dayData.increasePercent}%)</span>}
                             </span>
-                            <span>{currency}{tier.subtotal}</span>
                           </div>
                         ))}
                       </div>
