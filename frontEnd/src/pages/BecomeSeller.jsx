@@ -84,7 +84,7 @@ const BecomeSeller = () => {
             const response = await axios.post(
                 backEndURL + '/api/user/become-seller',
                 payload,
-                { headers: { token } }
+                { headers: { Authorization: `Bearer ${token}` } }
             );
 
             if (response.data.success) {
