@@ -1,13 +1,11 @@
 /**
- * Pricing utility functions for DAILY COMPOUNDING rental pricing (Frontend)
+ * Pricing utility functions for rental pricing (Frontend)
  * 
- * Pricing Structure (each day increases from previous day):
+ * Pricing Structure (percentage of BASE price added each day):
  * - Day 1: Base rental price
- * - Day 2: Day 1 price + 10%
- * - Day 3: Day 2 price + 10%
- * - Day 4: Day 3 price + 20%
- * - Day 5: Day 4 price + 20%
- * - Day 6+: Previous day + 30%
+ * - Days 2-3: Base + 30% of base
+ * - Days 4-7: Base + 50% of base
+ * - Day 8+: Base + 72% of base
  * 
  * Security Deposit: 40% of product's original price (refundable)
  */
@@ -18,8 +16,7 @@ export const URGENT_THRESHOLD_DAYS = 2; // Orders with delivery < 2 days are urg
 export const SECURITY_DEPOSIT_PERCENTAGE = 0.40; // 40% of product price
 
 /**
- * Calculate daily compounding rental price
- * Each day's price increases from the previous day
+ * Calculate rental price with day-based percentage increases
  * 
  * @param {number} basePrice - Daily rental price for Day 1
  * @param {number} rentalDays - Total rental days
@@ -32,37 +29,42 @@ export const calculateTieredPrice = (basePrice, rentalDays) => {
 
     let total = 0;
     const breakdown = [];
-    let currentDayPrice = basePrice;
 
     for (let day = 1; day <= rentalDays; day++) {
-        let increasePercent = 0;
+        let dayPrice;
+        let increasePercent = null;
 
         if (day === 1) {
-            // Day 1: Base price, no increase
-            currentDayPrice = basePrice;
+            // Day 1: Base price only
+            dayPrice = basePrice;
         } else if (day <= 3) {
-            // Days 2-3: +10% from previous day
-            increasePercent = 10;
-            currentDayPrice = Math.round(currentDayPrice * 1.10);
-        } else if (day <= 5) {
-            // Days 4-5: +20% from previous day
-            increasePercent = 20;
-            currentDayPrice = Math.round(currentDayPrice * 1.20);
-        } else {
-            // Days 6+: +30% from previous day
+            // Days 2-3: Base + 30% of base
             increasePercent = 30;
-            currentDayPrice = Math.round(currentDayPrice * 1.30);
+            dayPrice = basePrice + (basePrice * 0.30);
+        } else if (day <= 7) {
+            // Days 4-7: Base + 50% of base
+            increasePercent = 50;
+            dayPrice = basePrice + (basePrice * 0.50);
+        } else {
+            // Day 8+: Base + 72% of base
+            increasePercent = 72;
+            dayPrice = basePrice + (basePrice * 0.72);
         }
 
-        total += currentDayPrice;
+        // Round to 2 decimal places
+        dayPrice = Math.round(dayPrice * 100) / 100;
+        total += dayPrice;
 
         breakdown.push({
             day,
-            rate: currentDayPrice,
-            increasePercent: day === 1 ? null : increasePercent,
-            tier: day <= 3 ? 'base' : (day <= 5 ? 'extended' : 'long')
+            rate: dayPrice,
+            increasePercent,
+            tier: day === 1 ? 'base' : (day <= 3 ? 'tier1' : (day <= 7 ? 'tier2' : 'tier3'))
         });
     }
+
+    // Round total to nearest integer
+    total = Math.round(total);
 
     return { total, breakdown, rentalDays };
 };
