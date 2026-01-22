@@ -93,15 +93,38 @@ const listProduct = async (req, res) => {
     const bannedUserIds = bannedUsers.map(u => u._id.toString());
 
     // Filter out products where userId is in the banned list
-    // check if userId is string or ObjectId in productModel. It is String based on schema view.
     const products = await productModel.find({ userId: { $nin: bannedUserIds } });
 
-    res.json({ success: true, products });
+    // Fetch seller info for each product
+    const sellerIds = [...new Set(products.map(p => p.userId))];
+    const sellers = await userModel.find({ _id: { $in: sellerIds } }).select(
+      'name sellerProfile.shopName sellerProfile.isVerified sellerProfile.rating sellerProfile.totalRentals'
+    );
+
+    const sellerMap = {};
+    sellers.forEach(s => {
+      sellerMap[s._id.toString()] = {
+        name: s.name,
+        shopName: s.sellerProfile?.shopName || s.name,
+        isVerified: s.sellerProfile?.isVerified || false,
+        rating: s.sellerProfile?.rating || { average: 0, count: 0 },
+        totalRentals: s.sellerProfile?.totalRentals || 0
+      };
+    });
+
+    // Attach seller info to each product
+    const productsWithSeller = products.map(p => ({
+      ...p._doc,
+      seller: sellerMap[p.userId] || null
+    }));
+
+    res.json({ success: true, products: productsWithSeller });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 const removeProduct = async (req, res) => {
   try {
@@ -124,12 +147,29 @@ const singleProduct = async (req, res) => {
     if (!product) {
       return res.status(404).json({ success: false, message: "Product not found." });
     }
-    res.json({ success: true, product });
+
+    // Fetch seller info
+    const seller = await userModel.findById(product.userId).select(
+      'name sellerProfile.shopName sellerProfile.isVerified sellerProfile.rating sellerProfile.totalRentals sellerProfile.memberSince'
+    );
+
+    const sellerInfo = seller ? {
+      _id: seller._id,
+      name: seller.name,
+      shopName: seller.sellerProfile?.shopName || seller.name,
+      isVerified: seller.sellerProfile?.isVerified || false,
+      rating: seller.sellerProfile?.rating || { average: 0, count: 0 },
+      totalRentals: seller.sellerProfile?.totalRentals || 0,
+      memberSince: seller.sellerProfile?.memberSince || seller.createdAt
+    } : null;
+
+    res.json({ success: true, product: { ...product._doc, seller: sellerInfo } });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 const myProducts = async (req, res) => {
   try {

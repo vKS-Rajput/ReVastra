@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
 import { toast } from 'react-toastify';
-import { Truck, ShieldCheck, Clock, CheckCircle } from 'lucide-react';
+import { Truck, ShieldCheck, Clock, CheckCircle, User, BadgeCheck, Star, Calendar } from 'lucide-react';
 import Title from '../components/Title';
 
 const Product = () => {
@@ -96,9 +96,52 @@ const Product = () => {
             </div>
 
             {/* Description */}
-            <p className='text-neutral-600 dark:text-neutral-300 leading-relaxed mb-8 text-base'>
+            <p className='text-neutral-600 dark:text-neutral-300 leading-relaxed mb-6 text-base'>
               {productData.description}
             </p>
+
+            {/* Seller Info */}
+            {productData.seller && (
+              <div className='bg-neutral-50 dark:bg-neutral-800/50 p-4 rounded-xl border border-neutral-200 dark:border-neutral-700 mb-8'>
+                <p className='text-xs text-neutral-500 dark:text-neutral-400 uppercase font-semibold tracking-wider mb-3'>Lender</p>
+                <div className='flex items-center justify-between'>
+                  <div className='flex items-center gap-3'>
+                    <div className='w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg'>
+                      {productData.seller.shopName?.charAt(0).toUpperCase() || 'S'}
+                    </div>
+                    <div>
+                      <div className='flex items-center gap-2'>
+                        <span className='font-semibold text-neutral-800 dark:text-neutral-200'>{productData.seller.shopName}</span>
+                        {productData.seller.isVerified && (
+                          <span className='flex items-center gap-1 text-blue-500' title='Verified Seller'>
+                            <BadgeCheck size={18} className='fill-blue-100' />
+                          </span>
+                        )}
+                      </div>
+                      <div className='flex items-center gap-3 mt-1 text-sm'>
+                        {productData.seller.rating?.average > 0 && (
+                          <span className='flex items-center gap-1 text-yellow-600'>
+                            <Star size={14} className='fill-current' />
+                            <span className='font-medium'>{productData.seller.rating.average.toFixed(1)}</span>
+                            <span className='text-neutral-400'>({productData.seller.rating.count})</span>
+                          </span>
+                        )}
+                        {productData.seller.totalRentals > 0 && (
+                          <span className='text-neutral-500 dark:text-neutral-400 flex items-center gap-1'>
+                            <Truck size={12} /> {productData.seller.totalRentals}+ rentals
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  {productData.seller.isVerified && (
+                    <span className='bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs px-3 py-1 rounded-full font-semibold flex items-center gap-1'>
+                      <ShieldCheck size={12} /> Verified
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Size Selector */}
             <div className='flex flex-col gap-4 mb-8'>
