@@ -11,7 +11,7 @@ app.post('/place', authUser, async (c) => {
         const userId = c.get('userId');
         const body = await c.req.json();
 
-        const { amount, items, address, washingFee, deliveryFee, rentalStartDate, rentalEndDate, deliveryDate, urgentOrder, pricingBreakdown } = body;
+        const { amount, items, address, washingFee, deliveryFee, securityDeposit, rentalStartDate, rentalEndDate, deliveryDate, urgentOrder, pricingBreakdown } = body;
 
         if (!amount || !items || !address) {
             return c.json({ success: false, message: 'All fields are required.' });
@@ -41,11 +41,11 @@ app.post('/place', authUser, async (c) => {
 
         // Insert order
         await c.env.DB.prepare(
-            `INSERT INTO orders (id, user_id, amount, address, status, payment_method, payment, washing_fee, delivery_fee, rental_start_date, rental_end_date, delivery_date, urgent_order, urgent_fee, pricing_breakdown)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+            `INSERT INTO orders (id, user_id, amount, address, status, payment_method, payment, washing_fee, delivery_fee, security_deposit, rental_start_date, rental_end_date, delivery_date, urgent_order, urgent_fee, pricing_breakdown)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         ).bind(
             orderId, userId, amount, JSON.stringify(address), 'Order Placed', 'COD', 0,
-            washingFee || 0, deliveryFee || 0,
+            washingFee || 0, deliveryFee || 0, securityDeposit || 0,
             rentalStartDate || null, rentalEndDate || null, deliveryDate || null,
             urgentOrder ? 1 : 0, urgentFee,
             pricingBreakdown ? JSON.stringify(pricingBreakdown) : null

@@ -10,16 +10,16 @@ app.get('/list', async (c) => {
         const { results: bannedUsers } = await c.env.DB.prepare('SELECT id FROM users WHERE is_banned = 1').all();
         const bannedIds = bannedUsers.map(u => u.id);
 
-        // Get all products (available first, then unavailable)
+        // Get all products (available first, then unavailable, exclude deleted)
         let products;
         if (bannedIds.length > 0) {
             const placeholders = bannedIds.map(() => '?').join(',');
             const { results } = await c.env.DB.prepare(
-                `SELECT * FROM products WHERE user_id NOT IN (${placeholders}) ORDER BY CASE WHEN status = 'available' THEN 0 ELSE 1 END, created_at DESC`
+                `SELECT * FROM products WHERE user_id NOT IN (${placeholders}) AND status != 'deleted' ORDER BY CASE WHEN status = 'available' THEN 0 ELSE 1 END, created_at DESC`
             ).bind(...bannedIds).all();
             products = results;
         } else {
-            const { results } = await c.env.DB.prepare('SELECT * FROM products ORDER BY CASE WHEN status = \'available\' THEN 0 ELSE 1 END, created_at DESC').all();
+            const { results } = await c.env.DB.prepare('SELECT * FROM products WHERE status != \'deleted\' ORDER BY CASE WHEN status = \'available\' THEN 0 ELSE 1 END, created_at DESC').all();
             products = results;
         }
 
@@ -269,9 +269,53 @@ app.delete('/user/:id', authUser, async (c) => {
             return c.json({ success: false, message: 'You can only delete your own products.' }, 403);
         }
 
-        await c.env.DB.prepare('DELETE FROM products WHERE id = ?').bind(productId).run();
-        return c.json({ success: true, message: 'Product removed successfully' });
+        // Check if product has any orders
+        const orderItem = await c.env.DB.prepare('SELECT id FROM order_items WHERE product_id = ? LIMIT 1').bind(productId).first();
+
+        if (orderItem) {
+            // Product has orders - soft delete by marking as 'deleted'
+            await c.env.DB.prepare('UPDATE products SET status = ? WHERE id = ?').bind('deleted', productId).run();
+            return c.json({ success: true, message: 'Product has been archived (it has existing orders)' });
+        } else {
+            // No orders - can safely delete
+            await c.env.DB.prepare('DELETE FROM products WHERE id = ?').bind(productId).run();
+            return c.json({ success: true, message: 'Product removed successfully' });
+        }
     } catch (error) {
+        console.error('Delete product error:', error);
+        return c.json({ success: false, message: error.message }, 500);
+    }
+});
+
+// Delete user's product (alternative route for frontend compatibility)
+app.delete('/my-product/:id', authUser, async (c) => {
+    try {
+        const userId = c.get('userId');
+        const productId = c.req.param('id');
+
+        const product = await c.env.DB.prepare('SELECT * FROM products WHERE id = ?').bind(productId).first();
+        if (!product) {
+            return c.json({ success: false, message: 'Product not found.' }, 404);
+        }
+
+        if (product.user_id !== userId) {
+            return c.json({ success: false, message: 'You can only delete your own products.' }, 403);
+        }
+
+        // Check if product has any orders
+        const orderItem = await c.env.DB.prepare('SELECT id FROM order_items WHERE product_id = ? LIMIT 1').bind(productId).first();
+
+        if (orderItem) {
+            // Product has orders - soft delete by marking as 'deleted'
+            await c.env.DB.prepare('UPDATE products SET status = ? WHERE id = ?').bind('deleted', productId).run();
+            return c.json({ success: true, message: 'Product has been archived (it has existing orders)' });
+        } else {
+            // No orders - can safely delete
+            await c.env.DB.prepare('DELETE FROM products WHERE id = ?').bind(productId).run();
+            return c.json({ success: true, message: 'Product removed successfully' });
+        }
+    } catch (error) {
+        console.error('Delete product error:', error);
         return c.json({ success: false, message: error.message }, 500);
     }
 });
@@ -294,9 +338,20 @@ app.post('/remove', async (c) => {
             return c.json({ success: false, message: 'Product not found' }, 404);
         }
 
-        await c.env.DB.prepare('DELETE FROM products WHERE id = ?').bind(id).run();
-        return c.json({ success: true, message: 'Product removed successfully' });
+        // Check if product has any orders
+        const orderItem = await c.env.DB.prepare('SELECT id FROM order_items WHERE product_id = ? LIMIT 1').bind(id).first();
+
+        if (orderItem) {
+            // Product has orders - soft delete by marking as 'deleted'
+            await c.env.DB.prepare('UPDATE products SET status = ? WHERE id = ?').bind('deleted', id).run();
+            return c.json({ success: true, message: 'Product has been archived (it has existing orders)' });
+        } else {
+            // No orders - can safely delete
+            await c.env.DB.prepare('DELETE FROM products WHERE id = ?').bind(id).run();
+            return c.json({ success: true, message: 'Product removed successfully' });
+        }
     } catch (error) {
+        console.error('Admin delete product error:', error);
         return c.json({ success: false, message: error.message }, 500);
     }
 });

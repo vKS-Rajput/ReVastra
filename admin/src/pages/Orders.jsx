@@ -366,6 +366,12 @@ const Orders = ({ token }) => {
                             <span className={`font-medium ${darkMode ? 'text-orange-400' : 'text-orange-600'}`}>{currency}{order.urgent_fee}</span>
                           </div>
                         )}
+                        {order.security_deposit > 0 && (
+                          <div className="flex justify-between items-center">
+                            <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>🛡️ Security Deposit</span>
+                            <span className={`font-medium ${darkMode ? 'text-teal-400' : 'text-teal-600'}`}>{currency}{order.security_deposit}</span>
+                          </div>
+                        )}
                         <div className={`flex justify-between items-center pt-2 mt-2 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
                           <span className={`font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>Total Amount</span>
                           <span className={`font-bold text-lg ${darkMode ? 'text-green-400' : 'text-green-600'}`}>{currency}{order.amount}</span>

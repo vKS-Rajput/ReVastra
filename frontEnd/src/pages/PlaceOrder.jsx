@@ -107,6 +107,7 @@ const PlaceOrder = () => {
         amount: calculateTotal(),
         deliveryFee: delivery_fee,
         washingFee: includeWashing ? washingFee : 0,
+        securityDeposit: rentalInfo?.securityDeposit || 0,
         // New rental fields
         rentalStartDate: rentalInfo?.rentalStartDate,
         rentalEndDate: rentalInfo?.rentalEndDate,

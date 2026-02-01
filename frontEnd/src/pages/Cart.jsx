@@ -174,7 +174,8 @@ const Cart = () => {
       urgentOrder: isUrgent,
       rentalStartDate: dateRange.startDate?.toISOString(),
       rentalEndDate: dateRange.endDate?.toISOString(),
-      pricingBreakdown: calculateTotal.breakdowns
+      pricingBreakdown: calculateTotal.breakdowns,
+      securityDeposit: calculateTotal.securityDeposit
     }));
 
     navigate("/placeorder");
