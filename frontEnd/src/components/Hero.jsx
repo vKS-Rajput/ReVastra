@@ -115,21 +115,17 @@ const Hero = () => {
 
           {/* Right: Featured Categories / Visual */}
           <div className="relative hidden lg:block">
-            {/* Floating category cards */}
-            <div className="relative h-[500px]">
+            {/* Category cards in a 2x2 grid */}
+            <div className="grid grid-cols-2 gap-4 max-w-md">
               {categories.map((cat, index) => (
                 <div
                   key={cat.name}
-                  className={`absolute cursor-pointer group transition-all duration-500 hover:scale-105 hover:z-20`}
-                  style={{
-                    top: `${index * 20}%`,
-                    left: `${index % 2 === 0 ? '10%' : '40%'}`,
-                    animationDelay: `${index * 0.1}s`
-                  }}
+                  className="cursor-pointer group transition-all duration-500 hover:scale-105 hover:-translate-y-1"
+                  style={{ animationDelay: `${index * 0.1}s` }}
                   onClick={() => navigate('/collection')}
                 >
                   <div className={`bg-gradient-to-br ${cat.color} p-[1px] rounded-2xl shadow-xl shadow-black/20`}>
-                    <div className="bg-neutral-900/90 backdrop-blur-xl rounded-2xl p-6 min-w-[180px]">
+                    <div className="bg-neutral-900/90 backdrop-blur-xl rounded-2xl p-6">
                       <span className="text-4xl mb-3 block">{cat.icon}</span>
                       <h3 className="text-white font-semibold text-lg">{cat.name}</h3>
                       <p className="text-neutral-500 text-sm mt-1 flex items-center gap-1">
@@ -139,10 +135,6 @@ const Hero = () => {
                   </div>
                 </div>
               ))}
-
-              {/* Decorative elements */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 border border-white/5 rounded-full"></div>
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 border border-white/5 rounded-full"></div>
             </div>
           </div>
         </div>
