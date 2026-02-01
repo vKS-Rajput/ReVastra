@@ -9,6 +9,16 @@ app.post('/add', authUser, async (c) => {
         const userId = c.get('userId');
         const { itemId, size } = await c.req.json();
 
+        // Check if product exists and is available
+        const product = await c.env.DB.prepare('SELECT id, status, name FROM products WHERE id = ?').bind(itemId).first();
+        if (!product) {
+            return c.json({ success: false, message: 'Product not found.' }, 404);
+        }
+
+        if (product.status !== 'available') {
+            return c.json({ success: false, message: `Sorry, "${product.name}" is currently unavailable for rent.` }, 400);
+        }
+
         const user = await c.env.DB.prepare('SELECT cart_data FROM users WHERE id = ?').bind(userId).first();
         if (!user) {
             return c.json({ success: false, message: 'User not found.' }, 404);

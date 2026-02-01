@@ -17,6 +17,25 @@ app.post('/place', authUser, async (c) => {
             return c.json({ success: false, message: 'All fields are required.' });
         }
 
+        // Validate all items are available before placing order
+        const unavailableItems = [];
+        for (const item of items) {
+            const product = await c.env.DB.prepare('SELECT id, name, status FROM products WHERE id = ?').bind(item._id).first();
+            if (!product) {
+                unavailableItems.push({ name: item.name || 'Unknown Product', reason: 'not found' });
+            } else if (product.status !== 'available') {
+                unavailableItems.push({ name: product.name, reason: 'unavailable' });
+            }
+        }
+
+        if (unavailableItems.length > 0) {
+            const names = unavailableItems.map(i => `"${i.name}"`).join(', ');
+            return c.json({
+                success: false,
+                message: `Cannot place order. The following item(s) are no longer available: ${names}. Please remove them from your cart and try again.`
+            }, 400);
+        }
+
         const orderId = generateId();
         const urgentFee = urgentOrder ? URGENT_FEE : 0;
 

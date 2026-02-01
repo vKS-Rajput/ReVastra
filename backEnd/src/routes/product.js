@@ -10,16 +10,16 @@ app.get('/list', async (c) => {
         const { results: bannedUsers } = await c.env.DB.prepare('SELECT id FROM users WHERE is_banned = 1').all();
         const bannedIds = bannedUsers.map(u => u.id);
 
-        // Get all products
+        // Get all products (available first, then unavailable)
         let products;
         if (bannedIds.length > 0) {
             const placeholders = bannedIds.map(() => '?').join(',');
             const { results } = await c.env.DB.prepare(
-                `SELECT * FROM products WHERE user_id NOT IN (${placeholders})`
+                `SELECT * FROM products WHERE user_id NOT IN (${placeholders}) ORDER BY CASE WHEN status = 'available' THEN 0 ELSE 1 END, created_at DESC`
             ).bind(...bannedIds).all();
             products = results;
         } else {
-            const { results } = await c.env.DB.prepare('SELECT * FROM products').all();
+            const { results } = await c.env.DB.prepare('SELECT * FROM products ORDER BY CASE WHEN status = \'available\' THEN 0 ELSE 1 END, created_at DESC').all();
             products = results;
         }
 
