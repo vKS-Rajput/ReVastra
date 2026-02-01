@@ -9,6 +9,24 @@ function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+// Format user object for frontend (camelCase compatibility)
+function formatUser(user) {
+    return {
+        ...user,
+        _id: user.id,
+        isSeller: user.is_seller === 1 || user.is_seller === true,
+        isBanned: user.is_banned === 1 || user.is_banned === true,
+        sellerProfile: user.seller_profile,
+        cartData: user.cart_data,
+        banReason: user.ban_reason,
+        createdAt: user.created_at,
+        // Keep snake_case for backward compatibility
+        is_seller: user.is_seller,
+        seller_profile: user.seller_profile,
+        cart_data: user.cart_data
+    };
+}
+
 // Register user
 app.post('/register', async (c) => {
     try {
@@ -46,7 +64,7 @@ app.post('/register', async (c) => {
         ).bind(id, name, email, hashedPassword, sellerProfile).run();
 
         const token = await createToken(id, c.env.JWT_SECRET);
-        const user = { id, name, email, is_seller: 0, seller_profile: JSON.parse(sellerProfile) };
+        const user = formatUser({ id, name, email, is_seller: 0, seller_profile: JSON.parse(sellerProfile), cart_data: {} });
 
         return c.json({ success: true, token, user });
     } catch (error) {
@@ -76,7 +94,7 @@ app.post('/login', async (c) => {
         user.address = JSON.parse(user.address || '{}');
         user.cart_data = JSON.parse(user.cart_data || '{}');
 
-        return c.json({ success: true, token, user });
+        return c.json({ success: true, token, user: formatUser(user) });
     } catch (error) {
         console.error('Login error:', error);
         return c.json({ success: false, message: error.message }, 500);
@@ -118,7 +136,7 @@ app.get('/profile', authUser, async (c) => {
         user.address = JSON.parse(user.address || '{}');
         user.cart_data = JSON.parse(user.cart_data || '{}');
 
-        return c.json({ success: true, user });
+        return c.json({ success: true, user: formatUser(user) });
     } catch (error) {
         return c.json({ success: false, message: error.message }, 500);
     }
@@ -153,7 +171,7 @@ app.post('/update', authUser, async (c) => {
     }
 });
 
-// Apply for seller
+// Apply for seller (both routes for compatibility)
 app.post('/apply-seller', authUser, async (c) => {
     try {
         const userId = c.get('userId');
@@ -176,8 +194,40 @@ app.post('/apply-seller', authUser, async (c) => {
         const user = await c.env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(userId).first();
         delete user.password;
         user.seller_profile = JSON.parse(user.seller_profile || '{}');
+        user.cart_data = JSON.parse(user.cart_data || '{}');
 
-        return c.json({ success: true, message: 'Congratulations! You are now a seller. 🚀', user });
+        return c.json({ success: true, message: 'Congratulations! You are now a seller. 🚀', user: formatUser(user) });
+    } catch (error) {
+        return c.json({ success: false, message: error.message }, 500);
+    }
+});
+
+// Alias for become-seller (frontend uses this route)
+app.post('/become-seller', authUser, async (c) => {
+    try {
+        const userId = c.get('userId');
+        const { shopName, shopDescription, bankingInfo, address } = await c.req.json();
+
+        if (!shopName || !bankingInfo || !address) {
+            return c.json({ success: false, message: 'Missing required seller details.' }, 400);
+        }
+
+        const sellerProfile = JSON.stringify({
+            shopName, shopDescription: shopDescription || "",
+            bankingInfo, address, isVerified: false, verificationDate: null,
+            totalRentals: 0, avgResponseTime: 0, memberSince: new Date().toISOString(),
+            rating: { average: 0, count: 0 }
+        });
+
+        await c.env.DB.prepare('UPDATE users SET is_seller = 1, seller_profile = ? WHERE id = ?')
+            .bind(sellerProfile, userId).run();
+
+        const user = await c.env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(userId).first();
+        delete user.password;
+        user.seller_profile = JSON.parse(user.seller_profile || '{}');
+        user.cart_data = JSON.parse(user.cart_data || '{}');
+
+        return c.json({ success: true, message: 'Congratulations! You are now a seller. 🚀', user: formatUser(user) });
     } catch (error) {
         return c.json({ success: false, message: error.message }, 500);
     }

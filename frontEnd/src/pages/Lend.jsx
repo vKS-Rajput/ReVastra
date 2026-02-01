@@ -116,22 +116,31 @@ const Lend = () => {
 
   // Upload image to Cloudinary directly from frontend
   const uploadToCloudinary = async (file) => {
-    const cloudinaryURL = `https://api.cloudinary.com/v1_1/dx517wcn7/image/upload`;
+    const cloudinaryURL = `https://api.cloudinary.com/v1_1/dwfotl87t/image/upload`;
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('upload_preset', 'revastra_unsigned'); // Create this preset in Cloudinary dashboard
+    formData.append('upload_preset', 'revastra_unsigned');
     formData.append('folder', 'revastra_products');
 
-    const response = await fetch(cloudinaryURL, {
-      method: 'POST',
-      body: formData,
-    });
+    try {
+      const response = await fetch(cloudinaryURL, {
+        method: 'POST',
+        body: formData,
+      });
 
-    const data = await response.json();
-    if (data.secure_url) {
-      return data.secure_url;
+      const data = await response.json();
+      console.log('Cloudinary response:', data);
+
+      if (data.secure_url) {
+        return data.secure_url;
+      }
+
+      // Show actual error from Cloudinary
+      throw new Error(data.error?.message || 'Failed to upload image');
+    } catch (error) {
+      console.error('Cloudinary upload error:', error);
+      throw error;
     }
-    throw new Error('Failed to upload image');
   };
 
   const onSubmitHandler = async (e) => {

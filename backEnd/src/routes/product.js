@@ -140,7 +140,7 @@ app.post('/add', authUser, async (c) => {
     }
 });
 
-// Get user's products
+// Get user's products (POST - for backward compatibility)
 app.post('/myproducts', authUser, async (c) => {
     try {
         const userId = c.get('userId');
@@ -154,6 +154,47 @@ app.post('/myproducts', authUser, async (c) => {
         }));
 
         return c.json({ success: true, products });
+    } catch (error) {
+        return c.json({ success: false, message: error.message }, 500);
+    }
+});
+
+// Get user's products (GET - frontend uses this)
+app.get('/my-product', authUser, async (c) => {
+    try {
+        const userId = c.get('userId');
+        const { results } = await c.env.DB.prepare('SELECT * FROM products WHERE user_id = ?').bind(userId).all();
+
+        const products = results.map(p => ({
+            ...p,
+            _id: p.id,
+            image: JSON.parse(p.image || '[]'),
+            sizes: JSON.parse(p.sizes || '[]')
+        }));
+
+        return c.json({ success: true, products });
+    } catch (error) {
+        return c.json({ success: false, message: error.message }, 500);
+    }
+});
+
+// Delete user's product by ID (frontend uses DELETE /my-product/:id)
+app.delete('/my-product/:id', authUser, async (c) => {
+    try {
+        const userId = c.get('userId');
+        const productId = c.req.param('id');
+
+        const product = await c.env.DB.prepare('SELECT * FROM products WHERE id = ?').bind(productId).first();
+        if (!product) {
+            return c.json({ success: false, message: 'Product not found.' }, 404);
+        }
+
+        if (product.user_id !== userId) {
+            return c.json({ success: false, message: 'You can only delete your own products.' }, 403);
+        }
+
+        await c.env.DB.prepare('DELETE FROM products WHERE id = ?').bind(productId).run();
+        return c.json({ success: true, message: 'Product removed successfully' });
     } catch (error) {
         return c.json({ success: false, message: error.message }, 500);
     }
