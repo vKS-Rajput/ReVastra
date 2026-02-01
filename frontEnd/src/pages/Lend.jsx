@@ -114,6 +114,26 @@ const Lend = () => {
 
   const prevStep = () => setCurrentStep(prev => prev - 1);
 
+  // Upload image to Cloudinary directly from frontend
+  const uploadToCloudinary = async (file) => {
+    const cloudinaryURL = `https://api.cloudinary.com/v1_1/dx517wcn7/image/upload`;
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'revastra_unsigned'); // Create this preset in Cloudinary dashboard
+    formData.append('folder', 'revastra_products');
+
+    const response = await fetch(cloudinaryURL, {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await response.json();
+    if (data.secure_url) {
+      return data.secure_url;
+    }
+    throw new Error('Failed to upload image');
+  };
+
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     if (isLoading) return;
@@ -127,20 +147,32 @@ const Lend = () => {
     setIsLoading(true);
 
     try {
-      const submitData = new FormData();
-      Object.keys(formData).forEach(key => {
-        if (key === 'sizes') submitData.append(key, JSON.stringify(formData[key]));
-        else submitData.append(key, formData[key]);
-      });
-      submitData.append("rental_price", pricing.rentalPrice);
+      // Upload images to Cloudinary first
+      toast.info("Uploading images...");
+      const imagePromises = images
+        .filter(img => img !== null)
+        .map(img => uploadToCloudinary(img));
 
-      images.forEach((image, index) => {
-        if (image) submitData.append(`image${index + 1}`, image);
-      });
+      const imageUrls = await Promise.all(imagePromises);
 
-      const response = await axios.post(`${backEndURL}/api/product/add`, submitData, {
+      if (imageUrls.length === 0) {
+        toast.error("Please upload at least one image");
+        setIsLoading(false);
+        return;
+      }
+
+      // Send product data with image URLs to backend
+      const productData = {
+        ...formData,
+        sizes: formData.sizes,
+        rental_price: pricing.rentalPrice,
+        images: imageUrls, // Array of Cloudinary URLs
+      };
+
+      const response = await axios.post(`${backEndURL}/api/product/add`, productData, {
         headers: {
-          Authorization: `Bearer ${token}`, // Corrected header
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
 
@@ -152,7 +184,7 @@ const Lend = () => {
       }
     } catch (error) {
       console.error(error);
-      toast.error(error.message);
+      toast.error(error.message || "Failed to list product");
     } finally {
       setIsLoading(false);
     }

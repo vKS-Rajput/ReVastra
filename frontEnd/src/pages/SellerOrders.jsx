@@ -14,7 +14,7 @@ const SellerOrders = () => {
             const response = await axios.post(
                 backEndURL + '/api/order/seller-orders',
                 {},
-                { headers: { token } }
+                { headers: { Authorization: `Bearer ${token}` } }
             );
             if (response.data.success) {
                 setOrders(response.data.orders);
