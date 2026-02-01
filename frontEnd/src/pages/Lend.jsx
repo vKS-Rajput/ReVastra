@@ -265,10 +265,23 @@ const Lend = () => {
                   <select name="category" value={formData.category} onChange={handleInputChange} className="input-field">
                     <option value="Men">Men</option>
                     <option value="Women">Women</option>
+                    <option value="Unisex">Unisex</option>
                   </select>
                   <select name="subCategory" value={formData.subCategory} onChange={handleInputChange} className="input-field">
-                    <option value="Topwear">Topwear</option>
-                    <option value="Bottomwear">Bottomwear</option>
+                    <optgroup label="Clothing">
+                      <option value="Topwear">Topwear (T-shirts, Shirts)</option>
+                      <option value="Bottomwear">Bottomwear (Jeans, Trousers)</option>
+                      <option value="Ethnic">Ethnic Wear (Kurta, Saree, Lehenga)</option>
+                      <option value="Dresses">Dresses & Gowns</option>
+                      <option value="Outerwear">Outerwear (Jackets, Blazers)</option>
+                      <option value="Winterwear">Winterwear (Sweaters, Hoodies)</option>
+                    </optgroup>
+                    <optgroup label="Accessories">
+                      <option value="Footwear">Footwear (Shoes, Heels)</option>
+                      <option value="Bags">Bags & Purses</option>
+                      <option value="Jewelry">Jewelry & Watches</option>
+                      <option value="Accessories">Other Accessories</option>
+                    </optgroup>
                   </select>
                 </div>
 

@@ -54,15 +54,12 @@ const NavBar = () => {
               key={item}
               to={item === "HOME" ? "/" : `/${item.toLowerCase()}`}
               className={({ isActive }) =>
-                `flex flex-col items-center gap-1 text-sm font-semibold tracking-wide transition-colors duration-300 ${isActive ? "text-primary-600" : "hover:text-primary-500"
+                `relative flex flex-col items-center gap-1 text-sm font-semibold tracking-wide transition-colors duration-300 group ${isActive ? "text-primary-600" : "hover:text-primary-500"
                 }`
               }
             >
               <p>{item}</p>
-              <hr
-                className={`w-2/4 border-none h-[2px] bg-primary-500 rounded-full transition-all duration-300 ${"hidden"
-                  }`}
-              />
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary-500 to-pink-500 rounded-full transition-all duration-300 group-hover:w-full"></span>
             </NavLink>
           ))}
         </ul>

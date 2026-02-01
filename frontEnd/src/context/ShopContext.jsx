@@ -70,7 +70,16 @@ const ShopContextProvider = ({ children }) => {
                 return [...prev, itemId];
             }
         });
-    }, []);
+    }, [setWishlist]);
+
+    // Explicit remove function for wishlist page
+    const removeFromWishlist = useCallback((itemId) => {
+        setWishlist((prev) => {
+            const newWishlist = prev.filter(id => id !== itemId);
+            toast.info("Removed from Wishlist");
+            return newWishlist;
+        });
+    }, [setWishlist]);
 
     const isInWishlist = useCallback((itemId) => wishlist.includes(itemId), [wishlist]);
 
@@ -237,8 +246,9 @@ const ShopContextProvider = ({ children }) => {
         logout,
         wishlist,
         addToWishlist,
+        removeFromWishlist,
         isInWishlist
-    }), [products, currency, delivery_fee, search, showSearch, cartItems, addToCart, backEndURL, getCartAmount, getCartCount, updateDuration, token, user, washingFee, navigate, includeWashing, toggleWashingFee, fetchUserProfile, logout, wishlist, addToWishlist, isInWishlist]);
+    }), [products, currency, delivery_fee, search, showSearch, cartItems, addToCart, backEndURL, getCartAmount, getCartCount, updateDuration, token, user, washingFee, navigate, includeWashing, toggleWashingFee, fetchUserProfile, logout, wishlist, addToWishlist, removeFromWishlist, isInWishlist]);
 
     return <ShopContext.Provider value={value}>{children}</ShopContext.Provider>;
 };
