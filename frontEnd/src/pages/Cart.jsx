@@ -5,6 +5,7 @@ import CartTotal from "../components/CartTotal";
 import { Trash2, ShoppingBag, ArrowRight, ShieldCheck, Calendar, Zap, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import DatePicker from "react-datepicker";
+import { toast } from "react-toastify";
 import "react-datepicker/dist/react-datepicker.css";
 import {
   calculateTieredPrice,
@@ -45,16 +46,13 @@ const Cart = () => {
       }
       setCartData(tempData);
 
-      // Initialize rental dates for new items
+      // Initialize rental dates as null (user must select)
       tempData.forEach(item => {
         const key = `${item._id}-${item.size}`;
-        if (!rentalDates[key]) {
-          const startDate = getMinStartDate();
-          const endDate = new Date(startDate);
-          endDate.setDate(endDate.getDate() + (item.duration || 3));
+        if (rentalDates[key] === undefined) {
           setRentalDates(prev => ({
             ...prev,
-            [key]: { startDate, endDate }
+            [key]: { startDate: null, endDate: null }
           }));
         }
       });
@@ -149,8 +147,24 @@ const Cart = () => {
     return { startDate: earliestStart, endDate: latestEnd };
   };
 
+  // Check if all dates are selected
+  const allDatesSelected = useMemo(() => {
+    if (cartData.length === 0) return false;
+    return cartData.every(item => {
+      const key = `${item._id}-${item.size}`;
+      const dates = rentalDates[key];
+      return dates?.startDate && dates?.endDate;
+    });
+  }, [cartData, rentalDates]);
+
   // Handle proceed to checkout
   const handleProceedToCheckout = () => {
+    // Validate all dates are selected
+    if (!allDatesSelected) {
+      toast.error('Please select rental dates for all items before proceeding.');
+      return;
+    }
+
     const dateRange = getRentalDateRange();
 
     // Store rental info in session storage for PlaceOrder page

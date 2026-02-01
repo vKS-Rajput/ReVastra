@@ -245,68 +245,56 @@ const Orders = ({ token }) => {
 
               {/* Expanded Details */}
               {expandedOrder === order._id && (
-                <div className={`border-t p-4 ${darkMode ? 'border-gray-700 bg-gray-850' : 'border-gray-100 bg-gray-50'}`}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className={`border-t ${darkMode ? 'border-gray-700' : 'border-gray-100'}`}>
+                  {/* Top Section - Customer & Dates */}
+                  <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 p-4 ${darkMode ? 'bg-gray-850' : 'bg-gray-50'}`}>
                     {/* Customer */}
-                    <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-                      <h4 className={`text-xs font-semibold uppercase mb-3 flex items-center gap-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                        <User size={14} /> Customer
+                    <div className={`p-4 rounded-xl ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}>
+                      <h4 className={`text-xs font-bold uppercase mb-3 flex items-center gap-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        <User size={14} /> Customer Info
                       </h4>
-                      <p className={`font-medium ${darkMode ? 'text-white' : 'text-gray-800'}`}>{order.address?.fullName}</p>
-                      <p className={`text-sm flex items-center gap-1 mt-1 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                        <Phone size={12} /> {order.address?.phone}
-                      </p>
-                      <p className={`text-sm flex items-start gap-1 mt-1 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                        <MapPin size={12} className="mt-0.5 shrink-0" /> {order.address?.hostel}, {order.address?.block}, Room {order.address?.room}
-                      </p>
+                      <p className={`font-semibold text-lg ${darkMode ? 'text-white' : 'text-gray-800'}`}>{order.address?.fullName}</p>
+                      <div className="mt-2 space-y-1">
+                        <p className={`text-sm flex items-center gap-2 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                          <Phone size={14} className="text-blue-500" /> {order.address?.phone}
+                        </p>
+                        <p className={`text-sm flex items-start gap-2 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                          <MapPin size={14} className="mt-0.5 text-red-500 shrink-0" />
+                          <span>{order.address?.hostel}, {order.address?.block}, Room {order.address?.room}</span>
+                        </p>
+                      </div>
                     </div>
 
                     {/* Rental Dates */}
-                    <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-                      <h4 className={`text-xs font-semibold uppercase mb-3 flex items-center gap-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <div className={`p-4 rounded-xl ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}>
+                      <h4 className={`text-xs font-bold uppercase mb-3 flex items-center gap-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                         <Calendar size={14} /> Rental Period
                       </h4>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>Start:</span>
-                          <span className={`font-medium ${darkMode ? 'text-white' : 'text-gray-800'}`}>{formatDate(order.rentalStartDate)}</span>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Start Date</span>
+                          <span className={`font-medium ${darkMode ? 'text-green-400' : 'text-green-600'}`}>{formatDate(order.rentalStartDate)}</span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>End:</span>
-                          <span className={`font-medium ${darkMode ? 'text-white' : 'text-gray-800'}`}>{formatDate(order.rentalEndDate)}</span>
+                        <div className="flex justify-between items-center">
+                          <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>End Date</span>
+                          <span className={`font-medium ${darkMode ? 'text-red-400' : 'text-red-600'}`}>{formatDate(order.rentalEndDate)}</span>
                         </div>
-                        <div className={`flex justify-between pt-2 border-t ${darkMode ? 'border-gray-700' : ''}`}>
-                          <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>Delivery:</span>
+                        <div className={`flex justify-between items-center pt-2 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                          <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Delivery</span>
                           <span className="font-medium text-blue-500">{formatDate(order.deliveryDate)}</span>
                         </div>
                       </div>
                     </div>
 
-                    {/* Items */}
-                    <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-                      <h4 className={`text-xs font-semibold uppercase mb-3 flex items-center gap-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                        <Package size={14} /> Items ({order.items?.length})
-                      </h4>
-                      <div className="space-y-2 max-h-28 overflow-y-auto">
-                        {order.items?.map((item, idx) => (
-                          <div key={idx} className="flex items-center gap-2 text-sm">
-                            <div className="w-2 h-2 rounded-full bg-red-400"></div>
-                            <span className={`truncate ${darkMode ? 'text-white' : 'text-gray-800'}`}>{item.name}</span>
-                            <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>({item.size})</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
                     {/* Update Status */}
-                    <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-                      <h4 className={`text-xs font-semibold uppercase mb-3 flex items-center gap-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                        <Truck size={14} /> Update Status
+                    <div className={`p-4 rounded-xl ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}>
+                      <h4 className={`text-xs font-bold uppercase mb-3 flex items-center gap-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        <Truck size={14} /> Order Status
                       </h4>
                       <select
                         onChange={(e) => statusHandler(e, order._id)}
                         value={order.status}
-                        className={`w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-red-500 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white'}`}
+                        className={`w-full px-4 py-3 border rounded-lg font-medium focus:ring-2 focus:ring-red-500 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-gray-50 border-gray-200'}`}
                       >
                         <option value="Order Placed">Order Placed</option>
                         <option value="Packing">Packing</option>
@@ -315,11 +303,80 @@ const Orders = ({ token }) => {
                         <option value="Delivered">Delivered</option>
                       </select>
                       {order.status === 'Delivered' && (
-                        <div className={`mt-3 p-2 rounded text-xs ${darkMode ? 'bg-orange-900/30' : 'bg-orange-50'}`}>
-                          <span className="text-orange-500">Return in: </span>
+                        <div className={`mt-3 p-3 rounded-lg text-sm ${darkMode ? 'bg-orange-900/30 border border-orange-800' : 'bg-orange-50 border border-orange-200'}`}>
+                          <span className="text-orange-500 font-medium">⏰ Return in: </span>
                           <CountdownTimer returnDateTime={calculateExpirationDate(order.date, order.items?.[0]?.duration || 3)} />
                         </div>
                       )}
+                    </div>
+                  </div>
+
+                  {/* Bottom Section - Items & Charges */}
+                  <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 p-4 ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
+                    {/* Items */}
+                    <div className={`p-4 rounded-xl ${darkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                      <h4 className={`text-xs font-bold uppercase mb-3 flex items-center gap-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        <Package size={14} /> Order Items ({order.items?.length})
+                      </h4>
+                      <div className="space-y-2 max-h-32 overflow-y-auto">
+                        {order.items?.map((item, idx) => (
+                          <div key={idx} className={`flex items-center justify-between p-2 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-white'}`}>
+                            <div className="flex items-center gap-3">
+                              {item.image?.[0] && (
+                                <img src={item.image[0]} alt={item.name} className="w-10 h-10 rounded-lg object-cover" />
+                              )}
+                              <div>
+                                <span className={`font-medium ${darkMode ? 'text-white' : 'text-gray-800'}`}>{item.name}</span>
+                                <span className={`text-xs ml-2 px-2 py-0.5 rounded ${darkMode ? 'bg-gray-600 text-gray-300' : 'bg-gray-200 text-gray-600'}`}>{item.size}</span>
+                              </div>
+                            </div>
+                            <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{item.duration} days</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Charges Breakdown */}
+                    <div className={`p-4 rounded-xl ${darkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                      <h4 className={`text-xs font-bold uppercase mb-3 flex items-center gap-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        <FileText size={14} /> Charges Breakdown
+                      </h4>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Rental Amount</span>
+                          <span className={`font-medium ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                            {currency}{(order.amount - (order.washing_fee || 0) - (order.delivery_fee || 0) - (order.urgent_fee || 0)).toFixed(2)}
+                          </span>
+                        </div>
+                        {order.washing_fee > 0 && (
+                          <div className="flex justify-between items-center">
+                            <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>🧺 Washing Fee</span>
+                            <span className={`font-medium ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>{currency}{order.washing_fee}</span>
+                          </div>
+                        )}
+                        {order.delivery_fee > 0 && (
+                          <div className="flex justify-between items-center">
+                            <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>🚚 Delivery Fee</span>
+                            <span className={`font-medium ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>{currency}{order.delivery_fee}</span>
+                          </div>
+                        )}
+                        {order.urgent_fee > 0 && (
+                          <div className="flex justify-between items-center">
+                            <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>⚡ Urgent Fee</span>
+                            <span className={`font-medium ${darkMode ? 'text-orange-400' : 'text-orange-600'}`}>{currency}{order.urgent_fee}</span>
+                          </div>
+                        )}
+                        <div className={`flex justify-between items-center pt-2 mt-2 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                          <span className={`font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>Total Amount</span>
+                          <span className={`font-bold text-lg ${darkMode ? 'text-green-400' : 'text-green-600'}`}>{currency}{order.amount}</span>
+                        </div>
+                      </div>
+                      <div className={`mt-3 p-2 rounded-lg text-xs ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                        <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>Payment: </span>
+                        <span className={`font-medium ${order.payment ? 'text-green-500' : 'text-yellow-500'}`}>
+                          {order.payment ? 'Paid' : 'COD (Pending)'}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>

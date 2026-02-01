@@ -220,6 +220,7 @@ app.post('/remove', async (c) => {
 // Update product status
 app.put('/status/:id', authUser, async (c) => {
     try {
+        const userId = c.get('userId');
         const productId = c.req.param('id');
         const { status } = await c.req.json();
 
@@ -227,18 +228,28 @@ app.put('/status/:id', authUser, async (c) => {
             return c.json({ success: false, message: 'Invalid status value' }, 400);
         }
 
-        await c.env.DB.prepare('UPDATE products SET status = ? WHERE id = ?').bind(status, productId).run();
-
+        // Check if product exists first
         const product = await c.env.DB.prepare('SELECT * FROM products WHERE id = ?').bind(productId).first();
         if (!product) {
             return c.json({ success: false, message: 'Product not found' }, 404);
         }
 
+        // Verify ownership
+        if (product.user_id !== userId) {
+            return c.json({ success: false, message: 'You can only update your own products' }, 403);
+        }
+
+        // Now update the status
+        await c.env.DB.prepare('UPDATE products SET status = ? WHERE id = ?').bind(status, productId).run();
+
+        product.status = status;
         product.image = JSON.parse(product.image || '[]');
         product.sizes = JSON.parse(product.sizes || '[]');
+        product._id = product.id;
 
         return c.json({ success: true, message: 'Product status updated', product });
     } catch (error) {
+        console.error('Status update error:', error);
         return c.json({ success: false, message: error.message }, 500);
     }
 });
