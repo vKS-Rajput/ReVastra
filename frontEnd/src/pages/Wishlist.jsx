@@ -40,6 +40,7 @@ const Wishlist = () => {
                             rental_price={item.rental_price}
                             bestseller={item.bestseller}
                             date={item.date}
+                            seller={item.seller}
                         />
                     ))}
                 </div>

@@ -18,23 +18,41 @@ const AppContent = ({ token, setToken }) => {
   const { darkMode } = useTheme();
 
   return (
-    <div className={`min-h-screen flex flex-col transition-colors duration-300 ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
-      <ToastContainer theme={darkMode ? 'dark' : 'light'} />
+    <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gray-950 text-white' : 'bg-gray-50 text-gray-900'}`}>
+      <ToastContainer
+        theme={darkMode ? 'dark' : 'light'}
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       {token === '' ? (
         <Login setToken={setToken} />
       ) : (
-        <>
+        <div className="flex flex-col min-h-screen">
           <Navbar setToken={setToken} />
-          <div className="flex-1 w-full max-w-7xl mx-auto px-4 py-6">
-            <Routes>
-              <Route path="/" element={<Dashboard token={token} />} />
-              <Route path="/add" element={<Add token={token} />} />
-              <Route path="/list" element={<List token={token} />} />
-              <Route path="/orders" element={<Orders token={token} />} />
-              <Route path="/sellers" element={<Sellers token={token} />} />
-            </Routes>
-          </div>
-        </>
+          <main className="flex-1 w-full">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+              <Routes>
+                <Route path="/" element={<Dashboard token={token} />} />
+                <Route path="/add" element={<Add token={token} />} />
+                <Route path="/list" element={<List token={token} />} />
+                <Route path="/orders" element={<Orders token={token} />} />
+                <Route path="/sellers" element={<Sellers token={token} />} />
+              </Routes>
+            </div>
+          </main>
+
+          {/* Footer */}
+          <footer className={`py-4 text-center text-sm ${darkMode ? 'text-gray-500 border-gray-800' : 'text-gray-400 border-gray-200'} border-t`}>
+            <p>© 2024 ReVastra Admin Panel. All rights reserved.</p>
+          </footer>
+        </div>
       )}
     </div>
   );

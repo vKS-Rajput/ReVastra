@@ -35,6 +35,9 @@ const LatestCollection = () => {
                 name={item.name}
                 price={item.price}
                 rental_price={item.rental_price}
+                bestseller={item.bestseller}
+                date={item.date}
+                seller={item.seller}
               />
             </div>
           ))}

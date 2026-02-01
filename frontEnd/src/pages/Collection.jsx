@@ -123,7 +123,7 @@ const Collection = () => {
           <div className='mb-6'>
             <p className='text-sm font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider mb-3'>Categories</p>
             <div className='space-y-2'>
-              {['Men', 'Women', 'Kids'].map((cat) => (
+              {['Men', 'Women', 'Unisex'].map((cat) => (
                 <label key={cat} className='flex items-center gap-3 cursor-pointer group'>
                   <input className='w-4 h-4 accent-primary-500 rounded border-gray-300' type="checkbox" value={cat} onChange={toggleCategory} />
                   <span className='text-neutral-600 dark:text-neutral-400 group-hover:text-primary-500 transition-colors'>{cat}</span>
@@ -137,8 +137,8 @@ const Collection = () => {
           {/* SubCategories */}
           <div>
             <p className='text-sm font-bold text-neutral-800 uppercase tracking-wider mb-3 dark:text-neutral-200'>Type</p>
-            <div className='space-y-2'>
-              {['Topwear', 'Bottomwear', 'Winterwear'].map((sub) => (
+            <div className='space-y-2 max-h-60 overflow-y-auto'>
+              {['Topwear', 'Bottomwear', 'Ethnic', 'Dresses', 'Outerwear', 'Winterwear', 'Footwear', 'Bags', 'Jewelry', 'Other'].map((sub) => (
                 <label key={sub} className='flex items-center gap-3 cursor-pointer group'>
                   <input className='w-4 h-4 accent-primary-500 rounded border-gray-300' type="checkbox" value={sub} onChange={toggleSubCategory} />
                   <span className='text-neutral-600 dark:text-neutral-400 group-hover:text-primary-500 transition-colors'>{sub}</span>
@@ -195,7 +195,7 @@ const Collection = () => {
             ) : (
               filterProducts.length > 0 ? (
                 filterProducts.map((item, index) => (
-                  <ProductItems key={index} name={item.name} id={item._id} price={item.price} rental_price={item.rental_price} image={item.image} date={item.date} bestseller={item.bestseller} />
+                  <ProductItems key={index} name={item.name} id={item._id} price={item.price} rental_price={item.rental_price} image={item.image} date={item.date} bestseller={item.bestseller} seller={item.seller} />
                 ))
               ) : (
                 <div className="col-span-full py-20 text-center">

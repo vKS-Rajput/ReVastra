@@ -105,10 +105,10 @@ const Add = ({ token }) => {
                 <label
                   htmlFor={`image${index + 1}`}
                   className={`flex flex-col items-center justify-center h-40 border-2 border-dashed rounded-xl cursor-pointer transition-all ${image
-                      ? 'border-green-500'
-                      : darkMode
-                        ? 'border-gray-600 hover:border-red-500 bg-gray-700'
-                        : 'border-gray-300 hover:border-red-500 bg-gray-50'
+                    ? 'border-green-500'
+                    : darkMode
+                      ? 'border-gray-600 hover:border-red-500 bg-gray-700'
+                      : 'border-gray-300 hover:border-red-500 bg-gray-50'
                     }`}
                 >
                   {image ? (
@@ -228,6 +228,7 @@ const Add = ({ token }) => {
                 >
                   <option value="Men">Men</option>
                   <option value="Women">Women</option>
+                  <option value="Unisex">Unisex</option>
                 </select>
                 <select
                   onChange={(e) => setSubCategory(e.target.value)}
@@ -235,10 +236,20 @@ const Add = ({ token }) => {
                   className={inputClass}
                   required
                 >
-                  <option value="Topwear">Top Wear</option>
-                  <option value="Bottomwear">Bottom Wear</option>
-                  <option value="Ethnic">Ethnic</option>
-                  <option value="Accessories">Accessories</option>
+                  <optgroup label="Clothing">
+                    <option value="Topwear">Topwear (T-shirts, Shirts)</option>
+                    <option value="Bottomwear">Bottomwear (Jeans, Trousers)</option>
+                    <option value="Ethnic">Ethnic Wear (Kurta, Saree)</option>
+                    <option value="Dresses">Dresses & Gowns</option>
+                    <option value="Outerwear">Outerwear (Jackets, Blazers)</option>
+                    <option value="Winterwear">Winterwear (Sweaters)</option>
+                  </optgroup>
+                  <optgroup label="Accessories">
+                    <option value="Footwear">Footwear (Shoes, Heels)</option>
+                    <option value="Bags">Bags & Purses</option>
+                    <option value="Jewelry">Jewelry & Watches</option>
+                    <option value="Accessories">Other Accessories</option>
+                  </optgroup>
                 </select>
               </div>
             </div>
@@ -270,10 +281,10 @@ const Add = ({ token }) => {
                 type="button"
                 onClick={() => setSizes((prev) => prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size])}
                 className={`px-5 py-2.5 rounded-xl font-medium transition-all ${sizes.includes(size)
-                    ? 'bg-red-500 text-white shadow-lg shadow-red-500/30'
-                    : darkMode
-                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-red-500 text-white shadow-lg shadow-red-500/30'
+                  : darkMode
+                    ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
               >
                 {sizes.includes(size) && <Check size={16} className="inline mr-1" />}
@@ -303,8 +314,8 @@ const Add = ({ token }) => {
               type="submit"
               disabled={isSubmitting}
               className={`px-8 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${isSubmitting
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-lg shadow-red-500/30 hover:shadow-xl'
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-lg shadow-red-500/30 hover:shadow-xl'
                 }`}
             >
               {isSubmitting ? (

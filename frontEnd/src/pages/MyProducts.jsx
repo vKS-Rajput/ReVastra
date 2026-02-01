@@ -44,7 +44,7 @@ const MyProducts = () => {
     const newStatus = currentStatus === 'available' ? 'out_of_stock' : 'available';
 
     try {
-      const response = await axios.patch(
+      const response = await axios.put(
         `${backEndURL}/api/product/status/${productId}`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -157,8 +157,8 @@ const MyProducts = () => {
                   onClick={() => toggleAvailability(product._id, product.status)}
                   disabled={togglingId === product._id}
                   className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${product.status === 'available'
-                      ? 'bg-green-500'
-                      : 'bg-neutral-300 dark:bg-neutral-600'
+                    ? 'bg-green-500'
+                    : 'bg-neutral-300 dark:bg-neutral-600'
                     } ${togglingId === product._id ? 'opacity-50 cursor-wait' : 'cursor-pointer'}`}
                 >
                   <span
@@ -174,8 +174,8 @@ const MyProducts = () => {
               </div>
 
               <p className={`mt-2 text-sm font-medium ${product.status === 'available'
-                  ? 'text-green-600 dark:text-green-400'
-                  : 'text-neutral-500 dark:text-neutral-400'
+                ? 'text-green-600 dark:text-green-400'
+                : 'text-neutral-500 dark:text-neutral-400'
                 }`}>
                 {product.status === 'available' ? '✓ Available for Rent' : '✗ Currently Unavailable'}
               </p>

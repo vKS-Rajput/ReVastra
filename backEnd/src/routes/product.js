@@ -265,4 +265,56 @@ app.delete('/user/:id', authUser, async (c) => {
     }
 });
 
+// Admin: Remove product (requires admin token)
+app.post('/remove', async (c) => {
+    try {
+        const token = c.req.header('token');
+        if (!token) {
+            return c.json({ success: false, message: 'Unauthorized' }, 401);
+        }
+
+        const { id } = await c.req.json();
+        if (!id) {
+            return c.json({ success: false, message: 'Product ID is required' }, 400);
+        }
+
+        const product = await c.env.DB.prepare('SELECT * FROM products WHERE id = ?').bind(id).first();
+        if (!product) {
+            return c.json({ success: false, message: 'Product not found' }, 404);
+        }
+
+        await c.env.DB.prepare('DELETE FROM products WHERE id = ?').bind(id).run();
+        return c.json({ success: true, message: 'Product removed successfully' });
+    } catch (error) {
+        return c.json({ success: false, message: error.message }, 500);
+    }
+});
+
+// Admin: Update product status
+app.put('/update-status/:id', async (c) => {
+    try {
+        const token = c.req.header('token');
+        if (!token) {
+            return c.json({ success: false, message: 'Unauthorized' }, 401);
+        }
+
+        const productId = c.req.param('id');
+        const { status } = await c.req.json();
+
+        if (!['available', 'out_of_stock'].includes(status)) {
+            return c.json({ success: false, message: 'Invalid status' }, 400);
+        }
+
+        const product = await c.env.DB.prepare('SELECT * FROM products WHERE id = ?').bind(productId).first();
+        if (!product) {
+            return c.json({ success: false, message: 'Product not found' }, 404);
+        }
+
+        await c.env.DB.prepare('UPDATE products SET status = ? WHERE id = ?').bind(status, productId).run();
+        return c.json({ success: true, message: 'Status updated' });
+    } catch (error) {
+        return c.json({ success: false, message: error.message }, 500);
+    }
+});
+
 export default app;

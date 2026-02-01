@@ -233,17 +233,52 @@ app.post('/become-seller', authUser, async (c) => {
     }
 });
 
-// Get all sellers (admin)
+// Get all sellers (admin) - supports both GET and POST
+app.get('/sellers', async (c) => {
+    try {
+        const { results } = await c.env.DB.prepare(
+            'SELECT id, name, email, phone, is_seller, seller_profile, is_banned, ban_reason, created_at FROM users WHERE is_seller = 1'
+        ).all();
+
+        const sellers = results.map(s => {
+            const profile = JSON.parse(s.seller_profile || '{}');
+            return {
+                _id: s.id,
+                name: s.name,
+                email: s.email,
+                phone: s.phone,
+                isBanned: s.is_banned === 1,
+                banReason: s.ban_reason,
+                createdAt: s.created_at,
+                sellerProfile: profile
+            };
+        });
+
+        return c.json({ success: true, sellers });
+    } catch (error) {
+        return c.json({ success: false, message: error.message }, 500);
+    }
+});
+
 app.post('/sellers', async (c) => {
     try {
         const { results } = await c.env.DB.prepare(
             'SELECT id, name, email, phone, is_seller, seller_profile, is_banned, ban_reason, created_at FROM users WHERE is_seller = 1'
         ).all();
 
-        const sellers = results.map(s => ({
-            ...s,
-            seller_profile: JSON.parse(s.seller_profile || '{}')
-        }));
+        const sellers = results.map(s => {
+            const profile = JSON.parse(s.seller_profile || '{}');
+            return {
+                _id: s.id,
+                name: s.name,
+                email: s.email,
+                phone: s.phone,
+                isBanned: s.is_banned === 1,
+                banReason: s.ban_reason,
+                createdAt: s.created_at,
+                sellerProfile: profile
+            };
+        });
 
         return c.json({ success: true, sellers });
     } catch (error) {
