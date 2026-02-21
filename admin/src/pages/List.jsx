@@ -4,6 +4,7 @@ import { backEndURL, currency } from '../App';
 import { toast } from 'react-toastify';
 import { Search, Trash2, RefreshCw, Package } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { useNavigate } from 'react-router-dom';
 
 const List = ({ token }) => {
   const { darkMode } = useTheme();
@@ -14,6 +15,8 @@ const List = ({ token }) => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
+  const [deletedCount, setDeletedCount] = useState(0);
+  const navigate = useNavigate();
 
   const fetchList = async () => {
     try {
@@ -32,6 +35,17 @@ const List = ({ token }) => {
       toast.error(error.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchDeletedCount = async () => {
+    try {
+      const response = await axios.get(backEndURL + '/api/product/deleted', { headers: { token } });
+      if (response.data.success) {
+        setDeletedCount(response.data.products.length);
+      }
+    } catch (error) {
+      console.error('Failed to fetch deleted count');
     }
   };
 
@@ -81,12 +95,13 @@ const List = ({ token }) => {
     setFilteredList(filtered);
   }, [searchQuery, categoryFilter, statusFilter, list]);
 
-  useEffect(() => { fetchList(); }, []);
+  useEffect(() => { fetchList(); fetchDeletedCount(); }, []);
 
   const stats = {
     total: list.length,
     available: list.filter(p => (p.status || 'available') === 'available').length,
-    outOfStock: list.filter(p => p.status === 'out_of_stock').length
+    outOfStock: list.filter(p => p.status === 'out_of_stock').length,
+    deleted: deletedCount
   };
 
   return (
@@ -103,13 +118,18 @@ const List = ({ token }) => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {[
           { label: 'Total Products', value: stats.total, color: 'border-blue-500' },
           { label: 'Available', value: stats.available, color: 'border-green-500' },
-          { label: 'Out of Stock', value: stats.outOfStock, color: 'border-orange-500' }
+          { label: 'Out of Stock', value: stats.outOfStock, color: 'border-orange-500' },
+          { label: 'Deleted', value: stats.deleted, color: 'border-red-500', onClick: () => navigate('/deleted') }
         ].map(stat => (
-          <div key={stat.label} className={`p-4 rounded-xl shadow-sm border-l-4 ${stat.color} ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+          <div
+            key={stat.label}
+            onClick={stat.onClick}
+            className={`p-4 rounded-xl shadow-sm border-l-4 ${stat.color} ${darkMode ? 'bg-gray-800' : 'bg-white'} ${stat.onClick ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}`}
+          >
             <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{stat.label}</p>
             <p className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>{stat.value}</p>
           </div>

@@ -34,9 +34,13 @@ CREATE TABLE IF NOT EXISTS products (
     pickup_location TEXT NOT NULL,
     contact_no TEXT NOT NULL,
     status TEXT DEFAULT 'available',
+    is_active INTEGER DEFAULT 1,
     created_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+-- Migration for existing databases (run manually if table already exists):
+-- ALTER TABLE products ADD COLUMN is_active INTEGER DEFAULT 1;
 
 CREATE INDEX IF NOT EXISTS idx_products_user_id ON products(user_id);
 CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);

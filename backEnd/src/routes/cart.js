@@ -1,10 +1,10 @@
 import { Hono } from 'hono';
-import { authUser } from '../middleware/auth.js';
+import { authUser, checkBanned, sanitizeError } from '../middleware/auth.js';
 
 const app = new Hono();
 
 // Add to cart
-app.post('/add', authUser, async (c) => {
+app.post('/add', authUser, checkBanned, async (c) => {
     try {
         const userId = c.get('userId');
         const { itemId, size } = await c.req.json();
@@ -41,12 +41,12 @@ app.post('/add', authUser, async (c) => {
 
         return c.json({ success: true, message: 'Added To Cart' });
     } catch (error) {
-        return c.json({ success: false, message: error.message }, 500);
+        return c.json({ success: false, message: sanitizeError(error) }, 500);
     }
 });
 
 // Update cart
-app.post('/update', authUser, async (c) => {
+app.post('/update', authUser, checkBanned, async (c) => {
     try {
         const userId = c.get('userId');
         const { itemId, size, duration } = await c.req.json();
@@ -67,7 +67,7 @@ app.post('/update', authUser, async (c) => {
 
         return c.json({ success: true, message: 'Cart Updated' });
     } catch (error) {
-        return c.json({ success: false, message: error.message }, 500);
+        return c.json({ success: false, message: sanitizeError(error) }, 500);
     }
 });
 
@@ -85,7 +85,7 @@ app.post('/get', authUser, async (c) => {
 
         return c.json({ success: true, cartData });
     } catch (error) {
-        return c.json({ success: false, message: error.message }, 500);
+        return c.json({ success: false, message: sanitizeError(error) }, 500);
     }
 });
 

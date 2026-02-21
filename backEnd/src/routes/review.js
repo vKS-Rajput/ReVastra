@@ -1,49 +1,64 @@
 import { Hono } from 'hono';
-import { generateId } from '../middleware/auth.js';
+import { generateId, authUser, sanitizeError, sanitizeInput } from '../middleware/auth.js';
 
 const app = new Hono();
 
-// Add review
-app.post('/add', async (c) => {
+// ── Auth: Add review ───────────────────────────────────────────────
+app.post('/add', authUser, async (c) => {
     try {
-        const { orderId, rating, subRatings, comment, isAnonymous, userId } = await c.req.json();
+        const userId = c.get('userId'); // From auth token, NOT from request body
+        const { orderId, rating, subRatings, comment, isAnonymous } = await c.req.json();
 
-        // Check if order exists
+        if (!orderId || !rating) {
+            return c.json({ success: false, message: 'Order ID and rating are required' }, 400);
+        }
+
+        // Validate rating range
+        if (typeof rating !== 'number' || rating < 1 || rating > 5) {
+            return c.json({ success: false, message: 'Rating must be between 1 and 5' }, 400);
+        }
+
+        // Check if order exists and belongs to the authenticated user
         const order = await c.env.DB.prepare('SELECT * FROM orders WHERE id = ?').bind(orderId).first();
         if (!order) {
-            return c.json({ success: false, message: 'Order not found' });
+            return c.json({ success: false, message: 'Order not found' }, 404);
         }
         if (order.user_id !== userId) {
-            return c.json({ success: false, message: 'Unauthorized' });
+            return c.json({ success: false, message: 'You can only review your own orders' }, 403);
         }
         if (order.status !== 'Delivered') {
-            return c.json({ success: false, message: 'Can only review after delivery' });
+            return c.json({ success: false, message: 'Can only review after delivery' }, 400);
         }
 
         // Get seller from first item
         const firstItem = await c.env.DB.prepare('SELECT product_id FROM order_items WHERE order_id = ? LIMIT 1').bind(orderId).first();
         if (!firstItem) {
-            return c.json({ success: false, message: 'No items found for this order' });
+            return c.json({ success: false, message: 'No items found for this order' }, 404);
         }
 
         const product = await c.env.DB.prepare('SELECT user_id FROM products WHERE id = ?').bind(firstItem.product_id).first();
         if (!product) {
-            return c.json({ success: false, message: 'Seller not found for this order' });
+            return c.json({ success: false, message: 'Seller not found for this order' }, 404);
         }
         const sellerId = product.user_id;
 
-        // Check if already reviewed
+        // Prevent duplicate reviews
         const existing = await c.env.DB.prepare('SELECT id FROM reviews WHERE order_id = ? AND reviewer_id = ?').bind(orderId, userId).first();
         if (existing) {
-            return c.json({ success: false, message: 'Already reviewed this order' });
+            return c.json({ success: false, message: 'You have already reviewed this order' }, 400);
         }
 
-        // Create review
+        // Create review with sanitized comment
         const reviewId = generateId();
+        const cleanComment = sanitizeInput(comment) || '';
+        if (cleanComment.length > 2000) {
+            return c.json({ success: false, message: 'Review comment is too long (max 2000 characters)' }, 400);
+        }
+
         await c.env.DB.prepare(
             `INSERT INTO reviews (id, order_id, reviewer_id, seller_id, rating, sub_ratings, comment, is_anonymous)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-        ).bind(reviewId, orderId, userId, sellerId, rating, JSON.stringify(subRatings || {}), comment || '', isAnonymous ? 1 : 0).run();
+        ).bind(reviewId, orderId, userId, sellerId, rating, JSON.stringify(subRatings || {}), cleanComment, isAnonymous ? 1 : 0).run();
 
         // Update seller's average rating
         const { results: allReviews } = await c.env.DB.prepare('SELECT rating FROM reviews WHERE seller_id = ?').bind(sellerId).all();
@@ -58,11 +73,11 @@ app.post('/add', async (c) => {
 
         return c.json({ success: true, message: 'Review submitted successfully' });
     } catch (error) {
-        return c.json({ success: false, message: error.message });
+        return c.json({ success: false, message: sanitizeError(error) }, 500);
     }
 });
 
-// Get seller reviews
+// ── Public: Get seller reviews ─────────────────────────────────────
 app.get('/seller/:sellerId', async (c) => {
     try {
         const sellerId = c.req.param('sellerId');
@@ -77,23 +92,22 @@ app.get('/seller/:sellerId', async (c) => {
         ).bind(sellerId).all();
 
         const formattedReviews = reviews.map(r => ({
-            ...r,
-            _id: r.id,
+            ...r, _id: r.id,
             sub_ratings: JSON.parse(r.sub_ratings || '{}'),
             reviewerName: r.is_anonymous ? 'Anonymous' : r.reviewer_name || 'User'
         }));
 
         return c.json({ success: true, reviews: formattedReviews });
     } catch (error) {
-        return c.json({ success: false, message: error.message });
+        return c.json({ success: false, message: sanitizeError(error) }, 500);
     }
 });
 
-// Check if can review
-app.get('/can-review/:orderId', async (c) => {
+// ── Auth: Check if can review ──────────────────────────────────────
+app.get('/can-review/:orderId', authUser, async (c) => {
     try {
         const orderId = c.req.param('orderId');
-        const userId = c.req.query('userId');
+        const userId = c.get('userId'); // From auth token
 
         const order = await c.env.DB.prepare('SELECT * FROM orders WHERE id = ?').bind(orderId).first();
         if (!order || order.user_id !== userId) {
@@ -109,7 +123,7 @@ app.get('/can-review/:orderId', async (c) => {
     }
 });
 
-// Get seller profile
+// ── Public: Get seller profile ─────────────────────────────────────
 app.get('/profile/:sellerId', async (c) => {
     try {
         const sellerId = c.req.param('sellerId');
@@ -119,7 +133,7 @@ app.get('/profile/:sellerId', async (c) => {
         ).bind(sellerId).first();
 
         if (!seller || !seller.is_seller) {
-            return c.json({ success: false, message: 'Seller not found' });
+            return c.json({ success: false, message: 'Seller not found' }, 404);
         }
 
         const profile = JSON.parse(seller.seller_profile || '{}');
@@ -132,8 +146,7 @@ app.get('/profile/:sellerId', async (c) => {
         return c.json({
             success: true,
             seller: {
-                _id: seller.id,
-                name: seller.name,
+                _id: seller.id, name: seller.name,
                 shopName: profile.shopName || seller.name,
                 isVerified: profile.isVerified || false,
                 verificationDate: profile.verificationDate,
@@ -145,7 +158,7 @@ app.get('/profile/:sellerId', async (c) => {
             }
         });
     } catch (error) {
-        return c.json({ success: false, message: error.message });
+        return c.json({ success: false, message: sanitizeError(error) }, 500);
     }
 });
 

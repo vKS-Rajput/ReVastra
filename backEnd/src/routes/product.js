@@ -1,68 +1,73 @@
 import { Hono } from 'hono';
-import { generateId, authUser } from '../middleware/auth.js';
+import { generateId, authUser, adminAuth, checkBanned, sanitizeError, sanitizeInput } from '../middleware/auth.js';
 
 const app = new Hono();
 
-// List all products
+// Helper: parse product fields
+function formatProduct(p, sellerInfo) {
+    return {
+        ...p,
+        _id: p.id,
+        image: JSON.parse(p.image || '[]'),
+        sizes: JSON.parse(p.sizes || '[]'),
+        seller: sellerInfo || null
+    };
+}
+
+// Helper: fetch seller map for a set of products
+async function buildSellerMap(db, products) {
+    const sellerIds = [...new Set(products.map(p => p.user_id))];
+    const sellerMap = {};
+    if (sellerIds.length > 0) {
+        const placeholders = sellerIds.map(() => '?').join(',');
+        const { results: sellers } = await db.prepare(
+            `SELECT id, name, seller_profile FROM users WHERE id IN (${placeholders})`
+        ).bind(...sellerIds).all();
+
+        sellers.forEach(s => {
+            const profile = JSON.parse(s.seller_profile || '{}');
+            sellerMap[s.id] = {
+                name: s.name,
+                shopName: profile.shopName || s.name,
+                isVerified: profile.isVerified || false,
+                rating: profile.rating || { average: 0, count: 0 },
+                totalRentals: profile.totalRentals || 0
+            };
+        });
+    }
+    return sellerMap;
+}
+
+// ── Public: List all active products ───────────────────────────────
 app.get('/list', async (c) => {
     try {
-        // Get banned user IDs
         const { results: bannedUsers } = await c.env.DB.prepare('SELECT id FROM users WHERE is_banned = 1').all();
         const bannedIds = bannedUsers.map(u => u.id);
 
-        // Get all products (available first, then unavailable, exclude deleted)
         let products;
         if (bannedIds.length > 0) {
             const placeholders = bannedIds.map(() => '?').join(',');
             const { results } = await c.env.DB.prepare(
-                `SELECT * FROM products WHERE user_id NOT IN (${placeholders}) AND status != 'deleted' ORDER BY CASE WHEN status = 'available' THEN 0 ELSE 1 END, created_at DESC`
+                `SELECT * FROM products WHERE user_id NOT IN (${placeholders}) AND is_active = 1 ORDER BY CASE WHEN status = 'available' THEN 0 ELSE 1 END, created_at DESC`
             ).bind(...bannedIds).all();
             products = results;
         } else {
-            const { results } = await c.env.DB.prepare('SELECT * FROM products WHERE status != \'deleted\' ORDER BY CASE WHEN status = \'available\' THEN 0 ELSE 1 END, created_at DESC').all();
+            const { results } = await c.env.DB.prepare(
+                `SELECT * FROM products WHERE is_active = 1 ORDER BY CASE WHEN status = 'available' THEN 0 ELSE 1 END, created_at DESC`
+            ).all();
             products = results;
         }
 
-        // Get unique seller IDs
-        const sellerIds = [...new Set(products.map(p => p.user_id))];
-
-        // Fetch seller info
-        let sellerMap = {};
-        if (sellerIds.length > 0) {
-            const placeholders = sellerIds.map(() => '?').join(',');
-            const { results: sellers } = await c.env.DB.prepare(
-                `SELECT id, name, seller_profile FROM users WHERE id IN (${placeholders})`
-            ).bind(...sellerIds).all();
-
-            sellers.forEach(s => {
-                const profile = JSON.parse(s.seller_profile || '{}');
-                sellerMap[s.id] = {
-                    name: s.name,
-                    shopName: profile.shopName || s.name,
-                    isVerified: profile.isVerified || false,
-                    rating: profile.rating || { average: 0, count: 0 },
-                    totalRentals: profile.totalRentals || 0
-                };
-            });
-        }
-
-        // Map products with seller info
-        const productsWithSeller = products.map(p => ({
-            ...p,
-            _id: p.id,
-            image: JSON.parse(p.image || '[]'),
-            sizes: JSON.parse(p.sizes || '[]'),
-            seller: sellerMap[p.user_id] || null
-        }));
+        const sellerMap = await buildSellerMap(c.env.DB, products);
+        const productsWithSeller = products.map(p => formatProduct(p, sellerMap[p.user_id]));
 
         return c.json({ success: true, products: productsWithSeller });
     } catch (error) {
-        console.error('List products error:', error);
-        return c.json({ success: false, message: error.message }, 500);
+        return c.json({ success: false, message: sanitizeError(error) }, 500);
     }
 });
 
-// Get single product
+// ── Public: Get single product ─────────────────────────────────────
 app.get('/single/:productId', async (c) => {
     try {
         const productId = c.req.param('productId');
@@ -72,15 +77,13 @@ app.get('/single/:productId', async (c) => {
             return c.json({ success: false, message: 'Product not found.' }, 404);
         }
 
-        // Get seller info
         const seller = await c.env.DB.prepare(
             'SELECT id, name, seller_profile, created_at FROM users WHERE id = ?'
         ).bind(product.user_id).first();
 
         const profile = seller ? JSON.parse(seller.seller_profile || '{}') : {};
         const sellerInfo = seller ? {
-            _id: seller.id,
-            name: seller.name,
+            _id: seller.id, name: seller.name,
             shopName: profile.shopName || seller.name,
             isVerified: profile.isVerified || false,
             rating: profile.rating || { average: 0, count: 0 },
@@ -88,103 +91,101 @@ app.get('/single/:productId', async (c) => {
             memberSince: profile.memberSince || seller.created_at
         } : null;
 
-        return c.json({
-            success: true,
-            product: {
-                ...product,
-                _id: product.id,
-                image: JSON.parse(product.image || '[]'),
-                sizes: JSON.parse(product.sizes || '[]'),
-                seller: sellerInfo
-            }
-        });
+        return c.json({ success: true, product: formatProduct(product, sellerInfo) });
     } catch (error) {
-        return c.json({ success: false, message: error.message }, 500);
+        return c.json({ success: false, message: sanitizeError(error) }, 500);
     }
 });
 
-// Add product (requires auth)
-app.post('/add', authUser, async (c) => {
+// ── Auth: Add product ──────────────────────────────────────────────
+app.post('/add', authUser, checkBanned, async (c) => {
     try {
         const userId = c.get('userId');
         const body = await c.req.json();
 
-        const { name, price, description, rental_price, category, subCategory, sizes, contactno, pickuplocation, bestSeller, images } = body;
+        let { name, price, description, rental_price, category, subCategory, sizes, contactno, pickuplocation, bestSeller, images } = body;
+
+        // Input validation
+        name = sanitizeInput(name);
+        description = sanitizeInput(description);
+        category = sanitizeInput(category);
+        contactno = sanitizeInput(contactno);
+        pickuplocation = sanitizeInput(pickuplocation);
 
         if (!name || !description || !price || !category || !sizes || !rental_price || !contactno || !pickuplocation) {
             return c.json({ success: false, message: 'All required fields must be provided.' }, 400);
+        }
+
+        if (name.length > 200 || description.length > 5000) {
+            return c.json({ success: false, message: 'Name or description is too long.' }, 400);
+        }
+
+        if (Number(price) <= 0 || Number(rental_price) <= 0 || Number(price) > 1000000 || Number(rental_price) > 1000000) {
+            return c.json({ success: false, message: 'Invalid price value.' }, 400);
         }
 
         const id = generateId();
         const parsedSizes = Array.isArray(sizes) ? sizes : JSON.parse(sizes);
         const imageArray = Array.isArray(images) ? images : [images];
 
+        if (imageArray.length > 10) {
+            return c.json({ success: false, message: 'Maximum 10 images allowed.' }, 400);
+        }
+
         await c.env.DB.prepare(
-            `INSERT INTO products (id, user_id, name, description, price, rental_price, image, category, sub_category, sizes, best_seller, pickup_location, contact_no, status)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+            `INSERT INTO products (id, user_id, name, description, price, rental_price, image, category, sub_category, sizes, best_seller, pickup_location, contact_no, status, is_active)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         ).bind(
             id, userId, name, description, Number(price), Number(rental_price),
-            JSON.stringify(imageArray), category, subCategory || null,
-            JSON.stringify(parsedSizes), bestSeller ? 1 : 0, pickuplocation, contactno, 'available'
+            JSON.stringify(imageArray), category, sanitizeInput(subCategory) || null,
+            JSON.stringify(parsedSizes), bestSeller ? 1 : 0, pickuplocation, contactno, 'available', 1
         ).run();
 
         const product = await c.env.DB.prepare('SELECT * FROM products WHERE id = ?').bind(id).first();
-        product.image = JSON.parse(product.image || '[]');
-        product.sizes = JSON.parse(product.sizes || '[]');
-        product._id = product.id;
 
-        return c.json({ success: true, message: 'Product added successfully', product });
+        return c.json({ success: true, message: 'Product added successfully', product: formatProduct(product) });
     } catch (error) {
-        console.error('Add product error:', error);
-        return c.json({ success: false, message: error.message }, 500);
+        return c.json({ success: false, message: sanitizeError(error) }, 500);
     }
 });
 
-// Get user's products (POST - for backward compatibility)
+// ── Auth: Get user's active products (POST) ────────────────────────
 app.post('/myproducts', authUser, async (c) => {
     try {
         const userId = c.get('userId');
-        const { results } = await c.env.DB.prepare('SELECT * FROM products WHERE user_id = ?').bind(userId).all();
+        const { results } = await c.env.DB.prepare(
+            'SELECT * FROM products WHERE user_id = ? AND is_active = 1'
+        ).bind(userId).all();
 
-        const products = results.map(p => ({
-            ...p,
-            _id: p.id,
-            image: JSON.parse(p.image || '[]'),
-            sizes: JSON.parse(p.sizes || '[]')
-        }));
-
+        const products = results.map(p => formatProduct(p));
         return c.json({ success: true, products });
     } catch (error) {
-        return c.json({ success: false, message: error.message }, 500);
+        return c.json({ success: false, message: sanitizeError(error) }, 500);
     }
 });
 
-// Get user's products (GET - frontend uses this)
+// ── Auth: Get user's active products (GET) ─────────────────────────
 app.get('/my-product', authUser, async (c) => {
     try {
         const userId = c.get('userId');
-        const { results } = await c.env.DB.prepare('SELECT * FROM products WHERE user_id = ?').bind(userId).all();
+        const { results } = await c.env.DB.prepare(
+            'SELECT * FROM products WHERE user_id = ? AND is_active = 1'
+        ).bind(userId).all();
 
-        const products = results.map(p => ({
-            ...p,
-            _id: p.id,
-            image: JSON.parse(p.image || '[]'),
-            sizes: JSON.parse(p.sizes || '[]')
-        }));
-
+        const products = results.map(p => formatProduct(p));
         return c.json({ success: true, products });
     } catch (error) {
-        return c.json({ success: false, message: error.message }, 500);
+        return c.json({ success: false, message: sanitizeError(error) }, 500);
     }
 });
 
-// Delete user's product by ID (frontend uses DELETE /my-product/:id)
-app.delete('/my-product/:id', authUser, async (c) => {
+// ── Auth: Soft-delete user's product ───────────────────────────────
+app.delete('/my-product/:id', authUser, checkBanned, async (c) => {
     try {
         const userId = c.get('userId');
         const productId = c.req.param('id');
 
-        const product = await c.env.DB.prepare('SELECT * FROM products WHERE id = ?').bind(productId).first();
+        const product = await c.env.DB.prepare('SELECT * FROM products WHERE id = ? AND is_active = 1').bind(productId).first();
         if (!product) {
             return c.json({ success: false, message: 'Product not found.' }, 404);
         }
@@ -193,32 +194,15 @@ app.delete('/my-product/:id', authUser, async (c) => {
             return c.json({ success: false, message: 'You can only delete your own products.' }, 403);
         }
 
-        await c.env.DB.prepare('DELETE FROM products WHERE id = ?').bind(productId).run();
+        await c.env.DB.prepare('UPDATE products SET is_active = 0 WHERE id = ?').bind(productId).run();
         return c.json({ success: true, message: 'Product removed successfully' });
     } catch (error) {
-        return c.json({ success: false, message: error.message }, 500);
+        return c.json({ success: false, message: sanitizeError(error) }, 500);
     }
 });
 
-// Remove product (admin)
-app.post('/remove', async (c) => {
-    try {
-        const { id } = await c.req.json();
-
-        const product = await c.env.DB.prepare('SELECT id FROM products WHERE id = ?').bind(id).first();
-        if (!product) {
-            return c.json({ success: false, message: 'Product not found.' }, 404);
-        }
-
-        await c.env.DB.prepare('DELETE FROM products WHERE id = ?').bind(id).run();
-        return c.json({ success: true, message: 'Product Removed Successfully' });
-    } catch (error) {
-        return c.json({ success: false, message: error.message }, 500);
-    }
-});
-
-// Update product status
-app.put('/status/:id', authUser, async (c) => {
+// ── Auth: Update product status ────────────────────────────────────
+app.put('/status/:id', authUser, checkBanned, async (c) => {
     try {
         const userId = c.get('userId');
         const productId = c.req.param('id');
@@ -228,39 +212,31 @@ app.put('/status/:id', authUser, async (c) => {
             return c.json({ success: false, message: 'Invalid status value' }, 400);
         }
 
-        // Check if product exists first
-        const product = await c.env.DB.prepare('SELECT * FROM products WHERE id = ?').bind(productId).first();
+        const product = await c.env.DB.prepare('SELECT * FROM products WHERE id = ? AND is_active = 1').bind(productId).first();
         if (!product) {
             return c.json({ success: false, message: 'Product not found' }, 404);
         }
 
-        // Verify ownership
         if (product.user_id !== userId) {
             return c.json({ success: false, message: 'You can only update your own products' }, 403);
         }
 
-        // Now update the status
         await c.env.DB.prepare('UPDATE products SET status = ? WHERE id = ?').bind(status, productId).run();
-
         product.status = status;
-        product.image = JSON.parse(product.image || '[]');
-        product.sizes = JSON.parse(product.sizes || '[]');
-        product._id = product.id;
 
-        return c.json({ success: true, message: 'Product status updated', product });
+        return c.json({ success: true, message: 'Product status updated', product: formatProduct(product) });
     } catch (error) {
-        console.error('Status update error:', error);
-        return c.json({ success: false, message: error.message }, 500);
+        return c.json({ success: false, message: sanitizeError(error) }, 500);
     }
 });
 
-// Delete user's own product
-app.delete('/user/:id', authUser, async (c) => {
+// ── Auth: Soft-delete user's own product (alt route) ───────────────
+app.delete('/user/:id', authUser, checkBanned, async (c) => {
     try {
         const userId = c.get('userId');
         const productId = c.req.param('id');
 
-        const product = await c.env.DB.prepare('SELECT * FROM products WHERE id = ?').bind(productId).first();
+        const product = await c.env.DB.prepare('SELECT * FROM products WHERE id = ? AND is_active = 1').bind(productId).first();
         if (!product) {
             return c.json({ success: false, message: 'Product not found.' }, 404);
         }
@@ -269,101 +245,36 @@ app.delete('/user/:id', authUser, async (c) => {
             return c.json({ success: false, message: 'You can only delete your own products.' }, 403);
         }
 
-        // Check if product has any orders
-        const orderItem = await c.env.DB.prepare('SELECT id FROM order_items WHERE product_id = ? LIMIT 1').bind(productId).first();
-
-        if (orderItem) {
-            // Product has orders - soft delete by marking as 'deleted'
-            await c.env.DB.prepare('UPDATE products SET status = ? WHERE id = ?').bind('deleted', productId).run();
-            return c.json({ success: true, message: 'Product has been archived (it has existing orders)' });
-        } else {
-            // No orders - can safely delete
-            await c.env.DB.prepare('DELETE FROM products WHERE id = ?').bind(productId).run();
-            return c.json({ success: true, message: 'Product removed successfully' });
-        }
+        await c.env.DB.prepare('UPDATE products SET is_active = 0 WHERE id = ?').bind(productId).run();
+        return c.json({ success: true, message: 'Product removed successfully' });
     } catch (error) {
-        console.error('Delete product error:', error);
-        return c.json({ success: false, message: error.message }, 500);
+        return c.json({ success: false, message: sanitizeError(error) }, 500);
     }
 });
 
-// Delete user's product (alternative route for frontend compatibility)
-app.delete('/my-product/:id', authUser, async (c) => {
+// ── Admin: Soft-delete product ─────────────────────────────────────
+app.post('/remove', adminAuth, async (c) => {
     try {
-        const userId = c.get('userId');
-        const productId = c.req.param('id');
-
-        const product = await c.env.DB.prepare('SELECT * FROM products WHERE id = ?').bind(productId).first();
-        if (!product) {
-            return c.json({ success: false, message: 'Product not found.' }, 404);
-        }
-
-        if (product.user_id !== userId) {
-            return c.json({ success: false, message: 'You can only delete your own products.' }, 403);
-        }
-
-        // Check if product has any orders
-        const orderItem = await c.env.DB.prepare('SELECT id FROM order_items WHERE product_id = ? LIMIT 1').bind(productId).first();
-
-        if (orderItem) {
-            // Product has orders - soft delete by marking as 'deleted'
-            await c.env.DB.prepare('UPDATE products SET status = ? WHERE id = ?').bind('deleted', productId).run();
-            return c.json({ success: true, message: 'Product has been archived (it has existing orders)' });
-        } else {
-            // No orders - can safely delete
-            await c.env.DB.prepare('DELETE FROM products WHERE id = ?').bind(productId).run();
-            return c.json({ success: true, message: 'Product removed successfully' });
-        }
-    } catch (error) {
-        console.error('Delete product error:', error);
-        return c.json({ success: false, message: error.message }, 500);
-    }
-});
-
-// Admin: Remove product (requires admin token)
-app.post('/remove', async (c) => {
-    try {
-        const token = c.req.header('token');
-        if (!token) {
-            return c.json({ success: false, message: 'Unauthorized' }, 401);
-        }
-
         const { id } = await c.req.json();
         if (!id) {
             return c.json({ success: false, message: 'Product ID is required' }, 400);
         }
 
-        const product = await c.env.DB.prepare('SELECT * FROM products WHERE id = ?').bind(id).first();
+        const product = await c.env.DB.prepare('SELECT * FROM products WHERE id = ? AND is_active = 1').bind(id).first();
         if (!product) {
             return c.json({ success: false, message: 'Product not found' }, 404);
         }
 
-        // Check if product has any orders
-        const orderItem = await c.env.DB.prepare('SELECT id FROM order_items WHERE product_id = ? LIMIT 1').bind(id).first();
-
-        if (orderItem) {
-            // Product has orders - soft delete by marking as 'deleted'
-            await c.env.DB.prepare('UPDATE products SET status = ? WHERE id = ?').bind('deleted', id).run();
-            return c.json({ success: true, message: 'Product has been archived (it has existing orders)' });
-        } else {
-            // No orders - can safely delete
-            await c.env.DB.prepare('DELETE FROM products WHERE id = ?').bind(id).run();
-            return c.json({ success: true, message: 'Product removed successfully' });
-        }
+        await c.env.DB.prepare('UPDATE products SET is_active = 0 WHERE id = ?').bind(id).run();
+        return c.json({ success: true, message: 'Product removed successfully' });
     } catch (error) {
-        console.error('Admin delete product error:', error);
-        return c.json({ success: false, message: error.message }, 500);
+        return c.json({ success: false, message: sanitizeError(error) }, 500);
     }
 });
 
-// Admin: Update product status
-app.put('/update-status/:id', async (c) => {
+// ── Admin: Update product status ───────────────────────────────────
+app.put('/update-status/:id', adminAuth, async (c) => {
     try {
-        const token = c.req.header('token');
-        if (!token) {
-            return c.json({ success: false, message: 'Unauthorized' }, 401);
-        }
-
         const productId = c.req.param('id');
         const { status } = await c.req.json();
 
@@ -379,7 +290,62 @@ app.put('/update-status/:id', async (c) => {
         await c.env.DB.prepare('UPDATE products SET status = ? WHERE id = ?').bind(status, productId).run();
         return c.json({ success: true, message: 'Status updated' });
     } catch (error) {
-        return c.json({ success: false, message: error.message }, 500);
+        return c.json({ success: false, message: sanitizeError(error) }, 500);
+    }
+});
+
+// ── Admin: List all deleted products ───────────────────────────────
+app.get('/deleted', adminAuth, async (c) => {
+    try {
+        const { results: products } = await c.env.DB.prepare(
+            'SELECT * FROM products WHERE is_active = 0 ORDER BY created_at DESC'
+        ).all();
+
+        const sellerMap = await buildSellerMap(c.env.DB, products);
+        const productsWithSeller = products.map(p => formatProduct(p, sellerMap[p.user_id]));
+
+        return c.json({ success: true, products: productsWithSeller });
+    } catch (error) {
+        return c.json({ success: false, message: sanitizeError(error) }, 500);
+    }
+});
+
+// ── Admin: Restore a deleted product ───────────────────────────────
+app.post('/restore', adminAuth, async (c) => {
+    try {
+        const { id } = await c.req.json();
+        if (!id) {
+            return c.json({ success: false, message: 'Product ID is required' }, 400);
+        }
+
+        const product = await c.env.DB.prepare('SELECT * FROM products WHERE id = ? AND is_active = 0').bind(id).first();
+        if (!product) {
+            return c.json({ success: false, message: 'Deleted product not found' }, 404);
+        }
+
+        await c.env.DB.prepare('UPDATE products SET is_active = 1 WHERE id = ?').bind(id).run();
+        return c.json({ success: true, message: 'Product restored successfully' });
+    } catch (error) {
+        return c.json({ success: false, message: sanitizeError(error) }, 500);
+    }
+});
+
+// ── Admin: Permanently delete a product ────────────────────────────
+app.delete('/permanent/:id', adminAuth, async (c) => {
+    try {
+        const productId = c.req.param('id');
+        const product = await c.env.DB.prepare('SELECT * FROM products WHERE id = ?').bind(productId).first();
+        if (!product) {
+            return c.json({ success: false, message: 'Product not found' }, 404);
+        }
+
+        // Delete related records first
+        await c.env.DB.prepare('DELETE FROM order_items WHERE product_id = ?').bind(productId).run();
+        await c.env.DB.prepare('DELETE FROM products WHERE id = ?').bind(productId).run();
+
+        return c.json({ success: true, message: 'Product permanently deleted' });
+    } catch (error) {
+        return c.json({ success: false, message: sanitizeError(error) }, 500);
     }
 });
 

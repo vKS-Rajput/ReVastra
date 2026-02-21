@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Package, List, ShoppingBag, Store, LogOut, Moon, Sun, Menu, X, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Package, List, ShoppingBag, Store, Trash2, LogOut, Moon, Sun, Menu, X, ChevronRight } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 const Navbar = ({ setToken }) => {
@@ -20,6 +20,7 @@ const Navbar = ({ setToken }) => {
     { to: '/list', label: 'Products', icon: <List size={20} /> },
     { to: '/orders', label: 'Orders', icon: <ShoppingBag size={20} /> },
     { to: '/sellers', label: 'Sellers', icon: <Store size={20} /> },
+    { to: '/deleted', label: 'Deleted', icon: <Trash2 size={20} /> },
   ];
 
   return (

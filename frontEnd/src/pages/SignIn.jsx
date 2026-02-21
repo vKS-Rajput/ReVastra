@@ -4,6 +4,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 import Title from '../components/Title';
 
 const SignIn = () => {
@@ -65,6 +66,36 @@ const SignIn = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Google Login Success Handler
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      setIsLoading(true);
+      const response = await axios.post(backEndURL + '/api/user/google-login', {
+        credential: credentialResponse.credential
+      });
+
+      if (response.data.success) {
+        setToken(response.data.token);
+        setUser(response.data.user);
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        toast.success("Logged in with Google successfully!");
+        navigate('/');
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      console.error('Google login error:', error);
+      toast.error(error.response?.data?.message || "Google login failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    toast.error("Google login failed. Please try again.");
   };
 
   useEffect(() => {
@@ -134,8 +165,6 @@ const SignIn = () => {
             </button>
           </div>
 
-
-
           <button type='submit' disabled={isLoading}
             className='w-full btn-primary flex items-center justify-center gap-2 mt-4'>
             {isLoading ? 'Processing...' : (
@@ -146,6 +175,26 @@ const SignIn = () => {
             )}
           </button>
         </form>
+
+        {/* Divider */}
+        <div className="relative z-10 my-6 flex items-center gap-4">
+          <div className="flex-1 h-px bg-neutral-200 dark:bg-neutral-700"></div>
+          <span className="text-sm text-neutral-400 dark:text-neutral-500 font-medium">or</span>
+          <div className="flex-1 h-px bg-neutral-200 dark:bg-neutral-700"></div>
+        </div>
+
+        {/* Google Sign In Button */}
+        <div className="relative z-10 flex justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={handleGoogleError}
+            theme="outline"
+            size="large"
+            width="100%"
+            text={currentState === 'Login' ? 'signin_with' : 'signup_with'}
+            shape="rectangular"
+          />
+        </div>
 
         <div className="mt-8 text-center text-sm text-neutral-600 dark:text-neutral-400 relative z-10">
           {currentState === 'Login' ? (

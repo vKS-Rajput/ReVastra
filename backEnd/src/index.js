@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { securityHeaders, limitBodySize } from './middleware/auth.js';
 import userRoutes from './routes/user.js';
 import productRoutes from './routes/product.js';
 import cartRoutes from './routes/cart.js';
@@ -9,12 +10,29 @@ import statsRoutes from './routes/stats.js';
 
 const app = new Hono();
 
-// CORS middleware
-app.use('*', cors({
-    origin: '*',
-    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowHeaders: ['Content-Type', 'Authorization', 'token'],
-}));
+// Security: Request body size limit (1MB)
+app.use('*', limitBodySize(1_048_576));
+
+// Security: Add security headers to all responses
+app.use('*', securityHeaders);
+
+// CORS middleware — locked to allowed origins
+app.use('*', async (c, next) => {
+    const allowedOrigins = (c.env.ALLOWED_ORIGINS || '').split(',').map(o => o.trim()).filter(Boolean);
+
+    // If no origins configured, fall back to open (dev mode)
+    const origin = c.req.header('origin') || '';
+    const isAllowed = allowedOrigins.length === 0 || allowedOrigins.includes(origin);
+
+    const corsMiddleware = cors({
+        origin: isAllowed ? origin : allowedOrigins[0] || '*',
+        allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowHeaders: ['Content-Type', 'Authorization', 'token'],
+        maxAge: 86400 // preflight cache 24h
+    });
+
+    return corsMiddleware(c, next);
+});
 
 // Health check
 app.get('/', (c) => c.json({ message: 'ReVastra API Working', status: 'ok' }));
@@ -30,10 +48,10 @@ app.route('/api', statsRoutes);
 // 404 handler
 app.notFound((c) => c.json({ success: false, message: 'Route not found' }, 404));
 
-// Error handler
+// Error handler — sanitized, no internal details leaked
 app.onError((err, c) => {
-    console.error('Error:', err);
-    return c.json({ success: false, message: err.message }, 500);
+    console.error('Unhandled error:', err);
+    return c.json({ success: false, message: 'An unexpected error occurred.' }, 500);
 });
 
 export default app;

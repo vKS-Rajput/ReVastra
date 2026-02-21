@@ -6,6 +6,7 @@ import Add from './pages/Add';
 import List from './pages/List';
 import Orders from './pages/Orders';
 import Sellers from './pages/Sellers';
+import DeletedProducts from './pages/DeletedProducts';
 import Login from './components/Login';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -44,6 +45,7 @@ const AppContent = ({ token, setToken }) => {
                 <Route path="/list" element={<List token={token} />} />
                 <Route path="/orders" element={<Orders token={token} />} />
                 <Route path="/sellers" element={<Sellers token={token} />} />
+                <Route path="/deleted" element={<DeletedProducts token={token} />} />
               </Routes>
             </div>
           </main>

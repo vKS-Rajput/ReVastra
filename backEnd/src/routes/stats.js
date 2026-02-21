@@ -1,12 +1,13 @@
 import { Hono } from 'hono';
+import { adminAuth, sanitizeError } from '../middleware/auth.js';
 
 const app = new Hono();
 
-// Get platform statistics
-app.get('/stats', async (c) => {
+// Admin: Get platform statistics
+app.get('/stats', adminAuth, async (c) => {
     try {
         const usersResult = await c.env.DB.prepare('SELECT COUNT(*) as count FROM users').first();
-        const productsResult = await c.env.DB.prepare('SELECT COUNT(*) as count FROM products').first();
+        const productsResult = await c.env.DB.prepare('SELECT COUNT(*) as count FROM products WHERE is_active = 1').first();
         const ordersResult = await c.env.DB.prepare('SELECT COUNT(*) as count FROM orders').first();
         const deliveredResult = await c.env.DB.prepare("SELECT COUNT(*) as count FROM orders WHERE status = 'Delivered'").first();
         const pendingResult = await c.env.DB.prepare("SELECT COUNT(*) as count FROM orders WHERE status != 'Delivered'").first();
@@ -24,8 +25,7 @@ app.get('/stats', async (c) => {
             }
         });
     } catch (error) {
-        console.error('Stats error:', error);
-        return c.json({ success: false, message: error.message }, 500);
+        return c.json({ success: false, message: sanitizeError(error) }, 500);
     }
 });
 
