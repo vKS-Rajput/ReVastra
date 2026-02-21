@@ -52,7 +52,7 @@ const AppContent = ({ token, setToken }) => {
 
           {/* Footer */}
           <footer className={`py-4 text-center text-sm ${darkMode ? 'text-gray-500 border-gray-800' : 'text-gray-400 border-gray-200'} border-t`}>
-            <p>© 2024 ReVastra Admin Panel. All rights reserved.</p>
+            <p>© 2026 ReVastra Admin Panel. All rights reserved.</p>
           </footer>
         </div>
       )}
