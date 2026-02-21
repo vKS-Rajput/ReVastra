@@ -246,6 +246,24 @@ const Orders = ({ token }) => {
               {/* Expanded Details */}
               {expandedOrder === order._id && (
                 <div className={`border-t ${darkMode ? 'border-gray-700' : 'border-gray-100'}`}>
+
+                  {/* Urgent Delivery Banner */}
+                  {order.urgentOrder && (
+                    <div className={`flex items-center gap-3 px-5 py-3 ${darkMode ? 'bg-gradient-to-r from-yellow-900/50 to-orange-900/40 border-b border-yellow-800' : 'bg-gradient-to-r from-yellow-50 to-orange-50 border-b border-yellow-200'}`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${darkMode ? 'bg-yellow-600' : 'bg-yellow-400'}`}>
+                        <Zap size={16} className="text-white" />
+                      </div>
+                      <div>
+                        <p className={`font-bold text-sm ${darkMode ? 'text-yellow-300' : 'text-yellow-800'}`}>
+                          ⚡ URGENT DELIVERY — Priority Processing Required
+                        </p>
+                        <p className={`text-xs ${darkMode ? 'text-yellow-400/80' : 'text-yellow-700/80'}`}>
+                          Same-day delivery requested. Rental starts from order date. Please expedite this order.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Top Section - Customer & Dates */}
                   <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 p-4 ${darkMode ? 'bg-gray-850' : 'bg-gray-50'}`}>
                     {/* Customer */}

@@ -30,6 +30,29 @@ const Cart = () => {
   // Urgent order state
   const [urgentOrder, setUrgentOrder] = useState(false);
 
+  // When urgent delivery is toggled, auto-set all rental start dates to today
+  useEffect(() => {
+    if (urgentOrder) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      setDeliveryDate(today);
+
+      setRentalDates(prev => {
+        const updated = { ...prev };
+        Object.keys(updated).forEach(key => {
+          updated[key] = {
+            ...updated[key],
+            startDate: today,
+            endDate: updated[key]?.endDate && updated[key].endDate > today ? updated[key].endDate : new Date(today.getTime() + 86400000)
+          };
+        });
+        return updated;
+      });
+    } else {
+      setDeliveryDate(null);
+    }
+  }, [urgentOrder]);
+
   useEffect(() => {
     if (products.length > 0) {
       const tempData = [];
@@ -237,31 +260,59 @@ const Cart = () => {
                       </div>
 
                       {/* Calendar Date Pickers */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                        <div>
-                          <label className="text-sm font-medium text-neutral-500 dark:text-neutral-400 flex items-center gap-1 mb-1">
-                            <Calendar size={14} /> Rental Start
-                          </label>
-                          <DatePicker
-                            selected={dates.startDate}
-                            onChange={(date) => handleDateChange(item._id, item.size, 'startDate', date)}
-                            minDate={getMinStartDate()}
-                            dateFormat="MMM d, yyyy"
-                            className="w-full px-3 py-2 border border-neutral-200 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium text-neutral-500 dark:text-neutral-400 flex items-center gap-1 mb-1">
-                            <Calendar size={14} /> Rental End
-                          </label>
-                          <DatePicker
-                            selected={dates.endDate}
-                            onChange={(date) => handleDateChange(item._id, item.size, 'endDate', date)}
-                            minDate={getMinEndDate(dates.startDate)}
-                            dateFormat="MMM d, yyyy"
-                            className="w-full px-3 py-2 border border-neutral-200 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                          />
-                        </div>
+                      <div className={`grid grid-cols-1 ${urgentOrder ? '' : 'sm:grid-cols-2'} gap-4 mt-4`}>
+                        {urgentOrder ? (
+                          /* Urgent mode: start date is today, only show end date */
+                          <>
+                            <div className="flex items-center gap-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                              <Zap size={16} className="text-yellow-500" />
+                              <div>
+                                <p className="text-xs font-medium text-yellow-600 dark:text-yellow-400">Rental Starts</p>
+                                <p className="font-semibold text-neutral-800 dark:text-neutral-200">Today — {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                              </div>
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium text-neutral-500 dark:text-neutral-400 flex items-center gap-1 mb-1">
+                                <Calendar size={14} /> Rental End
+                              </label>
+                              <DatePicker
+                                selected={dates.endDate}
+                                onChange={(date) => handleDateChange(item._id, item.size, 'endDate', date)}
+                                minDate={getMinEndDate(new Date())}
+                                dateFormat="MMM d, yyyy"
+                                className="w-full px-3 py-2 border border-neutral-200 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                              />
+                            </div>
+                          </>
+                        ) : (
+                          /* Normal mode: both start and end date pickers */
+                          <>
+                            <div>
+                              <label className="text-sm font-medium text-neutral-500 dark:text-neutral-400 flex items-center gap-1 mb-1">
+                                <Calendar size={14} /> Rental Start
+                              </label>
+                              <DatePicker
+                                selected={dates.startDate}
+                                onChange={(date) => handleDateChange(item._id, item.size, 'startDate', date)}
+                                minDate={getMinStartDate()}
+                                dateFormat="MMM d, yyyy"
+                                className="w-full px-3 py-2 border border-neutral-200 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium text-neutral-500 dark:text-neutral-400 flex items-center gap-1 mb-1">
+                                <Calendar size={14} /> Rental End
+                              </label>
+                              <DatePicker
+                                selected={dates.endDate}
+                                onChange={(date) => handleDateChange(item._id, item.size, 'endDate', date)}
+                                minDate={getMinEndDate(dates.startDate)}
+                                dateFormat="MMM d, yyyy"
+                                className="w-full px-3 py-2 border border-neutral-200 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                              />
+                            </div>
+                          </>
+                        )}
                       </div>
 
                       {/* Duration & Pricing Summary */}
@@ -294,28 +345,14 @@ const Cart = () => {
               );
             })}
 
-            {/* Delivery Date Section */}
+            {/* Delivery & Urgent Section */}
             <div className="bg-white dark:bg-neutral-800 p-6 rounded-2xl shadow-soft border border-neutral-100 dark:border-neutral-700">
               <h4 className="font-display font-bold text-lg text-neutral-800 dark:text-neutral-200 mb-4 flex items-center gap-2">
                 <Calendar size={20} className="text-primary-500" /> Delivery Preference
               </h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-2 block">
-                    When should we deliver? <span className="text-xs text-neutral-400">(Next day onwards)</span>
-                  </label>
-                  <DatePicker
-                    selected={deliveryDate}
-                    onChange={setDeliveryDate}
-                    minDate={(() => { const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1); return tomorrow; })()}
-                    maxDate={getRentalDateRange().startDate}
-                    placeholderText="Select delivery date"
-                    dateFormat="MMM d, yyyy"
-                    className="w-full px-4 py-3 border border-neutral-200 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200 focus:ring-2 focus:ring-primary-500"
-                  />
-                </div>
-
+                {/* Urgent Delivery Toggle */}
                 <div className="flex flex-col justify-center">
                   <label className="flex items-center gap-3 cursor-pointer group">
                     <input
@@ -328,15 +365,40 @@ const Cart = () => {
                       <span className="font-medium text-neutral-800 dark:text-neutral-200 flex items-center gap-2">
                         <Zap size={16} className="text-yellow-500" /> Urgent Delivery
                       </span>
-                      <span className="text-sm text-neutral-500 dark:text-neutral-400">+{currency}{URGENT_FEE} for priority processing</span>
+                      <span className="text-sm text-neutral-500 dark:text-neutral-400">+{currency}{URGENT_FEE} for same-day priority processing</span>
                     </div>
                   </label>
-                  {isUrgent && !urgentOrder && (
-                    <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-2">
-                      ⚡ Delivery within 2 days is automatically marked urgent
-                    </p>
-                  )}
                 </div>
+
+                {/* Delivery date: shown only in normal mode */}
+                {urgentOrder ? (
+                  <div className="flex items-center gap-3 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-yellow-200 dark:border-yellow-800">
+                    <Zap size={20} className="text-yellow-500" />
+                    <div>
+                      <p className="font-semibold text-yellow-700 dark:text-yellow-300">
+                        Same-Day Delivery
+                      </p>
+                      <p className="text-sm text-yellow-600 dark:text-yellow-400">
+                        Rental starts today — pick your return date per item above
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-2 block">
+                      When should we deliver? <span className="text-xs text-neutral-400">(Next day onwards)</span>
+                    </label>
+                    <DatePicker
+                      selected={deliveryDate}
+                      onChange={setDeliveryDate}
+                      minDate={(() => { const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1); return tomorrow; })()}
+                      maxDate={getRentalDateRange().startDate}
+                      placeholderText="Select delivery date"
+                      dateFormat="MMM d, yyyy"
+                      className="w-full px-4 py-3 border border-neutral-200 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200 focus:ring-2 focus:ring-primary-500"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
