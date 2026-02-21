@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { backEndURL, currency } from '../App';
 import { toast } from 'react-toastify';
-import { Calendar, Clock, Zap, Package, Search, RefreshCw, ChevronDown, ChevronUp, MapPin, Phone, User, Truck, Download, FileText } from 'lucide-react';
+import { Calendar, Clock, Zap, Package, Search, RefreshCw, ChevronDown, ChevronUp, MapPin, Phone, User, Truck, Download, FileText, MessageCircle } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 const CountdownTimer = ({ returnDateTime }) => {
@@ -325,6 +325,25 @@ const Orders = ({ token }) => {
                           <span className="text-orange-500 font-medium">⏰ Return in: </span>
                           <CountdownTimer returnDateTime={calculateExpirationDate(order.date, order.items?.[0]?.duration || 3)} />
                         </div>
+                      )}
+
+                      {/* WhatsApp Send Button */}
+                      {order.address?.phone && (
+                        <a
+                          href={`https://wa.me/91${order.address.phone.replace(/\D/g, '')}?text=${encodeURIComponent(
+                            order.status === 'Delivered'
+                              ? `Hi ${order.address.fullName || ''}! 🎉 Your ReVastra order #${order._id?.slice(-8)} has been delivered! View your invoice here: https://re-vastra.vercel.app/invoice/${order._id}\n\nThank you for renting with ReVastra! 🛍️`
+                              : `Hi ${order.address.fullName || ''}! Your ReVastra order #${order._id?.slice(-8)} status: ${order.status}.\n\n${order.urgentOrder ? '⚡ Urgent Delivery\n' : ''}Track your order at https://re-vastra.vercel.app/orders\n\n— ReVastra Team`
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all ${darkMode
+                              ? 'bg-green-600 text-white hover:bg-green-700'
+                              : 'bg-green-500 text-white hover:bg-green-600'
+                            }`}
+                        >
+                          <MessageCircle size={16} /> Send WhatsApp
+                        </a>
                       )}
                     </div>
                   </div>

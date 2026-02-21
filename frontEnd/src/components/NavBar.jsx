@@ -2,8 +2,10 @@ import React, { useContext, useState, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import { assets } from "../assets/assets";
-import { Search, ShoppingBag, User, Menu, X, LogOut, Heart, Store, Package } from "lucide-react";
+import { Search, ShoppingBag, User, Menu, X, LogOut, Heart, Store, Package, Bell } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
+import axios from "axios";
+import { backEndURL } from "../config";
 
 const NavBar = () => {
   const [visible, setVisible] = useState(false);
@@ -33,6 +35,24 @@ const NavBar = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Notification unread count
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (!token) { setUnreadCount(0); return; }
+    const fetchUnread = async () => {
+      try {
+        const res = await axios.get(`${backEndURL}/api/notification/unread-count`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.data.success) setUnreadCount(res.data.count);
+      } catch (e) { /* silent */ }
+    };
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 60000);
+    return () => clearInterval(interval);
+  }, [token]);
 
   return (
     <div
@@ -79,6 +99,18 @@ const NavBar = () => {
             <Search size={22} strokeWidth={2} className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
 
+          {/* Notification Bell */}
+          {token && (
+            <Link to="/notifications" className="relative text-neutral-700 dark:text-neutral-300 hover:text-primary-500 dark:hover:text-primary-400 transition-colors">
+              <Bell size={22} strokeWidth={2} className="w-5 h-5 sm:w-6 sm:h-6" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-2 -right-2 w-4 h-4 sm:w-5 sm:h-5 bg-yellow-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white dark:border-neutral-900 shadow-sm animate-pulse">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </Link>
+          )}
+
           {/* User Profile */}
           <div className="group relative">
             {token ? (
@@ -118,6 +150,15 @@ const NavBar = () => {
                     className="cursor-pointer hover:text-primary-500 font-medium transition-colors flex items-center gap-2"
                   >
                     <ShoppingBag size={16} /> Orders
+                  </p>
+                  <p
+                    onClick={() => navigate("/notifications")}
+                    className="cursor-pointer hover:text-primary-500 font-medium transition-colors flex items-center gap-2"
+                  >
+                    <Bell size={16} /> Notifications
+                    {unreadCount > 0 && (
+                      <span className="bg-yellow-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">{unreadCount}</span>
+                    )}
                   </p>
                   <p
                     onClick={() => navigate("/myproducts")}

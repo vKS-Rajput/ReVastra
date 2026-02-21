@@ -7,6 +7,7 @@ import cartRoutes from './routes/cart.js';
 import orderRoutes from './routes/order.js';
 import reviewRoutes from './routes/review.js';
 import statsRoutes from './routes/stats.js';
+import notificationRoutes from './routes/notification.js';
 
 const app = new Hono();
 
@@ -43,6 +44,7 @@ app.route('/api/product', productRoutes);
 app.route('/api/cart', cartRoutes);
 app.route('/api/order', orderRoutes);
 app.route('/api/review', reviewRoutes);
+app.route('/api/notification', notificationRoutes);
 app.route('/api', statsRoutes);
 
 // 404 handler

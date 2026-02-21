@@ -29,6 +29,8 @@ const MyProducts = lazy(() => import('./pages/MyProducts'));
 const Wishlist = lazy(() => import('./pages/Wishlist'));
 const BecomeSeller = lazy(() => import('./pages/BecomeSeller'));
 const SellerOrders = lazy(() => import('./pages/SellerOrders'));
+const Invoice = lazy(() => import('./pages/Invoice'));
+const Notifications = lazy(() => import('./pages/Notifications'));
 
 const currency = "₹"
 
@@ -82,6 +84,8 @@ const App = () => {
             <Route path='/wishlist' element={<ProtectedRoute><PageTransition><Wishlist /></PageTransition></ProtectedRoute>} />
             <Route path='/become-seller' element={<ProtectedRoute><PageTransition><BecomeSeller /></PageTransition></ProtectedRoute>} />
             <Route path='/seller-orders' element={<ProtectedRoute><PageTransition><SellerOrders /></PageTransition></ProtectedRoute>} />
+            <Route path='/notifications' element={<ProtectedRoute><PageTransition><Notifications /></PageTransition></ProtectedRoute>} />
+            <Route path='/invoice/:orderId' element={<ProtectedRoute><PageTransition><Invoice /></PageTransition></ProtectedRoute>} />
           </Routes>
         </Suspense>
       </AnimatePresence>

@@ -1,7 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ShopContext } from '../context/ShopContext';
+import { Link } from 'react-router-dom';
 import Title from '../components/Title';
 import axios from 'axios';
+import { FileText } from 'lucide-react';
 
 const CountdownTimer = ({ returnDateTime }) => {
   const [timeLeft, setTimeLeft] = useState(null);
@@ -68,7 +70,8 @@ const Orders = () => {
             item['payment'] = order.payment;
             item['paymentMethod'] = order.paymentMethod;
             item['date'] = order.date;
-            item['deliveryFee'] = delivery_fee; // Add delivery fee
+            item['deliveryFee'] = delivery_fee;
+            item['order_id'] = order._id;
             allOrdersItem.push(item);
           });
         });
@@ -174,7 +177,7 @@ const Orders = () => {
                 </p>
               </div>
 
-              <div className="mt-4 flex flex-col sm:flex-row justify-between items-center">
+              <div className="mt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
                 <div className="flex items-center gap-2">
                   <p
                     className={`min-w-2 h-2 rounded-full ${item.status === 'Delivered'
@@ -186,12 +189,22 @@ const Orders = () => {
                   />
                   <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{item.status}</p>
                 </div>
-                <button
-                  onClick={loadOrderData}
-                  className="mt-4 sm:mt-0 px-4 py-2 border border-neutral-300 dark:border-neutral-600 text-sm font-medium rounded-md text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-all duration-200 w-full sm:w-auto"
-                >
-                  Track Order
-                </button>
+                <div className="flex gap-2 w-full sm:w-auto">
+                  {item.status === 'Delivered' && item.order_id && (
+                    <Link
+                      to={`/invoice/${item.order_id}`}
+                      className="flex-1 sm:flex-none px-4 py-2 bg-primary-500 text-white text-sm font-medium rounded-md hover:bg-primary-600 transition-all duration-200 flex items-center justify-center gap-1"
+                    >
+                      <FileText size={14} /> View Invoice
+                    </Link>
+                  )}
+                  <button
+                    onClick={loadOrderData}
+                    className="flex-1 sm:flex-none px-4 py-2 border border-neutral-300 dark:border-neutral-600 text-sm font-medium rounded-md text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-all duration-200"
+                  >
+                    Track Order
+                  </button>
+                </div>
               </div>
             </div>
           );

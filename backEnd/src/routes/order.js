@@ -5,6 +5,31 @@ const app = new Hono();
 
 const URGENT_FEE = 100;
 
+// ── Helper: Create notification ───────────────────────────────────
+const createNotification = async (db, userId, title, message, type = 'order', orderId = null) => {
+    try {
+        const id = generateId();
+        await db.prepare(
+            'INSERT INTO notifications (id, user_id, title, message, type, order_id) VALUES (?, ?, ?, ?, ?, ?)'
+        ).bind(id, userId, title, message, type, orderId).run();
+    } catch (e) {
+        console.error('Failed to create notification:', e);
+    }
+};
+
+// Status-specific notification messages
+const STATUS_MESSAGES = {
+    'Order Placed': { title: '📦 Order Confirmed', message: 'Your order has been placed successfully!' },
+    'Processing': { title: '⚙️ Order Processing', message: 'Your order is being processed.' },
+    'Packing': { title: '📦 Packing Your Order', message: 'Your items are being packed and prepared for shipment.' },
+    'Shipped': { title: '🚚 Order Shipped', message: 'Your order has been shipped and is on its way!' },
+    'Out for Delivery': { title: '🏍️ Out for Delivery', message: 'Your order is out for delivery. Please be available to receive it.' },
+    'Out for delivery': { title: '🏍️ Out for Delivery', message: 'Your order is out for delivery. Please be available to receive it.' },
+    'Delivered': { title: '✅ Order Delivered', message: 'Your order has been delivered! You can now view and download your invoice from the Orders page.' },
+    'Cancelled': { title: '❌ Order Cancelled', message: 'Your order has been cancelled.' },
+    'Returned': { title: '🔄 Order Returned', message: 'Your order return has been processed.' }
+};
+
 // ── Auth: Place order ──────────────────────────────────────────────
 app.post('/place', authUser, checkBanned, async (c) => {
     try {
@@ -81,6 +106,14 @@ app.post('/place', authUser, checkBanned, async (c) => {
         // Clear cart
         await c.env.DB.prepare('UPDATE users SET cart_data = ? WHERE id = ?').bind('{}', userId).run();
 
+        // Auto-create confirmation notification
+        await createNotification(
+            c.env.DB, userId,
+            '📦 Order Confirmed',
+            `Your order #${orderId.slice(-8)} has been placed successfully! ${urgentOrder ? '⚡ Urgent delivery requested.' : ''}`,
+            'order', orderId
+        );
+
         return c.json({ success: true, message: 'Order Placed Successfully' });
     } catch (error) {
         return c.json({ success: false, message: sanitizeError(error) }, 500);
@@ -101,6 +134,14 @@ app.post('/list', adminAuth, async (c) => {
             order._id = order.id;
             order.address = JSON.parse(order.address || '{}');
             order.date = order.created_at;
+            order.urgentOrder = order.urgent_order === 1;
+            order.urgentFee = order.urgent_fee || 0;
+            order.securityDeposit = order.security_deposit || 0;
+            order.washingFee = order.washing_fee || 0;
+            order.deliveryFee = order.delivery_fee || 0;
+            order.rentalStartDate = order.rental_start_date;
+            order.rentalEndDate = order.rental_end_date;
+            order.deliveryDate = order.delivery_date;
         }
 
         return c.json({ success: true, orders });
@@ -127,8 +168,14 @@ app.post('/userorders', authUser, async (c) => {
             order._id = order.id;
             order.address = JSON.parse(order.address || '{}');
             order.date = order.created_at;
-            order.washingFee = order.washing_fee;
-            order.deliveryFee = order.delivery_fee;
+            order.washingFee = order.washing_fee || 0;
+            order.deliveryFee = order.delivery_fee || 0;
+            order.urgentOrder = order.urgent_order === 1;
+            order.urgentFee = order.urgent_fee || 0;
+            order.securityDeposit = order.security_deposit || 0;
+            order.rentalStartDate = order.rental_start_date;
+            order.rentalEndDate = order.rental_end_date;
+            order.deliveryDate = order.delivery_date;
         }
 
         return c.json({ success: true, orders });
@@ -152,12 +199,26 @@ app.post('/status', adminAuth, async (c) => {
             return c.json({ success: false, message: 'Invalid order status.' }, 400);
         }
 
-        const order = await c.env.DB.prepare('SELECT id FROM orders WHERE id = ?').bind(orderId).first();
+        const order = await c.env.DB.prepare('SELECT id, user_id, urgent_order FROM orders WHERE id = ?').bind(orderId).first();
         if (!order) {
             return c.json({ success: false, message: 'Order not found.' }, 404);
         }
 
         await c.env.DB.prepare('UPDATE orders SET status = ? WHERE id = ?').bind(status, orderId).run();
+
+        // Auto-create notification for the user
+        const statusMsg = STATUS_MESSAGES[status];
+        if (statusMsg && order.user_id) {
+            const urgentNote = order.urgent_order ? ' ⚡ Urgent' : '';
+            await createNotification(
+                c.env.DB, order.user_id,
+                statusMsg.title + urgentNote,
+                statusMsg.message + ` (Order #${orderId.slice(-8)})`,
+                status === 'Delivered' ? 'delivery' : 'order',
+                orderId
+            );
+        }
+
         return c.json({ success: true, message: 'Status Updated' });
     } catch (error) {
         return c.json({ success: false, message: sanitizeError(error) }, 500);
